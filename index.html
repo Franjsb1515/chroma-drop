@@ -1088,7 +1088,7 @@ const G = { state: 'menu', time: 0, levelIdx: 0, xp: 0, unlocked: 1, streak: 0, 
 let S = null;                               // estado lógico del nivel (núcleo)
 const V = { sp: new Map(), bodies: [], q: [], cur: null, parts: [], floaters: [], fx: [], orbs: [], floor: [], hist: [],
   moves: 0, mana: 0, shake: 0, slow: 0, flash: null, banner: null, aim: null, sel: null, link: null, portalMode: false,
-  intro: null, buf: null, say: null, praise: null, slosh: 0, liq: 826, ca: 0, bloom: 0, waves: [], zoom: 0, scorch: [], look: null, fuseX: 270, fuseY: 800, tint: 'G', colors: [], levelXp: 0, maxCombo: 0, L: null };
+  intro: null, buf: null, say: null, praise: null, slosh: 0, liq: 826, ca: 0, bloom: 0, waves: [], rays: { x: 270, y: 480, k: 0 }, zoom: 0, scorch: [], look: null, fuseX: 270, fuseY: 800, tint: 'G', colors: [], levelXp: 0, maxCombo: 0, L: null };
 
 function save() { try { localStorage.setItem('chromadrop_v2', JSON.stringify({ v: 3, xp: G.xp, unlocked: G.unlocked, stars: G.stars, streak: G.streak, story: G.story })); } catch (e) {} }
 function load() { try { const d = JSON.parse(localStorage.getItem('chromadrop_v2')); if (d) { G.xp = d.xp | 0; G.unlocked = clamp(d.unlocked | 0, 1, LEVELS.length); G.stars = d.v === 3 ? (d.stars || []) : []; G.streak = d.streak | 0; G.story = d.story | 0; } } catch (e) {} }
@@ -1116,7 +1116,7 @@ const POTIONS = [
   'Destilado Prohibido', 'Matraz Sombrío', 'Fórmula Inestable', 'Umbral Dorado', 'Piedra Filosofal'];
 const COLOR_NAME = { R: 'rojo', G: 'verde', B: 'azul', Y: 'amarillo', P: 'morado' };
 function say(text, dur = 2.8) { V.say = { text, t: dur }; }                  // frase de Caldo en su placa
-function praise(text, color, sub) { V.praise = { text, color, sub, t: 0, dur: 1.4 }; V.zoom = Math.max(V.zoom, 0.05); }   // elogio gigante
+function praise(text, color, sub) { V.praise = { text, color, sub, t: 0, dur: 1.4, y: placeY(V.focusY) }; V.zoom = Math.max(V.zoom, 0.05); }   // elogio gigante
 const rankIdx = xp => { let i = 0; RANK_TIERS.forEach((t, k) => { if (xp >= t.xp) i = k; }); return i; };
 const busy = () => !!V.cur || V.q.length > 0;
 
@@ -1146,7 +1146,7 @@ function buildView() {      // reconstruye sprites y caldero desde el estado ló
 }
 function loadLevel(i) {
   const L = LEVELS[i]; G.state = 'play'; G.levelIdx = i; G.res = null; V.L = L; S = parseLevel(L);
-  V.parts = []; V.floaters = []; V.fx = []; V.scorch = []; V.zoom = 0; V.waves = []; V.ca = 0; V.bloom = 0; V.hist = []; V.shake = 0; V.slow = 0; V.flash = null; V.banner = null;
+  V.parts = []; V.floaters = []; V.fx = []; V.scorch = []; V.zoom = 0; V.waves = []; V.ca = 0; V.bloom = 0; V.rays = { x: 270, y: 480, k: 0 }; V.hist = []; V.shake = 0; V.slow = 0; V.flash = null; V.banner = null;
   V.levelXp = 0; V.maxCombo = 0; V.intro = L.intro || null; V.praise = null; V.slosh = 0; V.liq = 826; V.tint = 'G';
   if (!G.story && i === 0) { V.intro = Object.assign({}, STORY, { next: L.intro }); G.story = 1; save(); }
   say('Libera ' + S.total + ' Fluffies y destilo la poción', 4);
@@ -1170,19 +1170,40 @@ function burst(x, y, color, n = 14, sp = 260, grav = 500, type = 'dot') {
   }
 }
 function floater(x, y, text, color = '#fff', size = 20, life = 1.2) { V.floaters.push({ x, y, text, color, size, life, max: life }); }
-function banner(text, sub, color) { V.banner = { text, sub, color, t: 0, dur: 1.5 }; }
+/* los textos grandes se colocan en la mitad del tablero contraria al efecto, para no taparlo */
+function placeY(fy) { return fy === undefined ? 300 : (fy < BY + BH * 0.5 ? BB - 80 : BY + 90); }
+function banner(text, sub, color, fy) { V.banner = { text, sub, color, t: 0, dur: 1.5, y: placeY(fy) }; }
 function ring(x, y, color, r1 = 90, dur = 0.45, w = 8) { V.fx.push({ type: 'ring', x, y, color, r1, t: 0, dur, w }); }
+/* foto del bloque en un canvas aparte (se reutiliza drawBlock cambiando el contexto un momento) */
+function snapSprite(s) {
+  const S = 80, c = document.createElement('canvas'); c.width = c.height = S * 2; const keep = ctx; ctx = c.getContext('2d'); ctx.setTransform(2, 0, 0, 2, 0, 0);
+  try { drawBlock(Object.assign({}, s, { x: S / 2, y: S / 2, shake: 0, alpha: 1, scale: 1, wob: 0, wobv: 0, moving: false, spd: 0, flash: 0 })); } finally { ctx = keep; }
+  return c;
+}
+/* el bloque se parte en triángulos que salen girando (abanico desde un punto interior aleatorio) */
+function shatterSprite(s, cx, cy) {
+  const img = snapSprite(s), h = 31, p0 = [rand(-9, 9), rand(-9, 9)], n = 8 + Math.floor(Math.random() * 3), angs = [];
+  for (let i = 0; i < n; i++) angs.push((i + rand(-0.35, 0.35)) / n * TAU); angs.sort((a, b) => a - b);
+  const edge = a => { const x = Math.cos(a), y = Math.sin(a), m = Math.max(Math.abs(x), Math.abs(y)); return [x / m * h, y / m * h]; };
+  let ax = 0, ay = -1; if (cx !== undefined) { const d = Math.hypot(s.x - cx, s.y - cy) || 1; ax = (s.x - cx) / d; ay = (s.y - cy) / d; }
+  for (let i = 0; i < n; i++) {
+    const A = edge(angs[i]), B = edge(angs[(i + 1) % n]), ox = (p0[0] + A[0] + B[0]) / 3, oy = (p0[1] + A[1] + B[1]) / 3;
+    const poly = [p0, A, B].map(([x, y]) => [x - ox, y - oy]), d = Math.hypot(ox, oy) || 1, v = rand(140, 360);
+    V.parts.push({ type: 'shard2', img, poly, ox, oy, x: s.x + ox, y: s.y + oy, vx: ox / d * v + ax * 180 + rand(-40, 40), vy: oy / d * v + ay * 180 - 160, life: rand(0.8, 1.2), max: 1.2, grav: 1400, rot: 0, spin: rand(-9, 9), drag: 0.3, color: '' });
+  }
+}
 function killSprite(id, how, cx, cy) {
   const s = V.sp.get(id); if (!s) return; V.sp.delete(id);
   const col = s.k === 'frost' ? '#c9f1ff' : s.k === 'stone' ? '#9a94a8' : s.k === 'tnt' ? '#ff8a3c' : COLORS[s.col].m;
   burst(s.x, s.y, col, 12, 280, 600, s.k === 'frost' ? 'shard' : 'dot');
   // trozos del bloque que salen despedidos (lejos del centro del impacto si lo hay)
   let ax = 0, ay = -1; if (cx !== undefined) { const d = Math.hypot(s.x - cx, s.y - cy) || 1; ax = (s.x - cx) / d; ay = (s.y - cy) / d; }
-  for (let i = 0; i < 6; i++) {
-    const a = Math.atan2(ay, ax) + rand(-0.9, 0.9), v = rand(220, 520) * (cx !== undefined ? 1.3 : 1);
-    V.parts.push({ x: s.x + rand(-14, 14), y: s.y + rand(-14, 14), vx: Math.cos(a) * v, vy: Math.sin(a) * v - 120, life: rand(0.5, 0.9), max: 0.9, color: col, size: rand(7, 12), grav: 1300, type: 'chunk', rot: rand(0, 6), spin: rand(-12, 12), drag: 0.6 });
-  }
-  for (let i = 0; i < 4; i++) dust(s.x + rand(-16, 16), s.y + rand(-16, 16), 0.8);
+  shatterSprite(s, cx, cy);
+  for (let i = 0; i < 4; i++) { const a = Math.atan2(ay, ax) + rand(-1, 1), v = rand(220, 480); V.parts.push({ x: s.x + rand(-12, 12), y: s.y + rand(-12, 12), vx: Math.cos(a) * v, vy: Math.sin(a) * v - 120, life: rand(0.5, 0.9), max: 0.9, color: col, size: rand(4, 7), grav: 1300, type: 'chunk', rot: rand(0, 6), spin: rand(-12, 12), drag: 0.6 }); }
+  const dc = s.k === 'frost' ? '#d6f1ff' : s.k === 'stone' ? '#b8b0c4' : '#cfc6ee', nd = s.k === 'stone' ? 9 : 5;
+  for (let i = 0; i < nd; i++) V.parts.push({ x: s.x + rand(-22, 22), y: s.y + rand(-22, 22), vx: rand(-90, 90), vy: rand(-90, -10), life: rand(0.6, 1.1), max: 1.1, color: dc, size: rand(12, 22), grav: -20, type: 'dust', rot: 0, drag: 2 });
+  if (s.k === 'frost') for (let i = 0; i < 10; i++) V.parts.push({ x: s.x + rand(-26, 26), y: s.y + rand(-26, 26), vx: rand(-60, 60), vy: rand(-120, -20), life: rand(0.5, 1), max: 1, color: '#ffffff', size: rand(2, 4), grav: 60, type: 'star', rot: rand(0, 6), spin: rand(-6, 6) });   // escarcha que brilla
+  ring(s.x, s.y, s.k === 'frost' ? '#d6f1ff' : '#ffffff', 52, 0.3, 4); shock(s.x, s.y, 0.006, 380, 0.35);
   if (how === 'seal') { ring(s.x, s.y, COLORS[s.col].l, 60, 0.4, 5); burst(s.x, s.y, '#fff', 8, 200, 0, 'star'); }
 }
 
@@ -1218,7 +1239,7 @@ function explodeFx(x, y, n = 1, quiet) {
     V.parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 260, life: rand(0.8, 1.2), max: 1.2, color: i % 2 ? '#8a4a2a' : '#b5653a', size: rand(8, 13), grav: 1500, type: 'plank', rot: rand(0, 6), spin: rand(-16, 16), drag: 0.4 }); }
   for (let i = 0; i < 16; i++) V.parts.push({ x: x + rand(-30, 30), y: y + rand(-30, 30), vx: rand(-60, 60), vy: rand(-140, -40), life: rand(1, 1.9), max: 1.9, color: i % 2 ? '#ff9a3c' : '#ffd27a', size: rand(1.5, 3), grav: -50, type: 'dot', rot: 0, drag: 1 });
   V.scorch.push({ x, y, r: 42 * pw, t: 0, dur: 4 });
-  shock(x, y, 0.014 * pw, 720, 0.55); V.ca = Math.max(V.ca, 0.004 + 0.002 * n); V.bloom = Math.max(V.bloom, 0.3);
+  shock(x, y, 0.014 * pw, 720, 0.55); rays(x, y, 0.8); V.focusY = y; V.ca = Math.max(V.ca, 0.004 + 0.002 * n); V.bloom = Math.max(V.bloom, 0.3);
   if (!quiet) Snd.boom(n);
   V.shake = Math.max(V.shake, 16 + n * 4); V.zoom = Math.max(V.zoom, 0.05 + 0.02 * n); V.slow = Math.max(V.slow, 0.07); V.flash = { color: '#ffd28a', a: Math.max(V.flash ? V.flash.a : 0, 0.2) };
 }
@@ -1253,6 +1274,7 @@ function timeFx() {
    - separación cromática en las explosiones
    Si no hay WebGL, se pierde el contexto o el móvil va lento, se apaga y queda el canvas 2D.
    ===================================================================== */
+function rays(x, y, k = 1) { if (k >= V.rays.k * 0.7) { V.rays.x = x; V.rays.y = y; V.rays.k = Math.max(V.rays.k, k); } }   // rayos de luz desde un punto
 function shock(x, y, amp = 0.01, spd = 650, dur = 0.6) { V.waves.push({ x, y, amp, spd, dur, t: 0 }); if (V.waves.length > 8) V.waves.shift(); }
 const Post = {
   on: false, gl: null, ema: 0.016,
@@ -1278,7 +1300,7 @@ const Post = {
       this.blur = mk('uniform sampler2D t; uniform vec2 d; void main(){ vec3 s = texture2D(t, vUv).rgb * 0.227; s += (texture2D(t, vUv + d * 1.385).rgb + texture2D(t, vUv - d * 1.385).rgb) * 0.316; s += (texture2D(t, vUv + d * 3.231).rgb + texture2D(t, vUv - d * 3.231).rgb) * 0.070; gl_FragColor = vec4(s, 1.); }');
       this.comp = mk([
         'uniform sampler2D t; uniform sampler2D b; uniform float time; uniform float ca; uniform float bk; uniform float asp;',
-        'uniform vec4 wave[8]; uniform vec4 heat[6]; uniform vec4 fire[4]; uniform float hot;',
+        'uniform vec4 wave[8]; uniform vec4 heat[6]; uniform vec4 fire[4]; uniform float hot; uniform sampler2D b2; uniform vec3 rays;',
         'float hsh(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }',
         'float nse(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f); return mix(mix(hsh(i), hsh(i + vec2(1., 0.)), f.x), mix(hsh(i + vec2(0., 1.)), hsh(i + vec2(1., 1.)), f.x), f.y); }',
         'float fbm(vec2 p){ float v = 0., a = 0.5; for (int i = 0; i < 5; i++) { v += a * nse(p); p = p * 2.03 + vec2(1.7, 9.2); a *= 0.5; } return v; }',
@@ -1299,8 +1321,11 @@ const Post = {
         '  for (int i = 0; i < 6; i++) { vec4 h = heat[i]; if (h.z > 0.0) { vec2 d = (uv - h.xy) / h.zw; float m = max(0., 1. - dot(d, d)); m *= m; off.x += sin(uv.y * 170. + time * 11. + float(i) * 3.) * 0.0024 * m; off.y += sin(uv.x * 130. - time * 8.) * 0.0016 * m; } }',
         '  uv = clamp(uv + off, 0.001, 0.999);',
         '  vec3 c; if (ca > 0.0005) { vec2 dir = (uv - 0.5) * ca; c = vec3(texture2D(t, uv + dir).r, texture2D(t, uv).g, texture2D(t, uv - dir).b); } else { c = texture2D(t, uv).rgb; }',
-        '  c += texture2D(b, uv).rgb * bk;',
+        '  c += texture2D(b, uv).rgb * bk + texture2D(b2, uv).rgb * bk * 0.9;',
+        '  if (rays.z > 0.01) { vec2 dl = (uv - rays.xy) * 0.045; vec2 p = uv; float dc = 1.0; vec3 acc = vec3(0.); for (int i = 0; i < 12; i++) { p -= dl; acc += texture2D(b2, p).rgb * dc; dc *= 0.87; } c += acc * rays.z * 0.32; }',
         '  for (int i = 0; i < 4; i++) { if (fire[i].z > 0.0) c += flame(uv, fire[i], float(i) * 7.3); }',
+        '  vec3 g = c; float lum = dot(g, vec3(.299, .587, .114)); g = mix(vec3(lum), g, 1.12); g = g * (2.51 * g + 0.03) / (g * (2.43 * g + 0.59) + 0.14); c = mix(c, g, 0.3);',
+        '  c += (hsh(vUv * 913.7 + fract(time * 7.)) - 0.5) * 0.022;',
         '  gl_FragColor = vec4(min(c, vec3(1.)), 1.);',
         '}'].join('\n'));
     } catch (e) { console.warn('Post FX desactivado:', e); c.style.display = 'none'; this.gl = null; return; }
@@ -1320,7 +1345,7 @@ const Post = {
   fbo(w, h) { const gl = this.gl, t = this.tex(w, h), f = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, f); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0); gl.bindFramebuffer(gl.FRAMEBUFFER, null); return { t, f, w, h }; },
   resize(w, h, cw, ch, left, top) {
     if (!this.on) return; const c = this.c; c.width = w; c.height = h; c.style.width = cw + 'px'; c.style.height = ch + 'px'; c.style.left = left + 'px'; c.style.top = top + 'px';
-    const bw = Math.max(2, w >> 2), bh = Math.max(2, h >> 2); this.A = this.fbo(bw, bh); this.B = this.fbo(bw, bh); cv.style.opacity = '0';
+    const bw = Math.max(2, w >> 2), bh = Math.max(2, h >> 2); this.A = this.fbo(bw, bh); this.B = this.fbo(bw, bh); this.C = this.fbo(Math.max(2, w >> 3), Math.max(2, h >> 3)); this.D = this.fbo(Math.max(2, w >> 3), Math.max(2, h >> 3)); cv.style.opacity = '0';
   },
   pass(prog, target, tex, setU) {
     const gl = this.gl; gl.bindFramebuffer(gl.FRAMEBUFFER, target ? target.f : null); gl.viewport(0, 0, target ? target.w : this.c.width, target ? target.h : this.c.height);
@@ -1331,6 +1356,7 @@ const Post = {
     gl.bindTexture(gl.TEXTURE_2D, this.scene); gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, src);
     this.pass(this.bright, this.A, this.scene);
     for (let i = 0; i < 2; i++) { const k = 1 + i * 1.5; this.pass(this.blur, this.B, this.A.t, u => gl.uniform2f(u.d, k / this.A.w, 0)); this.pass(this.blur, this.A, this.B.t, u => gl.uniform2f(u.d, 0, k / this.A.h)); }
+    this.pass(this.blur, this.C, this.A.t, u => gl.uniform2f(u.d, 1 / this.A.w, 0)); this.pass(this.blur, this.D, this.C.t, u => gl.uniform2f(u.d, 0, 2 / this.C.h)); this.pass(this.blur, this.C, this.D.t, u => gl.uniform2f(u.d, 2 / this.C.w, 0));   // segunda escala, más ancha
     const wv = this.waves, ht = this.heat; wv.fill(0); ht.fill(0);
     V.waves.forEach((w, i) => { const k = 1 - w.t / w.dur; wv[i * 4] = w.x / W; wv[i * 4 + 1] = 1 - w.y / H; wv[i * 4 + 2] = w.spd * w.t / H; wv[i * 4 + 3] = w.amp * k * k; });
     let n = 0; const addHeat = (x, y, rx, ry) => { if (n >= 6) return; ht[n * 4] = x / W; ht[n * 4 + 1] = 1 - y / H; ht[n * 4 + 2] = rx / W; ht[n * 4 + 3] = ry / H; n++; };
@@ -1348,6 +1374,7 @@ const Post = {
       gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, this.A.t); gl.uniform1i(u.b, 1);
       gl.uniform1f(u.time, G.time); gl.uniform1f(u.ca, V.ca); gl.uniform1f(u.bk, 0.4 + V.bloom); gl.uniform1f(u.asp, W / H);
       gl.uniform4fv(u.wave, wv); gl.uniform4fv(u.heat, ht); gl.uniform4fv(u.fire, this.fire); gl.uniform1f(u.hot, this.hotV);
+      gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, this.C.t); gl.uniform1i(u.b2, 2); gl.uniform3f(u.rays, V.rays.x / W, 1 - V.rays.y / H, V.rays.k);
     });
   },
 };
@@ -1365,9 +1392,9 @@ function orbTo(color, tx, ty, onHit, star) {
   return dt => {
     if (!hit) {
       o.t += dt; const t = clamp(o.t / o.dur, 0, 1), k = t * t * (3 - 2 * t);
-      o.x = lerp(o.x0, tx, k) + Math.sin(t * Math.PI) * 60 * (o.x0 < W / 2 ? -1 : 1); o.y = lerp(o.y0, ty, k);
-      V.parts.push({ x: o.x, y: o.y, vx: rand(-50, 50), vy: rand(-50, 50), life: 0.45, max: 0.45, color: COLORS[color].l, size: rand(2, 6), grav: 0, type: 'dot' });
-      if (t >= 1) { hit = true; V.orbs.splice(V.orbs.indexOf(o), 1); onHit(); }
+      o.px = o.x; o.py = o.y; o.x = lerp(o.x0, tx, k) + Math.sin(t * Math.PI) * 60 * (o.x0 < W / 2 ? -1 : 1); o.y = lerp(o.y0, ty, k);
+      elemBurst(o.x, o.y, color, 2, 70); V.parts.push({ x: o.x, y: o.y, vx: 0, vy: 0, life: 0.25, max: 0.25, color: COLORS[color].l, size: 12, grav: 0, type: 'dot' });
+      if (t >= 1) { hit = true; V.orbs.splice(V.orbs.indexOf(o), 1); if (V.banner) V.banner.t = Math.max(V.banner.t, V.banner.dur * 0.78); onHit(); }   // el cartel se va al impactar
       return false;
     }
     t2 += dt; return t2 > 0.4;
@@ -1436,18 +1463,19 @@ const HANDLERS = {
     return dt => {
       t += dt; const bs = V.bodies.filter(b => ev.ids.includes(b.id));
       if (phase === 0) {
-        if ((bs.every(b => b.inPot) && t > 0.25) || t > 2.4) { phase = 1; t = 0; V.link = { bs, color: ev.color, t: 0 }; Snd.charge(); }
+        if ((bs.every(b => b.inPot) && t > 0.25) || t > 2.4) { phase = 1; t = 0; V.link = { bs, color: ev.color, t: 0 }; Snd.charge(); V.fx.push({ type: 'magicCircle', x: 270, y: 800, r: 125, el: ev.color, t: 0, dur: 1.15 }); }
         return false;
       }
       if (phase === 1) {
         const cx = bs.reduce((s, b) => s + b.x, 0) / (bs.length || 1), cy = bs.reduce((s, b) => s + b.y, 0) / (bs.length || 1);
-        for (const b of bs) { b.vx += (270 - b.x) * 70 * dt; b.vy += (772 - b.y) * 70 * dt - CONFIG.gravity * dt; b.vx *= 0.9; b.vy *= 0.9; b.sq = 0.1 * Math.sin(G.time * 40); }   // se juntan en el centro del caldero
+        for (const b of bs) { const dx = b.x - 270, dy = b.y - 772; b.vx += (-dx * 60 - dy * 14) * dt; b.vy += (-dy * 60 + dx * 14) * dt - CONFIG.gravity * dt; b.vx *= 0.9; b.vy *= 0.9; b.sq = 0.1 * Math.sin(G.time * 40); b.r = lerp(CONFIG.bodyR, CONFIG.bodyR * 0.6, Math.min(1, t / 0.5)); }   // giran en espiral hacia el centro y se encogen
         V.link.t = t / 0.5;
         if (t < 0.5) return false;
-        V.link = null; V.fuseX = cx; V.fuseY = cy; V.tint = ev.color; V.slosh = 1;
+        V.link = null; V.fuseX = cx; V.fuseY = cy; V.tint = ev.color; V.slosh = 1; rays(cx, cy, 1); V.fx.push({ type: 'coreOrb', x: cx, y: cy, el: ev.color, t: 0, dur: 0.42 });
         V.fx.push({ type: 'vortex', x: cx, y: cy, r: 120, color: C.m, t: 0, dur: 0.7, el: ev.color }); elemBurst(cx, cy, ev.color, 22, 320);
         V.fx.push({ type: 'light', x: cx, y: cy, r: 300, t: 0, dur: 0.7, rgb: ELCOL[ev.color][1] }); shock(cx, cy, 0.009, 600, 0.6); V.bloom = Math.max(V.bloom, 0.45 + 0.15 * ev.combo);
         V.fx.push({ type: 'pillar', x: cx, y: cy + 20, top: BB - 30, color: C.m, t: 0, dur: 0.6, w: 70 });
+        V.focusY = cy;
         if (ev.boil) { praise('¡HERVOR!', '#ff8a3c', 'El caldero sobrecarga el hechizo'); say('¡HIERVO! Hechizo sobrecargado'); }
         else if (ev.heat % 3 === 2) say('La próxima fusión: SOBRECARGA', 3.5);
         else say(['¡Delicioso!', '¡Qué mezcla!', '¡Más, más!', '¡Burbujeante!'][ev.heat % 4]);
@@ -1471,7 +1499,7 @@ const HANDLERS = {
     const pts = ev.ids.map(id => V.sp.get(id)).filter(Boolean).map(q => [q.x, q.y]);
     V.fx.push({ type: 'link', pts, color: C.l, t: 0, dur: 0.5 });
     pts.forEach(([x, y]) => { V.fx.push({ type: 'vortex', x, y, r: 58, color: C.m, t: 0, dur: 0.6, el: ev.color }); elemBurst(x, y, ev.color, 9, 220); });
-    { const mx = pts.reduce((a, q) => a + q[0], 0) / (pts.length || 1), my = pts.reduce((a, q) => a + q[1], 0) / (pts.length || 1); V.fx.push({ type: 'light', x: mx, y: my, r: 240, t: 0, dur: 0.6, rgb: ELCOL[ev.color][1] }); shock(mx, my, 0.007, 520, 0.5); V.bloom = Math.max(V.bloom, 0.4); if (ev.color === 'Y') V.ca = Math.max(V.ca, 0.004); }
+    { const mx = pts.reduce((a, q) => a + q[0], 0) / (pts.length || 1), my = pts.reduce((a, q) => a + q[1], 0) / (pts.length || 1); V.focusY = my; V.fx.push({ type: 'light', x: mx, y: my, r: 240, t: 0, dur: 0.6, rgb: ELCOL[ev.color][1] }); shock(mx, my, 0.007, 520, 0.5); V.bloom = Math.max(V.bloom, 0.4); if (ev.color === 'Y') V.ca = Math.max(V.ca, 0.004); }
     ev.ids.forEach(id => killSprite(id));
     ev.extra.forEach(id => { const q = V.sp.get(id); if (q) V.fx.push({ type: 'pillar', x: q.x, y: q.y, color: C.m, t: 0, dur: 0.55 }); killSprite(id); });
     ev.un.forEach(id => { const q = V.sp.get(id); if (q) { q.ch = false; q.shake = 1; burst(q.x, q.y, '#c8ccd6', 12, 240); } });
@@ -1508,12 +1536,14 @@ const HANDLERS = {
   fizzle(ev) { floater(V.fuseX, V.fuseY - 20, '+15 XP', COLORS[ev.color].l, 18, 1); addXp(15); return 0.1; },
   spell(ev) {
     const sp = SPELLS[ev.color], C = COLORS[ev.color];
-    banner(sp.name, ev.amp ? '¡SOBRECARGA!' : sp.desc, C.m);
+    const fy = ev.kind === 'bomb' ? cellY(ev.r) : ev.kind === 'time' ? BB : ev.kind === 'mana' ? BB : BY + BH * 0.75; V.focusY = fy;
+    banner(sp.name, ev.amp ? '¡SOBRECARGA!' : sp.desc, C.m, fy);
     if (ev.kind === 'bomb') return orbTo(ev.color, cellX(ev.c), cellY(ev.r), () => {
       const rad = (ev.amp ? 2.6 : 1.6) * CELL; V.fx.push({ type: 'fire', x: cellX(ev.c), y: cellY(ev.r), rad, t: 0, dur: 0.6 });
       for (let i = 0; i < 46; i++) { const a = rand(0, TAU), v = rand(60, 420); V.parts.push({ x: cellX(ev.c), y: cellY(ev.r), vx: Math.cos(a) * v, vy: Math.sin(a) * v - 80, life: rand(0.4, 1), max: 1, color: ['#fff3b0', '#ffb347', '#ff6a3d', '#ff4d6d'][i % 4], size: rand(4, 10), grav: -260, type: 'dot' }); }
       V.fx.push({ type: 'vortex', x: cellX(ev.c), y: cellY(ev.r), r: rad * 0.9, color: '#ff6a3d', t: 0, dur: 0.6, el: 'R' });
       explodeFx(cellX(ev.c), cellY(ev.r), ev.amp ? 3 : 2, true);
+      rays(cellX(ev.c), cellY(ev.r), 1);
       Snd.fire(); V.shake = 18; V.slow = 0.12; V.flash = { color: '#ff8a3c', a: 0.35 }; ev.ids.forEach(id => killSprite(id, null, cellX(ev.c), cellY(ev.r))); (ev.pops || []).forEach(popOne); squashNear(ev.cells);
     });
     if (ev.kind === 'col') return orbTo(ev.color, cellX(ev.c), BB - 10, () => {
@@ -1521,6 +1551,7 @@ const HANDLERS = {
       cols.forEach(c => { for (let i = 0; i < 14; i++) V.parts.push({ x: cellX(c) + rand(-24, 24), y: rand(BY, BB), vx: rand(-90, 90), vy: rand(-500, -150), life: rand(0.4, 0.9), max: 0.9, color: i % 2 ? '#a8f5c9' : '#3ddc84', size: rand(3, 7), grav: 500, type: 'shard', rot: rand(0, 6) }); });
       ev.ids.forEach(id => { const q = V.sp.get(id); if (q) V.fx.push({ type: 'pillar', x: q.x, y: q.y, color: '#3ddc84', t: 0, dur: 0.55 }); });
       cols.forEach(c => { for (let k = 0; k < 3; k++) elemBurst(cellX(c), BY + 40 + k * (BH - 80) / 2, 'G', 5, 220); });
+      rays(cellX(ev.c), BY + BH / 2, 0.9);
       Snd.thorns(); V.shake = 14; V.flash = { color: '#3ddc84', a: 0.28 }; ev.ids.forEach(id => killSprite(id, null, cellX(ev.c), cellY(ev.r))); (ev.pops || []).forEach(popOne); squashNear(ev.cells);
     }, true);
     if (ev.kind === 'thaw') return orbTo(ev.color, W / 2, BY + BH / 2, () => {
@@ -1528,6 +1559,7 @@ const HANDLERS = {
       shock(W / 2, BY + BH / 2, 0.013, 900, 0.85); V.fx.push({ type: 'light', x: W / 2, y: BY + BH / 2, r: 380, t: 0, dur: 0.8, rgb: ELCOL.B[1] }); V.bloom = Math.max(V.bloom, 0.5);
       ev.ids.concat(ev.un).forEach(id => { const q = V.sp.get(id); if (q) V.fx.push({ type: 'pillar', x: q.x, y: q.y, color: '#3fa7ff', t: 0, dur: 0.6 }); });
       ev.ids.concat(ev.un).forEach(id => { const q = V.sp.get(id); if (q) elemBurst(q.x, q.y, 'B', 8, 240); }); elemBurst(W / 2, BY + BH / 2, 'B', 18, 380);
+      rays(W / 2, BY + BH / 2, 0.9);
       Snd.thaw(); V.flash = { color: '#a5d6ff', a: 0.4 }; V.shake = 8;
       ev.ids.forEach(id => killSprite(id)); if (ev.ids.length) Snd.shatter();
       ev.un.forEach(id => { const s = V.sp.get(id); if (s) { s.ch = false; s.shake = 1; burst(s.x, s.y, '#c8ccd6', 12, 240); } }); if (ev.un.length) Snd.chain();
@@ -1545,7 +1577,7 @@ const HANDLERS = {
   portal(ev) {
     V.mana = 0; V.portalMode = false; Snd.portal(); V.shake = 14; V.flash = { color: '#b76bff', a: 0.3 };
     V.fx.push({ type: 'portalRow', r: ev.r, t: 0, dur: 0.7 }); shock(BX, cellY(ev.r), 0.011, 700, 0.7); shock(BX + BW, cellY(ev.r), 0.011, 700, 0.7); V.ca = Math.max(V.ca, 0.003); V.bloom = Math.max(V.bloom, 0.5);
-    for (const x of [BX - 6, BX + BW + 6]) V.fx.push({ type: 'vortex', x, y: cellY(ev.r), r: 80, color: '#b76bff', t: 0, dur: 0.7, dark: true, el: 'P' }); banner('Portal Dimensional', 'La fila se desvanece', '#b76bff');
+    for (const x of [BX - 6, BX + BW + 6]) V.fx.push({ type: 'vortex', x, y: cellY(ev.r), r: 80, color: '#b76bff', t: 0, dur: 0.7, dark: true, el: 'P' }); V.focusY = cellY(ev.r); banner('Portal Dimensional', 'La fila se desvanece', '#b76bff', cellY(ev.r));
     ev.ids.forEach(id => { const s = V.sp.get(id); if (s) burst(s.x, s.y, '#dfc0ff', 10, 260, 0, 'star'); killSprite(id); }); (ev.pops || []).forEach(popOne);
     return 0.35;
   },
@@ -1641,7 +1673,7 @@ function update(rdt) {
   for (const p of V.parts) { p.life -= dt; p.vy += p.grav * dt; if (p.drag) { const k = Math.max(0, 1 - p.drag * dt); p.vx *= k; p.vy *= k; } p.x += p.vx * dt; p.y += p.vy * dt; p.rot += dt * (p.spin || 6); }
   for (const p of V.parts) if (p.type === 'orbit') { p.ang += p.angv * dt; p.rad += p.radv * dt; p.x = p.cx + Math.cos(p.ang) * p.rad; p.y = p.cy + Math.sin(p.ang) * p.rad * 0.55 - (1 - p.life / p.max) * 55; }
   for (const sc of V.scorch) sc.t += rdt; V.scorch = V.scorch.filter(sc => sc.t < sc.dur);
-  V.zoom *= Math.max(0, 1 - rdt * 6); V.ca *= Math.max(0, 1 - rdt * 5); V.bloom *= Math.max(0, 1 - rdt * 2.5);
+  V.zoom *= Math.max(0, 1 - rdt * 6); V.ca *= Math.max(0, 1 - rdt * 5); V.rays.k *= Math.max(0, 1 - rdt * 2.6); V.bloom *= Math.max(0, 1 - rdt * 2.5);
   for (const w of V.waves) w.t += rdt; V.waves = V.waves.filter(w => w.t < w.dur);
   V.parts = V.parts.filter(p => p.life > 0);
   for (const f of V.floaters) { f.life -= rdt; f.y -= 34 * rdt; }
@@ -1891,6 +1923,60 @@ function drawRunes(r, t, back) {               // runas arcanas que orbitan (det
     ctx.stroke(); ctx.restore();
   }
 }
+/* INTERIOR VIVO: lo que pasa dentro de cada criatura (se dibuja recortado a su silueta) */
+function elemInterior(col, r, t, ph) {
+  ctx.save();
+  if (col === 'R') {                           // fuego: núcleo que late, llamas que suben por dentro y brasas
+    ctx.globalCompositeOperation = 'lighter';
+    const cg = ctx.createRadialGradient(0, r * 0.45, 0, 0, r * 0.45, r * 0.9); cg.addColorStop(0, 'rgba(255,200,100,' + (0.32 + 0.18 * Math.sin(t * 5)) + ')'); cg.addColorStop(1, 'rgba(255,90,20,0)');
+    ctx.fillStyle = cg; ctx.fillRect(-r * 1.2, -r, r * 2.4, r * 2.2);
+    ctx.restore(); ctx.save();
+    for (let k = 0; k < 4; k++) drawFlame(-r * 0.6 + k * r * 0.4, r * 1.0, r * 0.42, r * (1.1 + 0.35 * fnz(t * 2.5, k * 3 + ph)), FIRE, ph * 7 + k, 0.42);
+    ctx.globalCompositeOperation = 'lighter';
+    for (let k = 0; k < 7; k++) { const q = (t * (0.5 + k * 0.07) + k * 0.31) % 1, x = Math.sin(k * 2.3 + t * 2) * r * 0.5, y = r * (0.85 - q * 1.6); ctx.fillStyle = 'rgba(255,240,170,' + (1 - q) + ')'; ctx.beginPath(); ctx.arc(x, y, r * 0.035 * (1 - q * 0.5), 0, TAU); ctx.fill(); }
+  } else if (col === 'G') {                    // naturaleza: rayos de luz, savia que sube por las venas y polen
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.fillStyle = 'rgba(230,255,170,.10)'; for (let k = 0; k < 2; k++) { ctx.save(); ctx.rotate(-0.35); ctx.fillRect(-r * 0.6 + k * r * 0.55 + Math.sin(t * 0.7 + k) * r * 0.05, -r * 1.2, r * 0.22, r * 2.4); ctx.restore(); }
+    let sd = 7 + Math.floor(ph * 100); const rnd = () => { sd = (sd * 9301 + 49297) % 233280; return sd / 233280; };
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    for (let k = 0; k < 5; k++) {
+      let x = (k - 2) * r * 0.18, y = r * 0.95, ang = -Math.PI / 2 + (k - 2) * 0.25; const pts = [[x, y]];
+      for (let j = 0; j < 7; j++) { ang += (rnd() - 0.5) * 0.7; x += Math.cos(ang) * r * 0.2; y += Math.sin(ang) * r * 0.2; pts.push([x, y]); }
+      const path = () => { ctx.beginPath(); pts.forEach(([a, b], i) => i ? ctx.lineTo(a, b) : ctx.moveTo(a, b)); };
+      path(); ctx.setLineDash([]); ctx.strokeStyle = 'rgba(190,255,140,.22)'; ctx.lineWidth = r * 0.06; ctx.stroke();
+      path(); ctx.setLineDash([r * 0.08, r * 0.3]); ctx.lineDashOffset = -t * r * 0.9 - k * 7; ctx.strokeStyle = 'rgba(240,255,170,.75)'; ctx.lineWidth = r * 0.035; ctx.stroke();
+    }
+    ctx.setLineDash([]);
+    for (let k = 0; k < 7; k++) { const q = (t * 0.18 + k * 0.143) % 1, x = Math.sin(t * 1.3 + k * 2.1) * r * 0.55, y = r * (0.8 - q * 1.5); ctx.fillStyle = 'rgba(250,255,170,' + (0.9 * Math.sin(q * Math.PI)) + ')'; ctx.beginPath(); ctx.arc(x, y, r * 0.03, 0, TAU); ctx.fill(); }
+  } else if (col === 'B') {                    // agua: nivel interior que se balancea, bolsa de aire y un pececito
+    const lv = -r * 0.05, wv = x => lv + Math.sin(x / r * 4 + t * 2.6) * r * 0.05 + Math.sin(x / r * 7 - t * 1.7) * r * 0.025;
+    ctx.beginPath(); ctx.moveTo(-r * 1.2, -r * 1.4); ctx.lineTo(r * 1.2, -r * 1.4); for (let x = r * 1.2; x >= -r * 1.2; x -= r * 0.1) ctx.lineTo(x, wv(x)); ctx.closePath(); ctx.fillStyle = 'rgba(220,245,255,.16)'; ctx.fill();
+    ctx.beginPath(); for (let x = -r * 1.2; x <= r * 1.2; x += r * 0.1) x === -r * 1.2 ? ctx.moveTo(x, wv(x)) : ctx.lineTo(x, wv(x)); ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = r * 0.04; ctx.stroke();
+    const fa = t * 0.9, fx = Math.cos(fa) * r * 0.45, fy = r * 0.5 + Math.sin(fa * 2) * r * 0.1, dir = -Math.sin(fa) >= 0 ? 1 : -1;
+    ctx.save(); ctx.translate(fx, fy); ctx.scale(dir, 1); const fz = r * 0.14;
+    ctx.fillStyle = '#ffb347'; ctx.beginPath(); ctx.ellipse(0, 0, fz, fz * 0.6, 0, 0, TAU); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(-fz * 0.8, 0); ctx.lineTo(-fz * 1.5, -fz * 0.55 * (1 + 0.2 * Math.sin(t * 12))); ctx.lineTo(-fz * 1.5, fz * 0.55); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.6)'; ctx.beginPath(); ctx.ellipse(fz * 0.1, -fz * 0.25, fz * 0.4, fz * 0.12, 0, 0, TAU); ctx.fill();
+    ctx.fillStyle = '#1a0f22'; ctx.beginPath(); ctx.arc(fz * 0.45, -fz * 0.12, fz * 0.13, 0, TAU); ctx.fill(); ctx.restore();
+  } else if (col === 'Y') {                    // cristal: destellos de colores que recorren las facetas
+    ctx.globalCompositeOperation = 'lighter';
+    for (let k = 0; k < 5; k++) { const q = (t * 0.25 + k * 0.2) % 1, x = (q - 0.5) * r * 1.6, y = Math.sin(k * 3.1 + t * 0.8) * r * 0.5; ctx.fillStyle = 'hsla(' + ((k * 70 + t * 80) % 360) + ',100%,75%,' + (0.85 * Math.sin(q * Math.PI)) + ')'; starPath(x, y, r * 0.07, 4, 0.3, t * 2); ctx.fill(); }
+  } else if (col === 'P') {                    // arcano: galaxia en espiral y un planetita con anillo
+    ctx.globalCompositeOperation = 'lighter';
+    for (let k = 0; k < 2; k++) {
+      ctx.beginPath(); for (let j = 0; j <= 40; j++) { const u = j / 40, an = t * 0.9 + k * Math.PI + u * 5, rr2 = r * 0.08 + r * 0.6 * u; j ? ctx.lineTo(Math.cos(an) * rr2, Math.sin(an) * rr2 * 0.8) : ctx.moveTo(Math.cos(an) * rr2, Math.sin(an) * rr2 * 0.8); }
+      ctx.strokeStyle = 'rgba(255,190,255,.35)'; ctx.lineWidth = r * 0.07; ctx.stroke(); ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = r * 0.02; ctx.stroke();
+    }
+    const cg = ctx.createRadialGradient(0, 0, 0, 0, 0, r * 0.25); cg.addColorStop(0, 'rgba(255,255,255,.9)'); cg.addColorStop(1, 'rgba(255,150,255,0)'); ctx.fillStyle = cg; ctx.beginPath(); ctx.arc(0, 0, r * 0.25, 0, TAU); ctx.fill();
+    ctx.globalCompositeOperation = 'source-over';
+    const pa = t * 0.6, px = Math.cos(pa) * r * 0.55, py = Math.sin(pa) * r * 0.3 + r * 0.25;
+    ctx.fillStyle = '#ffd2a8'; ctx.beginPath(); ctx.arc(px, py, r * 0.08, 0, TAU); ctx.fill(); ctx.strokeStyle = 'rgba(255,240,220,.8)'; ctx.lineWidth = r * 0.02; ctx.beginPath(); ctx.ellipse(px, py, r * 0.14, r * 0.04, -0.3, 0, TAU); ctx.stroke();
+  } else if (col === 'W') {                    // nube: destellos de arcoíris que suben
+    ctx.globalCompositeOperation = 'lighter';
+    for (let k = 0; k < 8; k++) { const q = (t * 0.2 + k * 0.125) % 1, x = Math.sin(k * 2.7 + t) * r * 0.7, y = r * (0.6 - q * 1.0); ctx.fillStyle = 'hsla(' + (k * 45) + ',100%,80%,' + Math.sin(q * Math.PI) + ')'; starPath(x, y, r * 0.05, 4, 0.35, t); ctx.fill(); }
+  }
+  ctx.restore();
+}
 function drawFluffy(x, y, r, color, sq, mood, ph) {
   const D = FL[color] || FL.R, t = G.time + ph; sq = clamp(sq, -0.3, 0.4);
   ctx.save(); ctx.translate(x, y + r * sq * 0.6); ctx.scale(1 + sq * 0.8, 1 - sq);
@@ -1921,7 +2007,8 @@ function drawFluffy(x, y, r, color, sq, mood, ph) {
   else { g = ctx.createRadialGradient(D.gl[0] * r * 0.6, D.gl[1] * r, r * 0.08, 0, r * 0.1, r * 1.3); g.addColorStop(0, D.hi); g.addColorStop(0.45, D.mid); g.addColorStop(1, D.lo); }
   ctx.fillStyle = g; ctx.fill(); ctx.shadowBlur = 0;
   ctx.save(); bodyPath(color, r, t); ctx.clip();
-  if (color !== 'Y') { ctx.globalAlpha = color === 'B' ? 0.82 : color === 'R' ? 0.5 : color === 'G' ? 0.42 : 0.95; ctx.drawImage(texFor(color), -r * 1.25, -r * 1.65, r * 2.5, r * 2.8); ctx.globalAlpha = 1; }   // textura procedural del elemento
+  if (color !== 'Y') { ctx.globalAlpha = color === 'B' ? 0.82 : color === 'R' ? 0.75 : color === 'G' ? 0.65 : 0.95; ctx.drawImage(texFor(color), -r * 1.25, -r * 1.65, r * 2.5, r * 2.8); ctx.globalAlpha = 1; }
+  elemInterior(color, r, t, ph);   // textura procedural del elemento
   if (color === 'W') { const wg = ctx.createLinearGradient(0, -r, 0, r); wg.addColorStop(0, 'rgba(255,255,255,.45)'); wg.addColorStop(1, 'rgba(255,255,255,0)'); ctx.fillStyle = wg; ctx.fillRect(-r * 1.5, -r * 1.5, r * 3, r * 3); }
   if (color === 'Y') {                                   // cristal: facetas, núcleo que late y rayos dentro
     const P = CRYS.map(([u, v]) => [u * r, v * r]), Q = P.map(([u, v]) => [u * 0.5, v * 0.5 - r * 0.12]);
@@ -2435,6 +2522,18 @@ function drawFx() {
       ctx.shadowBlur = 0; ctx.fillStyle = '#a8f5c9';
       for (let y = BB - 20, k = 0; y > top + 30; y -= 34, k++) { const s = k % 2 ? 1 : -1; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + s * 30, y - 16); ctx.lineTo(x, y - 14); ctx.closePath(); ctx.fill(); }
       ctx.fillStyle = '#fff'; ctx.fillRect(x - 2, top + 10, 4, BB - top);
+    } else if (f.type === 'magicCircle') {      // círculo mágico del elemento sobre la poción (en perspectiva)
+      const a = p < 0.15 ? p / 0.15 : p > 0.7 ? (1 - p) / 0.3 : 1, [c0, c1] = ELCOL[f.el] || ELCOL.P, R = f.r * (0.6 + 0.4 * Math.min(1, p * 3));
+      ctx.translate(f.x, f.y); ctx.scale(1, 0.36); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = a; ctx.lineCap = 'round';
+      ctx.strokeStyle = 'rgb(' + c1 + ')'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(0, 0, R, 0, TAU); ctx.stroke(); ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, 0, R * 0.82, 0, TAU); ctx.stroke();
+      ctx.save(); ctx.rotate(f.t * 2.2); for (let k = 0; k < 24; k++) { ctx.rotate(TAU / 24); ctx.lineWidth = k % 3 ? 2 : 4; ctx.beginPath(); ctx.moveTo(R * 0.84, 0); ctx.lineTo(R * (k % 3 ? 0.9 : 0.97), 0); ctx.stroke(); } ctx.restore();
+      ctx.save(); ctx.rotate(-f.t * 1.5); ctx.strokeStyle = 'rgb(' + c0 + ')'; ctx.lineWidth = 2.5; ctx.beginPath(); for (let k = 0; k <= 5; k++) { const an = k * TAU * 2 / 5 - Math.PI / 2; k ? ctx.lineTo(Math.cos(an) * R * 0.78, Math.sin(an) * R * 0.78) : ctx.moveTo(Math.cos(an) * R * 0.78, Math.sin(an) * R * 0.78); } ctx.stroke(); ctx.restore();   // estrella de cinco puntas
+      const cg = ctx.createRadialGradient(0, 0, 0, 0, 0, R); cg.addColorStop(0, 'rgba(' + c1 + ',' + 0.35 * a + ')'); cg.addColorStop(1, 'rgba(' + c1 + ',0)'); ctx.fillStyle = cg; ctx.beginPath(); ctx.arc(0, 0, R, 0, TAU); ctx.fill();
+    } else if (f.type === 'coreOrb') {          // núcleo de energía que late antes de salir el hechizo
+      const [c0, c1] = ELCOL[f.el] || ELCOL.P, R = 18 + 28 * Math.sin(Math.min(1, p) * Math.PI) + 6 * Math.sin(f.t * 40), a = 1 - p * 0.6;
+      ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = a; const og = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, R * 2.2); og.addColorStop(0, 'rgba(255,255,255,1)'); og.addColorStop(0.3, 'rgba(' + c0 + ',.95)'); og.addColorStop(0.6, 'rgba(' + c1 + ',.5)'); og.addColorStop(1, 'rgba(' + c1 + ',0)');
+      ctx.fillStyle = og; ctx.beginPath(); ctx.arc(f.x, f.y, R * 2.2, 0, TAU); ctx.fill();
+      ctx.strokeStyle = 'rgba(' + c0 + ',.9)'; ctx.lineWidth = 2; for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.ellipse(f.x, f.y, R * 1.3, R * 0.45, f.t * 6 + k * TAU / 3, 0, TAU); ctx.stroke(); }
     } else if (f.type === 'wind') {             // remolino de aire: trazos en espiral que suben girando
       const a = p < 0.2 ? p / 0.2 : (1 - p) / 0.8; ctx.translate(f.x, f.y); ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round';
       for (let k = 0; k < 8; k++) {
@@ -2549,6 +2648,12 @@ function drawParticles() {
     }
     if (p.type === 'spark') { ctx.globalCompositeOperation = 'lighter'; ctx.strokeStyle = p.color; ctx.lineWidth = p.size; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x - p.vx * 0.035, p.y - p.vy * 0.035); ctx.stroke(); ctx.globalCompositeOperation = 'source-over'; continue; }
     if (p.type === 'plank') { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.fillStyle = p.color; ctx.fillRect(-p.size, -p.size * 0.28, p.size * 2, p.size * 0.56); ctx.strokeStyle = '#3a2016'; ctx.lineWidth = 1.5; ctx.strokeRect(-p.size, -p.size * 0.28, p.size * 2, p.size * 0.56); ctx.restore(); continue; }
+    if (p.type === 'shard2') {                // fragmento real del bloque
+      const fade = Math.min(1, p.life / 0.35), fl = Math.max(0, (p.life - (p.max - 0.14)) / 0.14);
+      ctx.save(); ctx.globalAlpha = fade; ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.beginPath(); p.poly.forEach(([u, v], i) => i ? ctx.lineTo(u, v) : ctx.moveTo(u, v)); ctx.closePath();
+      ctx.save(); ctx.clip(); ctx.drawImage(p.img, -p.ox - 40, -p.oy - 40, 80, 80); if (fl > 0) { ctx.fillStyle = 'rgba(255,255,255,' + fl * 0.85 + ')'; ctx.fill(); } ctx.restore();
+      ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 1; ctx.stroke(); ctx.restore(); continue;
+    }
     if (p.type === 'orbit') { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.globalAlpha = a; ctx.fillStyle = p.color; if (p.dot) { ctx.beginPath(); ctx.arc(0, 0, p.size * 0.6, 0, TAU); ctx.fill(); } else { rr(-p.size / 2, -p.size / 2, p.size, p.size, 2); ctx.fill(); } ctx.restore(); continue; }
     if (p.type === 'chunk') { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); const z = p.size * (0.6 + 0.4 * p.life / p.max); rr(-z / 2, -z / 2, z, z, 3); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.fillRect(-z / 2, -z / 2, z, z * 0.3); ctx.restore(); continue; }
     if (p.type === 'ghost') { ctx.globalAlpha = 0.28 * p.life / p.max; const z = p.size * (0.85 + 0.15 * p.life / p.max); rr(p.x - z, p.y - z, z * 2, z * 2, 13); ctx.fill(); continue; }
@@ -2687,16 +2792,27 @@ function draw() {
   for (const s of V.sp.values()) if (s.k !== 'fluffy') drawBlock(s);
   for (const s of V.sp.values()) if (s.k === 'fluffy') { const by = s.bub ? Math.sin(G.time * 2 + s.ph) * 3 : 0; drawFluffy(s.x, s.y + by, 27, s.col, s.sq, s.vy > 50 ? 'fall' : nearFuse(s.col) ? 'hype' : 'idle', s.ph); if (s.bub) drawBubble(s.x, s.y + by, s.ph); }
   drawFx();
-  if (V.link) {
-    const C = COLORS[V.link.color]; ctx.strokeStyle = C.l; ctx.shadowColor = C.m; ctx.shadowBlur = 16; ctx.globalAlpha = 0.5 + 0.5 * V.link.t; ctx.lineWidth = 3 + 4 * V.link.t;
-    ctx.beginPath(); V.link.bs.forEach((b, i) => i ? ctx.lineTo(b.x, b.y) : ctx.moveTo(b.x, b.y)); ctx.closePath(); ctx.stroke(); ctx.globalAlpha = 1; ctx.shadowBlur = 0;
+  if (V.link) {                             // zarcillos de energía de cada Fluffy al centro
+    const C = COLORS[V.link.color], cx = 270, cy = 772, k = Math.min(1, V.link.t);
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    for (const b of V.link.bs) { const pts = [[b.x, b.y]]; for (let j = 1; j < 6; j++) pts.push([lerp(b.x, cx, j / 6) + rand(-7, 7), lerp(b.y, cy, j / 6) + rand(-7, 7)]); pts.push([cx, cy]);
+      for (const [lw, cl] of [[6 + 6 * k, C.m], [2, '#ffffff']]) { ctx.globalAlpha = 0.4 + 0.5 * k; ctx.strokeStyle = cl; ctx.lineWidth = lw; ctx.beginPath(); pts.forEach(([u, v], i) => i ? ctx.lineTo(u, v) : ctx.moveTo(u, v)); ctx.stroke(); } }
+    const cg = ctx.createRadialGradient(cx, cy, 0, cx, cy, 20 + 30 * k); cg.addColorStop(0, 'rgba(255,255,255,' + (0.6 * k) + ')'); cg.addColorStop(1, 'rgba(255,255,255,0)'); ctx.globalAlpha = 1; ctx.fillStyle = cg; ctx.beginPath(); ctx.arc(cx, cy, 20 + 30 * k, 0, TAU); ctx.fill();
+    ctx.restore();
   }
   for (const b of V.bodies) drawFluffy(b.x, b.y, b.r + 1, b.color, b.sq, !b.inPot || b.vy > 300 ? 'fall' : nearFuse(b.color) ? 'hype' : 'idle', b.ph);
   drawCauldronFront();
-  for (const o of V.orbs) {
-    const C = COLORS[o.color]; ctx.save(); ctx.translate(o.x, o.y); ctx.shadowColor = C.m; ctx.shadowBlur = 26;
-    ctx.fillStyle = '#fff'; if (o.star) starPath(0, 0, 20, 4, 0.35, G.time * 8); else { ctx.beginPath(); ctx.arc(0, 0, 14, 0, TAU); }
-    ctx.fill(); ctx.strokeStyle = C.m; ctx.lineWidth = 4; ctx.stroke(); ctx.restore();
+  for (const o of V.orbs) {                  // cometa del hechizo con la forma de su elemento
+    const [c0, c1] = ELCOL[o.color] || ELCOL.P, ang = Math.atan2(o.y - (o.py ?? o.y + 1), o.x - (o.px ?? o.x)), tt = G.time;
+    ctx.save(); ctx.translate(o.x, o.y); ctx.globalCompositeOperation = 'lighter';
+    const og = ctx.createRadialGradient(0, 0, 0, 0, 0, 38); og.addColorStop(0, 'rgba(' + c0 + ',.9)'); og.addColorStop(0.4, 'rgba(' + c1 + ',.45)'); og.addColorStop(1, 'rgba(' + c1 + ',0)'); ctx.fillStyle = og; ctx.beginPath(); ctx.arc(0, 0, 38, 0, TAU); ctx.fill();
+    if (o.color === 'R') { ctx.save(); ctx.rotate(ang - Math.PI / 2); drawFlame(0, 8, 26, 64, FIRE, 3, 1); ctx.restore(); }
+    else if (o.color === 'G') { for (let k = 0; k < 5; k++) { ctx.save(); ctx.rotate(tt * 9 + k * TAU / 5); ctx.translate(0, -18); ctx.fillStyle = k % 2 ? '#a8f5c9' : '#3ddc84'; leafPath(7); ctx.fill(); ctx.restore(); } }
+    else if (o.color === 'B') { ctx.globalCompositeOperation = 'source-over'; const bg = ctx.createRadialGradient(-4, -5, 1, 0, 0, 15); bg.addColorStop(0, '#e8f7ff'); bg.addColorStop(1, '#2f8cff'); ctx.fillStyle = bg; ctx.beginPath(); ctx.arc(0, 0, 14 + Math.sin(tt * 20) * 1.5, 0, TAU); ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, 0, 18 + Math.sin(tt * 14) * 2, 0, TAU); ctx.stroke(); ctx.globalCompositeOperation = 'lighter'; }
+    else if (o.color === 'Y') { ctx.strokeStyle = 'rgba(255,250,210,.95)'; ctx.lineWidth = 2; for (let k = 0; k < 4; k++) { const a0 = rand(0, TAU); ctx.beginPath(); ctx.moveTo(0, 0); for (let j = 1; j <= 4; j++) { const a1 = a0 + rand(-0.4, 0.4); ctx.lineTo(Math.cos(a1) * j * 7, Math.sin(a1) * j * 7); } ctx.stroke(); } }
+    else { ctx.rotate(tt * 4); ctx.strokeStyle = 'rgba(' + c0 + ',.9)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, 0, 20, 0, TAU); ctx.stroke(); for (let k = 0; k < 6; k++) { ctx.rotate(TAU / 6); ctx.beginPath(); ctx.moveTo(20, -3); ctx.lineTo(26, 0); ctx.lineTo(20, 3); ctx.stroke(); } }
+    ctx.fillStyle = '#ffffff'; if (o.star) starPath(0, 0, 16, 4, 0.35, tt * 8); else { ctx.beginPath(); ctx.arc(0, 0, 9, 0, TAU); } ctx.fill();
+    ctx.restore();
   }
   drawParticles();
   if (V.aim && G.state === 'play') drawAim();
@@ -2710,14 +2826,14 @@ function draw() {
   if (V.flash) { ctx.globalAlpha = clamp(V.flash.a, 0, 1); ctx.fillStyle = V.flash.color; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
   if (V.banner) {
     const b = V.banner, p = b.t / b.dur, s = p < 0.12 ? 0.5 + p / 0.12 * 0.6 : p < 0.2 ? 1.1 - (p - 0.12) / 0.08 * 0.1 : 1, a = p > 0.75 ? (1 - p) / 0.25 : 1;
-    ctx.save(); ctx.globalAlpha = a; ctx.translate(W / 2, 330); ctx.scale(s, s);
-    ctx.fillStyle = 'rgba(8,6,16,.78)'; rr(-230, -44, 460, 88, 20); ctx.fill(); ctx.strokeStyle = b.color; ctx.lineWidth = 3; ctx.stroke();
+    ctx.save(); ctx.globalAlpha = a; ctx.translate(W / 2, b.y || 330); ctx.scale(s, s);
+    ctx.fillStyle = 'rgba(8,6,16,.6)'; rr(-230, -44, 460, 88, 20); ctx.fill(); ctx.strokeStyle = b.color; ctx.lineWidth = 3; ctx.stroke();
     ctx.shadowColor = b.color; ctx.shadowBlur = 20; text(b.text.toUpperCase(), 0, -12, 32, '#fff'); ctx.shadowBlur = 0;
     text(b.sub, 0, 22, 16, b.color, 'center', 700); ctx.restore();
   }
   if (V.praise) {
     const p = V.praise, q = p.t / p.dur, sc = q < 0.15 ? 0.3 + q / 0.15 * 0.9 : q < 0.25 ? 1.2 - (q - 0.15) / 0.1 * 0.2 : 1, a = q > 0.7 ? (1 - q) / 0.3 : 1, size = Math.min(54, 800 / p.text.length);
-    ctx.save(); ctx.translate(W / 2, 250);
+    ctx.save(); ctx.translate(W / 2, p.y || 250);
     ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.rotate(G.time * 0.8); ctx.globalAlpha = a * 0.5;
     const rgd = ctx.createRadialGradient(0, 0, 20, 0, 0, 230 * sc); rgd.addColorStop(0, p.color); rgd.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = rgd;
     for (let i = 0; i < 14; i++) { ctx.rotate(TAU / 14); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-12, -230 * sc); ctx.lineTo(12, -230 * sc); ctx.closePath(); ctx.fill(); }
