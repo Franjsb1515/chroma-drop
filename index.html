@@ -12,10 +12,11 @@
     user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
   #wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
   canvas{display:block;background:#120f1f;box-shadow:0 0 50px #000}
+  #fx{position:absolute;left:0;top:0;pointer-events:none;background:transparent}
 </style>
 </head>
 <body>
-<div id="wrap"><canvas id="game"></canvas></div>
+<div id="wrap"><canvas id="game"></canvas><canvas id="fx"></canvas></div>
 <script>
 'use strict';
 /* =====================================================================
@@ -63,318 +64,624 @@ const LEVELS = [
       '.. .. .. Bv .. ..',
     ],
   },
-  {   // azar 4% · solución de 7 movimientos netos
-    name: 'Pasillos Cruzados', moves: 10, par: 3, cap: 5, manaPerCell: 2,
-    intro: { title: 'El caldero se llena', lines: ['Mira los huecos del borde del caldero:', 'si se llena sin fusionar, ¡se desborda!', 'Decide qué color completas primero.', 'Verde = Lanza de Espinas: arrasa la', 'columna entera que tú elijas.'] },
+  {   // 2 · azar 8% · solución de 5 movimientos netos
+    name: 'Primera Chispa', moves: 8, par: 3, cap: 6, manaPerCell: 2,
+    intro: { title: 'Bola de Fuego', lines: ['Rojo = Bola de Fuego: tú eliges', 'dónde estalla (área 3×3).'] },
     grid: [
+      '.. .. G@ .. .. ..',
+      '.. .. %% .. .. ..',
       '.. .. .. .. .. ..',
-      '.. .. G@ .. G@ ..',
-      'R@ .. Rv .. %% ..',
-      'Gv .. .. R@ .. ..',
-      '.. .. .. G> .. ..',
-      'R@ .. .. .. .. G@',
-      'G> %% .. .. .. R<',
+      '.. .. .. .. G@ ..',
+      'G@ .. .. .. Rv R@',
+      'G> R@ R@ .. .. G<',
+      '.. Gv R> .. .. ..',
     ],
   },
-  {   // azar 4.4% · solución de 8 movimientos netos
-    name: 'Primera Helada', moves: 11, par: 3, cap: 5, manaPerCell: 2,
-    intro: { title: 'Hielo y fuego', lines: ['El hielo aguanta 2 impactos de un bloque...', '...pero un bloque ROJO (Fuego) lo derrite', 'de un solo golpe.', 'Azul = Deshielo: rompe TODO el hielo.'] },
+  {   // 3 · azar 11.44% · solución de 8 movimientos netos
+    name: 'Pasillo de Espinas', moves: 11, par: 3, cap: 5, manaPerCell: 2,
+    intro: { title: 'Lanza de Espinas', lines: ['Verde = Lanza de Espinas: arrasa', 'la columna entera que elijas.'] },
     grid: [
+      'R@ .. G@ G< .. R@',
+      '%% .. R> .. .. G<',
       '.. .. .. .. .. ..',
+      '.. .. .. G@ .. ..',
+      '.. R@ .. R< .. ..',
+      '.. R> G@ .. .. ..',
+      '.. .. %% .. .. G<',
+    ],
+  },
+  {   // 4 · azar 10.24% · solución de 9 movimientos netos
+    name: 'Caldero Estrecho', moves: 12, par: 3, cap: 4, manaPerCell: 2,
+    intro: { title: 'Cuidado con el caldero', lines: ['Mira los huecos del caldero:', 'si se llena sin fusionar,', '¡se desborda!'] },
+    grid: [
+      '.. .. .. .. G@ ..',
+      '.. .. .. G@ Rv ..',
+      '.. .. .. Gv .. G@',
+      'R@ .. .. .. G> %%',
+      'G> .. .. %% .. ..',
+      '.. R@ R@ .. .. R<',
+      '.. Rv %% .. .. ..',
+    ],
+  },
+  {   // 5 · azar 3.04% · solución de 7 movimientos netos
+    name: 'Doble Hornada', moves: 9, par: 2, cap: 5, manaPerCell: 2,
+    intro: { title: 'Dos fusiones', lines: ['Seis Fluffies rojos: dos hechizos.', 'Cada uno debe abrir camino.'] },
+    grid: [
+      'R@ R@ .. .. .. ..',
+      'R> Gv .. .. .. ..',
       '.. .. .. .. .. ..',
-      '.. R@ .. .. R@ ..',
-      '.. ## .. B@ B@ ..',
-      '.. .. .. B> ## Rv',
-      '.. R@ B> .. B@ ..',
-      'B> ## .. .. ## Rv',
+      'R@ G@ .. R@ R@ R@',
+      'G> R> .. %% G> %%',
+      'G@ .. .. .. G@ ..',
+      'R^ .. .. .. R< ..',
     ],
   },
-  {   // azar 3.32% · solución de 6 movimientos netos
-    name: 'El Reloj de Arena', moves: 9, par: 3, cap: 5, manaPerCell: 2,
-    intro: { title: 'Tiempo y portales', lines: ['Amarillo = Reloj de Arena: +2 movimientos.', 'Arrastra el bloque redondo hasta el', 'portal lateral de su color.'] },
+  {   // 6 · azar 2.16% · solución de 9 movimientos netos
+    name: 'Muro de Piedra', moves: 11, par: 2, cap: 4, manaPerCell: 2,
+    intro: { title: 'Piedra', lines: ['La piedra frena tus bloques.', 'Un hechizo bien apuntado la rompe.'] },
     grid: [
-      '.. .. .. ## .. ..',
-      '.. .. .. .. .. B@',
-      '.. Yv B@ .. .. Y@',
-      '.. Y@ Y< .. .. B>',
-      '.. Bv .. B@ .. ##',
-      '.. .. B> Y@ .. ..',
-      '.. .. .. Yo .. ..',
-    ],
-    portals: [{ side: 'L', i: 4, color: 'Y' }],
-  },
-  {   // azar 1.32% · solución de 10 movimientos netos
-    name: 'Guardián de la Bóveda', moves: 12, par: 2, cap: 5, manaPerCell: 2,
-    intro: { title: 'Examen del capítulo', lines: ['Un bloque VERDE (Naturaleza) agrieta', 'la piedra: con 2 golpes la rompe.', 'El fuego de Caldo crece con cada fusión:', 'a la 3ª HIERVE y sobrecarga el hechizo.'] },
-    grid: [
-      '.. .. .. .. .. G@',
-      '.. .. .. .. R@ G<',
-      'G@ R@ .. .. Gv ..',
-      'R@ B< .. .. B@ ..',
-      'G> G@ B@ .. ## ..',
-      '.. G> B@ .. %% ##',
-      '.. .. Rv .. %% ..',
+      '.. G@ R@ R@ .. ..',
+      '.. G@ Rv R< G@ ..',
+      '.. %% G@ .. %% G<',
+      '.. .. R> G@ .. ..',
+      '.. .. .. G> R> ..',
+      '.. .. .. G@ R@ ..',
+      '.. .. G> %% G^ ..',
     ],
   },
-  {   // azar 11.48% · solución de 8 movimientos netos
-    name: 'Barriles de Pólvora', moves: 11, par: 3, cap: 5, manaPerCell: 2,
-    intro: { title: 'Pólvora', lines: ['Golpea un barril con un bloque y', 'explotará en 3×3, bloque incluido.', 'Un barril hace estallar a otro:', '¡busca la reacción en cadena!'] },
+  {   // 7 · azar 1.68% · solución de 8 movimientos netos
+    name: 'Galería de Ecos', moves: 10, par: 2, cap: 5, manaPerCell: 2,
     grid: [
-      '.. .. .. .. .. ..',
-      'G@ .. G@ TT .. G@',
-      'G> R@ %% R@ R@ %%',
-      '.. G< .. G< Gv R>',
-      '.. .. .. .. .. ..',
-      '.. .. .. .. .. ..',
-      '.. .. .. .. .. TT',
-    ],
-  },
-  {   // azar 2.12% · solución de 9 movimientos netos
-    name: 'Eco Resonante', moves: 12, par: 3, cap: 5, manaPerCell: 3,
-    intro: { title: 'Resonancia', lines: ['Deja 3 bloques del mismo color en línea', 'y entrarán en RESONANCIA: desaparecen', 'y liberan su elemento alrededor.', 'Fuego derrite hielo · Naturaleza rompe', 'piedra · Agua rompe cadenas.'] },
-    grid: [
-      '.. R@ R@ .. .. ..',
-      'G@ R< Gv G@ %% G@',
-      'R> .. .. G^ .. G>',
-      '.. .. .. %% .. ..',
-      '.. .. ## .. R@ ..',
-      '.. R^ ## .. Rv ..',
-      '.. .. .. .. R< ..',
-    ],
-  },
-  {   // azar 1.92% · solución de 10 movimientos netos
-    name: 'Sala de los Sellos', moves: 12, par: 2, cap: 4, manaPerCell: 3,
-    intro: { title: 'Sellos y cadenas', lines: ['Un sello solo se abre al fusionar', 'los 3 Fluffies de su color.', 'Un bloque encadenado no se mueve:', 'rompe la cadena con un impacto.', 'Caldero pequeño: solo 4 huecos.'] },
-    grid: [
-      'B@ .. G@ .. .. G@',
-      'R^ R@ R= G@ R@ B<',
-      '.. G> .. R@ B< ..',
-      '.. .. .. Gv .. ..',
-      '.. .. .. .. .. B=',
-      '.. .. .. B@ B@ ..',
-      'G> .. .. %% gv ..',
-    ],
-  },
-  {   // azar 0.52% · solución de 8 movimientos netos
-    name: 'Polvorín Helado', moves: 10, par: 2, cap: 4, manaPerCell: 3,
-    intro: { title: 'Pólvora y hielo', lines: ['Una explosión también rompe', 'el hielo y la piedra.'] },
-    grid: [
-      '.. B@ .. .. B@ ..',
-      'TT Bv .. .. TT ..',
-      '.. .. B@ .. .. ..',
-      'R^ .. Y< .. .. ..',
-      '.. ## Y@ .. Y@ R@',
-      'R@ Y@ R< .. B< R@',
-      'Y> ## .. .. .. ##',
-    ],
-  },
-  {   // azar 0.28% · solución de 9 movimientos netos
-    name: 'Guardián de la Cripta', moves: 11, par: 2, cap: 4, manaPerCell: 3,
-    intro: { title: 'Examen del capítulo', lines: ['Sellos, cadenas y pólvora a la vez.', 'Piensa qué color abre cada sello.'] },
-    grid: [
-      'R@ Y@ B@ R= R@ ..',
-      'yv G< G@ B@ TT ..',
-      '.. .. Yv R@ .. G@',
-      '.. .. .. Gv G@ B=',
-      '.. .. .. ## ## Y@',
-      'B@ .. .. .. Y@ B>',
-      'Bv .. .. .. R< ..',
-    ],
-  },
-  {   // azar 10.44% · solución de 7 movimientos netos
-    name: 'Runas de Giro', moves: 10, par: 3, cap: 5, manaPerCell: 2,
-    intro: { title: 'Runas de giro', lines: ['Las runas azules del suelo desvían', 'cualquier bloque que pase por encima.', 'Sigue el camino con la vista', 'antes de tocar.'] },
-    grid: [
-      '>> B@ .. .. .. ..',
-      '.. B< >> .. .. ..',
-      '.. .. vv .. .. B<',
-      'R@ .. .. .. vv ..',
-      '## .. .. .. B@ ..',
-      'R@ B@ R@ .. Bv ..',
-      'R< %% Rv .. .. ..',
-    ],
-  },
-  {   // azar 0.04% · solución de 7 movimientos netos
-    name: 'La Gran Muralla', moves: 9, par: 2, cap: 4, manaPerCell: 3,
-    intro: { title: 'Maná y Portal', lines: ['Morado = Maná Pleno: carga el Portal.', 'El Portal destruye la fila que elijas', 'y no gasta movimiento.', 'Las runas malditas (X) cuestan un', 'movimiento extra y roban maná.'] },
-    grid: [
-      '.. .. .. .. .. ..',
-      'R@ Y@ .. .. %% ..',
-      'Yv P@ .. .. .. Y@',
-      '.. Pv .. %% .. Y<',
-      'xx Y> R@ .. R@ ..',
-      'P@ Y@ Pv P@ %% ..',
-      'P< Y< .. Y< .. ..',
-    ],
-  },
-  {   // azar 0.32% · solución de 6 movimientos netos
-    name: 'Laberinto de Chispas', moves: 8, par: 2, cap: 4, manaPerCell: 3,
-    intro: { title: 'Runas y pólvora', lines: ['Las runas pueden llevar un bloque', 'hasta un barril... o lejos de él.', 'Rayo (amarillo) en resonancia: +1 mov.'] },
-    grid: [
-      '.. G@ .. R@ .. ..',
-      '.. TT .. Yv .. ..',
-      '.. .. .. .. R@ ..',
-      'Y@ .. vv .. G< G@',
-      'Y> .. >> .. .. %%',
-      '.. G@ R@ Y@ .. Y@',
-      '.. G> Yv R> .. TT',
-    ],
-  },
-  {   // azar 0.84% · solución de 8 movimientos netos
-    name: 'El Taller Sellado', moves: 10, par: 2, cap: 4, manaPerCell: 3,
-    intro: { title: 'Giros y resonancia', lines: ['Usa las runas para alinear 3 bloques', 'del mismo color y provocar', 'una resonancia.'] },
-    grid: [
-      'B@ G@ Gv .. .. B=',
-      'Gv G< P@ .. .. ..',
-      '.. .. B@ .. vv ..',
-      'G@ .. G@ P@ .. P@',
-      'G^ B@ Pv Pv .. Gv',
-      '.. Bv vv .. .. ..',
-      '.. .. ^^ >> .. Pv',
-    ],
-  },
-  {   // azar 0.52% · solución de 12 movimientos netos
-    name: 'Guardián de la Forja', moves: 14, par: 2, cap: 4, manaPerCell: 3,
-    intro: { title: 'Examen del capítulo', lines: ['Todo lo aprendido hasta ahora.', 'Encadena fusiones en una jugada', 'para SOBRECARGAR el hechizo.'] },
-    grid: [
-      'R@ .. .. .. G@ P@',
-      'Bv .. .. .. ## P<',
-      '.. .. B@ R@ B@ ..',
-      'xx .. pv TT Bv ..',
-      '.. P@ R@ .. .. ..',
-      'G@ B@ %% .. P@ G@',
-      'B> ## .. .. B> Rv',
-    ],
-  },
-  {   // azar 4.28% · solución de 6 movimientos netos
-    name: 'El Fluffy Arcoíris', moves: 9, par: 3, cap: 5, manaPerCell: 2,
-    intro: { title: 'Comodín', lines: ['El Fluffy Arcoíris es un comodín:', 'completa el color que más Fluffies', 'tenga en el caldero.', 'Elige bien cuándo dejarlo caer.'] },
-    grid: [
-      '.. .. .. .. .. ..',
       '.. R@ .. .. .. G@',
-      '.. Rv .. R@ .. R<',
-      'W@ .. G@ G> .. G@',
-      'G> .. G< .. .. %%',
-      '.. .. .. .. .. ..',
-      '.. .. .. .. .. ..',
+      '.. R> .. .. G@ G@',
+      'R@ R@ .. .. R^ R@',
+      'R> G< .. .. G@ R<',
+      '.. .. .. .. G< ..',
+      'R@ G@ G@ .. .. R@',
+      'R^ %% G< .. .. %%',
     ],
   },
-  {   // azar 0.48% · solución de 9 movimientos netos
-    name: 'Arcoíris Explosivo', moves: 11, par: 2, cap: 4, manaPerCell: 3,
-    intro: { title: 'Dos comodines', lines: ['Dos comodines y un caldero pequeño.', 'Decide qué color completa cada uno.'] },
+  {   // 8 · azar 0.48% · solución de 9 movimientos netos
+    name: 'Sala de Prácticas', moves: 11, par: 2, cap: 4, manaPerCell: 2,
+    intro: { title: 'Orden de caída', lines: ['Doce Fluffies y poco sitio.', 'Piensa qué color cae primero.'] },
     grid: [
-      '.. .. TT .. .. ..',
-      'B@ B@ .. .. .. ..',
-      'B> ## .. Y@ B@ R@',
-      'W@ W@ .. R@ ## Yv',
-      'Rv R< .. Bv B^ ..',
-      '.. .. .. .. .. Y@',
-      '.. .. .. .. .. TT',
-    ],
-  },
-  {   // azar 0.04% · solución de 8 movimientos netos
-    name: 'Prisma Rúnico', moves: 10, par: 2, cap: 4, manaPerCell: 3,
-    intro: { title: 'Comodín y sellos', lines: ['El comodín también abre un sello', 'si completa ese color.', 'Arcano (morado) en resonancia: +30 maná.'] },
-    grid: [
-      '.. G@ .. .. .. ..',
-      '.. Bv .. .. .. B@',
-      '.. .. P@ .. G@ Gv',
-      'W@ .. G= .. B= P@',
-      'Gv .. G@ .. P@ B@',
-      '.. >> Bv .. G< B<',
-      '.. .. .. .. .. ..',
-    ],
-  },
-  {   // azar 0% · solución de 11 movimientos netos
-    name: 'Antesala del Archimago', moves: 12, par: 1, cap: 4, manaPerCell: 3,
-    intro: { title: 'Sin margen', lines: ['Un solo error y el caldero', 'se desborda. Planifica toda la', 'secuencia antes de mover.'] },
-    grid: [
-      'B@ G@ .. G@ .. ..',
-      'Bv TT W@ G^ R@ Bv',
-      '.. .. G@ .. y> ..',
-      '.. Y@ %% .. .. ..',
-      '.. G= .. Y@ .. B@',
-      'R@ B@ R@ Y> .. ##',
-      'G> Y> ## ^^ .. ..',
-    ],
-  },
-  {   // azar 0% · solución de 15 movimientos netos
-    name: 'Cámara del Archimago', moves: 16, par: 1, cap: 4, manaPerCell: 4,
-    intro: { title: 'La prueba final', lines: ['Todas las mecánicas, casi sin margen.', 'Demuestra que eres una Leyenda.'] },
-    grid: [
-      'W@ G@ P> .. ## ..',
-      'Po %% P@ .. R@ P@',
-      '.. .. G@ Gv B> TT',
-      'B@ G@ G^ TT .. P@',
-      'P= %% R@ B@ B= ##',
-      '.. R@ Rv P< .. ..',
-      'Rv p^ .. .. .. ..',
-    ],
-    portals: [{ side: 'R', i: 0, color: 'P' }],
-  },
-  {   // azar 10.68% · solución de 7 movimientos netos
-    name: 'Burbujas Errantes', moves: 10, par: 3, cap: 5, manaPerCell: 2,
-    intro: { title: 'Burbujas', lines: ['Algunos Fluffies flotan dentro de', 'una burbuja y no caen.', 'Revienta la burbuja golpeándola con', 'un bloque, una explosión o un hechizo.'] },
-    grid: [
-      '.. .. .. .. .. ..',
-      '.. .. .. .. .. R(',
-      '.. G@ R( .. .. R<',
-      '.. G@ R> .. .. ..',
-      '.. R< .. .. .. ..',
-      '.. R@ .. .. G@ ..',
+      'R@ .. .. .. G@ G@',
+      'R^ G@ R@ G@ G^ R>',
+      '.. R^ %% G< .. G@',
+      '.. G@ R@ .. R@ R<',
       '.. G> %% .. R< ..',
+      '.. .. R@ .. .. R@',
+      '.. .. %% .. .. Gv',
     ],
   },
-  {   // azar 5.28% · solución de 8 movimientos netos
-    name: 'Charcos de Lodo', moves: 11, par: 3, cap: 5, manaPerCell: 3,
-    intro: { title: 'Lodo pegajoso', lines: ['Los charcos verdes son lodo de poción:', 'un bloque que entra en ellos', 'se queda pegado y se detiene.', 'Úsalos para frenar un bloque donde quieras.'] },
+  {   // 9 · azar 1.44% · solución de 11 movimientos netos
+    name: 'Umbral de Piedra', moves: 13, par: 2, cap: 4, manaPerCell: 2,
     grid: [
-      '.. Y@ B@ .. .. ..',
-      '.. B> Bv .. Y@ ..',
-      '.. .. B@ .. ## ..',
-      '.. .. Yv .. .. B@',
-      '.. .. ## Y@ B< Bv',
-      '.. ~~ ~~ Y< .. ..',
+      'G@ .. .. .. .. R@',
+      'G> R@ G@ .. .. %%',
+      '.. G> %% .. .. G@',
+      '.. R@ G@ R< .. Gv',
+      '.. G< Rv G@ .. G^',
+      'R@ R@ .. R@ .. G@',
+      '%% %% .. G> .. G<',
+    ],
+  },
+  {   // 10 · azar 0% · solución de 11 movimientos netos
+    name: 'Guardián de la Bóveda', moves: 12, par: 1, cap: 3, manaPerCell: 2,
+    intro: { title: 'Examen del capítulo', lines: ['Caldero de solo 3 huecos', 'y un único movimiento de sobra.', 'Planifica antes de tocar.'] },
+    grid: [
+      'G@ .. .. .. R@ Gv',
+      '%% .. R@ .. Gv ..',
+      '.. .. R< G@ G@ R@',
+      '.. R@ R@ %% G< %%',
+      '.. G< R^ G> G@ %%',
+      '.. .. .. G@ R@ G@',
+      '.. .. .. R^ Gv Gv',
+    ],
+  },
+  {   // 11 · azar 11.92% · solución de 8 movimientos netos
+    name: 'Primera Helada', moves: 11, par: 3, cap: 6, manaPerCell: 2,
+    intro: { title: 'Cripta de Escarcha', lines: ['El hielo aguanta 2 golpes de bloque.', 'Un bloque ROJO lo derrite de 1 golpe.', 'Azul = Deshielo: rompe todo el hielo.', 'Un bloque VERDE agrieta la piedra.', 'Amarillo = Reloj: +2 movimientos.'] },
+    grid: [
+      '.. B@ .. .. B@ R@',
+      '.. Bv .. .. R> ##',
       '.. .. .. .. .. ..',
+      'R@ .. .. R@ .. ..',
+      'B> B^ .. ## ## ..',
+      '.. .. B@ .. .. ..',
+      '.. .. R< .. .. ..',
     ],
   },
-  {   // azar 2.64% · solución de 7 movimientos netos
-    name: 'Portales Gemelos', moves: 10, par: 3, cap: 5, manaPerCell: 3,
-    intro: { title: 'Teletransporte', lines: ['Los dos círculos brillantes están unidos.', 'Un bloque que entra en uno sale por', 'el otro y sigue en la misma dirección.'] },
+  {   // 12 · azar 8.52% · solución de 8 movimientos netos
+    name: 'Brasas en la Escarcha', moves: 11, par: 3, cap: 5, manaPerCell: 2,
+    intro: { title: 'Fuego contra hielo', lines: ['Usa los bloques rojos para abrir', 'paso a través del hielo.'] },
     grid: [
-      '.. oo .. .. .. ..',
-      '.. Rv .. .. .. R@',
-      '.. .. P@ P@ .. R^',
-      'R@ .. %% R@ .. P<',
-      'P> oo .. TT .. ..',
-      '.. P@ .. .. .. ..',
-      '.. P> .. .. .. R>',
+      '.. .. .. .. .. ..',
+      '.. R@ R@ .. B@ ..',
+      '.. B> ## .. R< ..',
+      '.. .. .. B@ .. R@',
+      'B@ ## .. ## .. B<',
+      '## .. Rv Rv .. ..',
+      'B^ .. .. .. .. ..',
     ],
   },
-  {   // azar 0% · solución de 9 movimientos netos
-    name: 'Laboratorio Burbujeante', moves: 11, par: 2, cap: 4, manaPerCell: 3,
-    intro: { title: 'Todo se mezcla', lines: ['Burbujas, lodo y portales a la vez.', 'Piensa por dónde saldrá cada bloque', 'antes de tocarlo.'] },
+  {   // 13 · azar 9.04% · solución de 9 movimientos netos
+    name: 'Raíces y Témpanos', moves: 12, par: 3, cap: 5, manaPerCell: 2,
+    intro: { title: 'Naturaleza', lines: ['Dos golpes de un bloque verde', 'rompen la piedra.'] },
     grid: [
-      '.. .. .. .. ~~ ..',
-      'Y@ .. B@ .. .. ..',
-      'G^ ~~ G( B@ oo ..',
-      '.. G@ B< Yv B@ ..',
-      'Y@ ## .. .. Y< G@',
-      'B> .. .. .. Y( G>',
-      '.. .. oo ~~ G< ..',
+      '.. .. .. B> .. ..',
+      '.. .. G@ %% .. ..',
+      '.. .. B< B@ .. ..',
+      'B@ .. G@ G> B@ G@',
+      'G> .. %% .. ## B<',
+      '%% .. .. .. .. ..',
+      '.. B> .. .. ## ..',
     ],
   },
-  {   // azar 0.76% · solución de 11 movimientos netos
-    name: 'Corazón del Laboratorio', moves: 12, par: 1, cap: 4, manaPerCell: 4,
+  {   // 14 · azar 4.88% · solución de 6 movimientos netos
+    name: 'Portales Laterales', moves: 9, par: 3, cap: 5, manaPerCell: 2,
+    intro: { title: 'Bloques libres', lines: ['Arrastra el bloque redondo hasta', 'el portal lateral de su color.'] },
+    grid: [
+      '.. .. .. .. .. ..',
+      '.. Y> .. Y@ .. ..',
+      'B@ B@ .. Yv .. ..',
+      'Bv Yv B@ Y@ ## ..',
+      '.. .. Bo Yo .. ..',
+      '## .. Y@ .. .. ..',
+      '.. .. Y> .. .. ..',
+    ],
+    portals: [{ side: 'R', i: 4, color: 'Y' }, { side: 'R', i: 2, color: 'B' }],
+  },
+  {   // 15 · azar 2.32% · solución de 11 movimientos netos
+    name: 'El Caldero Hierve', moves: 13, par: 2, cap: 5, manaPerCell: 2,
+    intro: { title: 'Hervor', lines: ['A la 3ª fusión el caldero HIERVE', 'y sobrecarga el hechizo.'] },
+    grid: [
+      'B@ R@ G^ G@ .. ..',
+      'B> ## B@ R@ .. ..',
+      '.. .. R> R> G@ B@',
+      '.. %% R@ .. %% G<',
+      '.. .. ## .. .. G>',
+      '.. .. G@ .. .. ..',
+      '.. B> ## .. .. ..',
+    ],
+  },
+  {   // 16 · azar 1.44% · solución de 8 movimientos netos
+    name: 'Reloj Congelado', moves: 10, par: 2, cap: 4, manaPerCell: 2,
+    grid: [
+      '.. R@ ## B@ .. ..',
+      '.. B> .. ## .. Rv',
+      '.. Y> .. .. .. %%',
+      'R@ .. Y@ .. .. R@',
+      'Ro Y@ B@ Y^ .. Yv',
+      'Y@ B@ R> ## .. ..',
+      'Y< ## .. .. .. ..',
+    ],
+    portals: [{ side: 'R', i: 5, color: 'R' }],
+  },
+  {   // 17 · azar 2% · solución de 10 movimientos netos
+    name: 'Cuatro Elementos', moves: 12, par: 2, cap: 5, manaPerCell: 2,
+    grid: [
+      '.. .. .. .. G@ Y@',
+      '.. .. .. R@ G@ R@',
+      '.. Y@ B@ ## Y< R>',
+      'Bv ## R< .. .. Y>',
+      '.. .. B@ Y@ .. R@',
+      'B@ G@ %% G< .. Gv',
+      '%% R< .. .. .. ##',
+    ],
+  },
+  {   // 18 · azar 0.92% · solución de 12 movimientos netos
+    name: 'Pozo Helado', moves: 14, par: 2, cap: 4, manaPerCell: 2,
+    grid: [
+      'B@ .. .. R@ B@ R@',
+      'R> .. R@ B> G^ G>',
+      '.. .. ## G@ .. ..',
+      'G@ ## .. Rv B@ ..',
+      'R@ R@ R@ G< G@ ..',
+      '%% G> %% ## ## ..',
+      '.. G< .. .. .. ..',
+    ],
+  },
+  {   // 19 · azar 0.76% · solución de 10 movimientos netos
+    name: 'Pasaje sin Margen', moves: 11, par: 1, cap: 4, manaPerCell: 2,
+    intro: { title: 'Sin margen', lines: ['Solo un movimiento de sobra.'] },
+    grid: [
+      '.. .. %% B@ G@ G@',
+      '.. .. R@ ## G> %%',
+      'Y@ .. %% R@ .. ..',
+      'Bv .. Rv ## Y@ ..',
+      'Y@ B@ .. .. B< R@',
+      'B@ R> .. .. G@ Rv',
+      'Yv .. .. .. ## R<',
+    ],
+  },
+  {   // 20 · azar 0.08% · solución de 12 movimientos netos
+    name: 'Guardián de la Cripta', moves: 13, par: 1, cap: 4, manaPerCell: 2,
+    intro: { title: 'Examen del capítulo', lines: ['Hielo y piedra por todas partes.', 'Un solo error y se acabó.'] },
+    grid: [
+      '.. B@ .. .. .. ..',
+      '.. G@ R@ .. %% ..',
+      'R@ ## R< Y^ B@ R@',
+      'Y< Y@ .. G@ Yv G^',
+      'B@ ## %% G< .. G@',
+      'Gv Y@ Y@ %% .. ##',
+      'B> G> ## .. .. ..',
+    ],
+  },
+  {   // 21 · azar 12.52% · solución de 7 movimientos netos
+    name: 'Barriles de Pólvora', moves: 10, par: 3, cap: 5, manaPerCell: 2,
+    intro: { title: 'Forja de Pólvora', lines: ['Golpea un barril: estalla en 3×3.', '3 bloques iguales en línea RESUENAN', 'y liberan su elemento alrededor.', 'Encadenado: un impacto lo libera.', 'Sello: se abre al fusionar su color.'] },
+    grid: [
+      '.. .. .. .. .. ..',
+      '.. .. .. G> .. R@',
+      '.. G< .. G@ .. TT',
+      '.. R@ .. Rv .. ..',
+      'G= R< .. .. .. ..',
+      '.. G@ .. R< G@ R@',
+      '%% g< .. .. R< TT',
+    ],
+  },
+  {   // 22 · azar 4.2% · solución de 6 movimientos netos
+    name: 'Eco Resonante', moves: 9, par: 3, cap: 5, manaPerCell: 2,
+    intro: { title: 'Resonancia', lines: ['Fuego resonante derrite el hielo,', 'Naturaleza rompe piedra y', 'Agua rompe cadenas.'] },
+    grid: [
+      'R> .. R@ .. .. ..',
+      '.. B@ ## .. .. ..',
+      '.. B< .. .. .. B<',
+      '## .. R@ B@ TT ..',
+      'B@ .. b< R< .. ..',
+      'B< B^ .. .. .. R@',
+      '.. .. .. .. .. R>',
+    ],
+  },
+  {   // 23 · azar 2.56% · solución de 7 movimientos netos
+    name: 'Sala de los Sellos', moves: 9, par: 2, cap: 5, manaPerCell: 2,
+    intro: { title: 'Sellos y cadenas', lines: ['Piensa qué color abre cada sello.'] },
+    grid: [
+      '.. .. .. G@ Y@ B@',
+      '.. .. B@ Y> Gv y>',
+      'Y< .. %% .. .. ..',
+      '.. Y@ .. G@ .. G=',
+      '.. G= Y@ Bv .. ..',
+      '.. .. B@ .. G@ ..',
+      'G> .. bv .. %% ..',
+    ],
+  },
+  {   // 24 · azar 4.44% · solución de 10 movimientos netos
+    name: 'Polvorín Helado', moves: 12, par: 2, cap: 4, manaPerCell: 2,
+    intro: { title: 'Pólvora y hielo', lines: ['Una explosión rompe hielo y piedra.'] },
+    grid: [
+      'B@ .. .. R@ G@ R@',
+      'R^ .. .. R> ## R>',
+      '.. .. B@ .. .. ..',
+      '.. .. B^ .. .. ..',
+      '.. TT .. .. .. b>',
+      'B@ .. R@ G@ G@ TT',
+      'G> .. ## %% G> %%',
+    ],
+  },
+  {   // 25 · azar 1.32% · solución de 7 movimientos netos
+    name: 'Coro de Runas', moves: 9, par: 2, cap: 4, manaPerCell: 2,
+    grid: [
+      '.. G@ G^ B@ R@ ..',
+      'G@ g> .. G@ G< ..',
+      'Y> .. B@ ## Y@ ..',
+      '.. .. B@ Y@ R^ R@',
+      '.. Y@ ## Y< .. B=',
+      '.. R> .. .. R^ R@',
+      '.. .. G< .. .. TT',
+    ],
+  },
+  {   // 26 · azar 0.6% · solución de 11 movimientos netos
+    name: 'Mecha Corta', moves: 13, par: 2, cap: 4, manaPerCell: 2,
+    grid: [
+      '.. .. Y@ G@ .. Y@',
+      '.. .. B= R> B@ Gv',
+      'R@ R@ .. .. B> ..',
+      'TT %% .. R@ .. ..',
+      'G@ .. B@ R< G@ Y@',
+      'Y> B@ yv .. gv TT',
+      '.. B> .. .. %% ..',
+    ],
+  },
+  {   // 27 · azar 1.4% · solución de 11 movimientos netos
+    name: 'Cadenas de Hierro', moves: 13, par: 2, cap: 4, manaPerCell: 2,
+    grid: [
+      '.. R@ .. G@ .. B@',
+      'R@ Bv R@ R> G@ B@',
+      'G< B> B> .. rv G=',
+      'R@ .. .. G> B@ ..',
+      'B= .. .. R@ ## R@',
+      '.. .. .. B> G@ TT',
+      '.. ## .. TT B> ..',
+    ],
+  },
+  {   // 28 · azar 0.48% · solución de 11 movimientos netos
+    name: 'Fragua Sellada', moves: 12, par: 1, cap: 3, manaPerCell: 2,
+    intro: { title: 'Sin margen', lines: ['Solo un movimiento de sobra.'] },
+    grid: [
+      '.. .. B@ R@ .. G@',
+      '.. .. R@ %% ## R@',
+      'G@ R= Bv TT B@ Bv',
+      'r> .. .. .. TT G@',
+      '.. B^ .. .. .. B=',
+      'G^ .. .. .. B< B@',
+      '.. %% g< .. G> ##',
+    ],
+  },
+  {   // 29 · azar 0.08% · solución de 11 movimientos netos
+    name: 'Chispas en la Oscuridad', moves: 12, par: 1, cap: 4, manaPerCell: 2,
+    grid: [
+      'G> R@ .. .. R@ ..',
+      '.. TT B@ .. R> ..',
+      'R@ TT ## ## B@ ..',
+      'B= .. B@ R@ %% ..',
+      'G@ G@ %% G< .. ..',
+      'G@ r> R@ .. R@ R<',
+      'G> .. R> .. gv G^',
+    ],
+  },
+  {   // 30 · azar 0% · solución de 11 movimientos netos
+    name: 'Guardián de la Forja', moves: 12, par: 1, cap: 3, manaPerCell: 2,
+    intro: { title: 'Examen del capítulo', lines: ['Pólvora, sellos y cadenas.', 'Busca la reacción en cadena.'] },
+    grid: [
+      '.. B@ R@ R@ .. ..',
+      'R@ R@ gv R> R@ G@',
+      'TT ## Bv G@ G> g>',
+      'G= .. ## Bv .. B@',
+      'R@ .. G@ .. B@ Rv',
+      'G< .. B= .. G^ ..',
+      '.. B^ .. TT .. TT',
+    ],
+  },
+  {   // 31 · azar 16.88% · solución de 8 movimientos netos
+    name: 'Runas de Giro', moves: 11, par: 3, cap: 5, manaPerCell: 3,
+    intro: { title: 'Torre Rúnica', lines: ['Las runas de giro desvían bloques.', 'Morado = Maná Pleno: carga el Portal,', 'que destruye la fila que elijas.', 'Runa maldita (X): -1 mov. y -maná.', 'Arcoíris: comodín de cualquier color.'] },
+    grid: [
+      '.. .. .. R@ P@ ..',
+      '.. .. .. Pv R< ..',
+      'W@ .. R@ .. .. ..',
+      'Rv P@ Pv .. .. ..',
+      '.. P> .. xx .. <<',
+      '.. vv .. .. .. P@',
+      '.. R> .. .. %% %%',
+    ],
+  },
+  {   // 32 · azar 4.4% · solución de 9 movimientos netos
+    name: 'Prisma Errante', moves: 12, par: 3, cap: 5, manaPerCell: 3,
+    intro: { title: 'Comodín', lines: ['El Arcoíris completa el color que', 'más Fluffies tenga en el caldero.'] },
+    grid: [
+      'P@ .. G@ B@ .. ..',
+      'B> P@ P< ## .. ..',
+      '.. Bv .. G@ .. B@',
+      '.. W@ .. Pv .. Pv',
+      '^^ B< .. G@ .. ..',
+      '.. .. .. ## .. P@',
+      '.. .. .. .. .. P>',
+    ],
+  },
+  {   // 33 · azar 2.64% · solución de 7 movimientos netos
+    name: 'La Gran Muralla', moves: 9, par: 2, cap: 4, manaPerCell: 3,
+    intro: { title: 'Portal', lines: ['El Portal no gasta movimiento.', 'Guárdalo para la fila justa.'] },
+    grid: [
+      'R@ .. %% .. xx ..',
+      'Yv .. .. Y@ .. %%',
+      '.. R@ .. Y> Y@ P@',
+      '.. %% P@ .. Y> P@',
+      '.. .. R@ .. Y@ P>',
+      '.. .. Rv .. R< P<',
+      'Y> .. xx .. .. ..',
+    ],
+  },
+  {   // 34 · azar 0.72% · solución de 9 movimientos netos
+    name: 'Laberinto de Chispas', moves: 11, par: 2, cap: 4, manaPerCell: 3,
+    grid: [
+      '.. P@ B@ .. .. P@',
+      'R@ B^ B^ G@ .. R<',
+      'TT .. ^^ R< .. G@',
+      'B@ R@ .. .. .. R>',
+      'G> ## R@ B@ .. G@',
+      '>> P@ R> TT .. ##',
+      '.. P< .. .. vv ..',
+    ],
+  },
+  {   // 35 · azar 3.6% · solución de 10 movimientos netos
+    name: 'Prisma Sellado', moves: 12, par: 2, cap: 4, manaPerCell: 3,
+    grid: [
+      'P@ B@ W@ .. R@ ..',
+      'R> p> P@ P@ R> ..',
+      '>> .. ## B< .. ..',
+      '.. .. .. B= R@ R@',
+      '.. .. P< .. P= Bv',
+      '.. .. .. Pv B@ ..',
+      '## .. .. .. R< <<',
+    ],
+  },
+  {   // 36 · azar 0.2% · solución de 8 movimientos netos
+    name: 'Escalera Maldita', moves: 10, par: 2, cap: 4, manaPerCell: 3,
+    grid: [
+      'Y@ .. R@ G@ Y@ ..',
+      'Y< G@ ## TT %% R@',
+      '%% ## .. .. Y> Y>',
+      'P@ vv .. .. Y@ ..',
+      'R> P@ Y> .. R@ ..',
+      '.. P@ vv .. Pv G@',
+      '.. R> G^ .. xx R>',
+    ],
+  },
+  {   // 37 · azar 0.52% · solución de 10 movimientos netos
+    name: 'Observatorio', moves: 12, par: 2, cap: 4, manaPerCell: 3,
+    grid: [
+      '.. .. R= .. P@ ..',
+      'TT .. B@ B@ P< R@',
+      'B@ .. G@ Gv .. R@',
+      'G> G@ P< ## P@ P<',
+      '%% B= .. P@ Rv ..',
+      '.. .. W@ TT R@ ..',
+      'G> .. G> .. rv ..',
+    ],
+  },
+  {   // 38 · azar 0.6% · solución de 10 movimientos netos
+    name: 'Brújula Rota', moves: 11, par: 1, cap: 4, manaPerCell: 3,
+    intro: { title: 'Sin margen', lines: ['Solo un movimiento de sobra.'] },
+    grid: [
+      'W@ .. B@ R@ .. B@',
+      'G> .. Rv ## .. B^',
+      'Y@ Y@ Y@ .. %% xx',
+      'Bv G@ R@ B> >> ..',
+      'xx %% G< .. R@ G@',
+      'G@ >> Y> .. y< ##',
+      'Y< .. .. .. vv ..',
+    ],
+  },
+  {   // 39 · azar 0.12% · solución de 10 movimientos netos
+    name: 'Antesala del Archimago', moves: 11, par: 1, cap: 4, manaPerCell: 3,
+    grid: [
+      'G@ B@ .. G@ B@ ..',
+      'P< G@ TT P< r> ..',
+      '.. r^ .. W@ P= ..',
+      'R@ R@ R@ Gv .. ^^',
+      'B> G^ G= .. .. TT',
+      'P@ P@ .. ## .. B@',
+      '## P< .. %% .. G<',
+    ],
+  },
+  {   // 40 · azar 0% · solución de 11 movimientos netos
+    name: 'Guardián de la Torre', moves: 12, par: 1, cap: 3, manaPerCell: 3,
+    intro: { title: 'Examen del capítulo', lines: ['Todo lo aprendido, casi sin margen.', 'Sigue cada giro con la vista.'] },
+    grid: [
+      'B@ P@ W@ >> G@ P@',
+      'TT B> ## B= g^ G@',
+      '.. xx .. .. R@ b^',
+      'Bv .. R@ P= Rv B@',
+      '.. .. P> ## .. TT',
+      '.. .. R@ G@ >> P@',
+      '.. << P< B^ .. Rv',
+    ],
+  },
+  {   // 41 · azar 5% · solución de 9 movimientos netos
+    name: 'Burbujas Errantes', moves: 11, par: 2, cap: 5, manaPerCell: 3,
+    intro: { title: 'Laboratorio Prohibido', lines: ['Fluffy en burbuja: no cae hasta que', 'la revientes con un golpe o hechizo.', 'El lodo detiene cualquier bloque.', 'Dos portales gemelos están unidos:', 'entra por uno y sale por el otro.'] },
+    grid: [
+      '.. .. B@ .. G@ R@',
+      '.. R@ %% G@ Rv Rv',
+      '.. Rv oo R> .. B(',
+      '.. ~~ .. Bv .. ##',
+      'R@ .. .. G( .. ..',
+      'B> B@ .. ## .. ..',
+      'oo B< .. .. .. ..',
+    ],
+  },
+  {   // 42 · azar 6.6% · solución de 9 movimientos netos
+    name: 'Charcos de Lodo', moves: 11, par: 2, cap: 5, manaPerCell: 3,
+    intro: { title: 'Lodo', lines: ['Usa el lodo para frenar un bloque', 'justo donde lo necesitas.'] },
+    grid: [
+      '.. .. .. .. .. Yv',
+      '.. R@ .. .. .. R@',
+      'B@ B@ .. .. vv B<',
+      'Bv R< .. ## .. ..',
+      '.. ## Y@ R@ .. Y@',
+      '.. .. B> ## Y@ B@',
+      '.. ~~ .. .. Bv B<',
+    ],
+  },
+  {   // 43 · azar 3.84% · solución de 9 movimientos netos
+    name: 'Portales Gemelos', moves: 11, par: 2, cap: 4, manaPerCell: 3,
+    intro: { title: 'Teletransporte', lines: ['El bloque sale por el otro portal', 'y sigue en la misma dirección.'] },
+    grid: [
+      '.. .. R@ .. R@ ..',
+      '.. P@ Rv .. TT G@',
+      'oo P< .. P@ G@ Pv',
+      '.. .. oo P< %% R@',
+      '.. xx .. .. .. R<',
+      '.. P@ Rv G@ .. ..',
+      '.. %% .. G< .. ..',
+    ],
+  },
+  {   // 44 · azar 3.56% · solución de 10 movimientos netos
+    name: 'Espuma Burbujeante', moves: 12, par: 2, cap: 4, manaPerCell: 3,
+    grid: [
+      'R@ .. R@ G@ .. ..',
+      'Gv .. B@ ## .. ..',
+      '.. Y( G< .. .. ..',
+      'G@ B< Y@ .. .. B(',
+      'Gv .. Gv .. .. G@',
+      'R( .. Y@ .. B@ Y<',
+      'R> .. ## ~~ r> ..',
+    ],
+  },
+  {   // 45 · azar 0.6% · solución de 10 movimientos netos
+    name: 'Alambique Arcoíris', moves: 12, par: 2, cap: 4, manaPerCell: 3,
+    grid: [
+      'P@ .. G( R@ P@ ..',
+      'TT R@ P> Pv TT B@',
+      '.. B^ .. W@ .. R@',
+      '.. G@ oo P< >> R^',
+      '.. P< .. P@ >> ..',
+      '.. G( .. R< B@ oo',
+      '.. Bv .. .. G= ..',
+    ],
+  },
+  {   // 46 · azar 0.32% · solución de 12 movimientos netos
+    name: 'Destilería', moves: 14, par: 2, cap: 4, manaPerCell: 3,
+    grid: [
+      'oo .. G@ R( .. ..',
+      'R@ R( Rv %% B@ B@',
+      'r< R< .. G@ Y< R>',
+      '%% .. .. Yv .. B@',
+      '.. .. Y@ .. .. Y<',
+      '.. G@ R> ~~ Y@ Y@',
+      '.. ## oo .. Y> ##',
+    ],
+  },
+  {   // 47 · azar 0.52% · solución de 11 movimientos netos
+    name: 'Matraz Maldito', moves: 12, par: 1, cap: 4, manaPerCell: 3,
+    intro: { title: 'Sin margen', lines: ['Solo un movimiento de sobra.'] },
+    grid: [
+      'R@ ~~ R@ P@ G@ ..',
+      'Pv .. R< P@ B> ..',
+      'P> G> oo ## W@ ..',
+      '~~ .. .. .. TT oo',
+      '.. B@ .. B( P@ ..',
+      'B( TT .. G@ ## R@',
+      'Rv .. B> Gv .. B<',
+    ],
+  },
+  {   // 48 · azar 0.4% · solución de 8 movimientos netos
+    name: 'Sala de Experimentos', moves: 9, par: 1, cap: 4, manaPerCell: 3,
+    grid: [
+      'G@ R= oo .. B@ ..',
+      'Gv P@ .. .. R@ R@',
+      '~~ B@ G@ .. g< R(',
+      '.. ## B< P@ Y@ R<',
+      'Y@ .. G@ B^ TT R<',
+      'B( .. B^ P( oo Y@',
+      'P> .. .. bv .. ##',
+    ],
+  },
+  {   // 49 · azar 0.16% · solución de 10 movimientos netos
+    name: 'Umbral del Archimago', moves: 11, par: 1, cap: 4, manaPerCell: 3,
+    grid: [
+      '.. G( oo .. P@ G@',
+      'oo ## R@ .. Y@ Y<',
+      'B@ .. R> .. Y= P(',
+      'R@ B@ .. .. R@ Y<',
+      'r< P< G> W@ TT P@',
+      'Y@ .. .. Y@ B^ G@',
+      'G> .. ~~ ## TT G^',
+    ],
+  },
+  {   // 50 · azar 0.04% · solución de 13 movimientos netos
+    name: 'Corazón del Laboratorio', moves: 14, par: 1, cap: 4, manaPerCell: 3,
     intro: { title: 'Prueba suprema', lines: ['El último experimento del Archimago.', 'Un solo error y no hay vuelta atrás:', 'usa DESHACER sin miedo.'] },
     grid: [
-      '.. G@ ~~ P@ G@ B@',
-      'B@ TT .. R@ B= B>',
-      '%% .. W@ P^ .. ..',
-      '.. G> R@ bv .. G(',
-      '.. P@ Bv oo .. R@',
-      '.. ## << B( .. P<',
-      '.. Bv oo G> .. ..',
+      'R= Y@ G@ .. W@ P@',
+      'R@ p> G@ Y( P( B<',
+      'TT R@ y^ G> B= B@',
+      'vv G> B@ ## B@ %%',
+      'G@ R( B> .. Yv ..',
+      'B^ TT .. ## ~~ P@',
+      '.. oo .. oo .. R<',
     ],
   },
 ];
@@ -592,10 +899,10 @@ function applyMove(S, m, ev) {
       const b = inf.b;
       if (b.k === 'tnt') { S.grid[inf.br][inf.bc] = null; detonate(S, [[inf.bc, inf.br, b.id]], ev); }
       else if (b.k === 'fluffy') { b.bub = false; ev.push({ t: 'pop', id: b.id }); }
-      else if (b.ch) { b.ch = false; ev.push({ t: 'unchain', id: b.id }); }
+      else if (b.ch) { b.ch = false; ev.push({ t: 'unchain', id: b.id, col: inf.e.col }); }
       else if ((b.hp -= (b.k === 'frost' && inf.e.col === 'R') ? 2 : 1) <= 0) {     // Fuego derrite el hielo de un golpe
-        S.grid[inf.br][inf.bc] = null; ev.push({ t: 'break', id: b.id, by: b.k === 'stone' ? 'root' : inf.e.col === 'R' ? 'fire' : '' });
-      } else ev.push({ t: 'crack', id: b.id });
+        S.grid[inf.br][inf.bc] = null; ev.push({ t: 'break', id: b.id, col: inf.e.col, by: b.k === 'stone' ? 'root' : inf.e.col === 'R' ? 'fire' : '' });
+      } else ev.push({ t: 'crack', id: b.id, col: inf.e.col });
     }
     if (!inf.leave && inf.steps.length) resonance(S, inf.x, inf.y, ev);
   } else return false;
@@ -634,11 +941,11 @@ const CONFIG = { gravity: 2300, bounce: 0.52, slideSpeed: 1500, bodyR: 25, xpFus
 /* Rangos: edita nombres, XP necesaria y color libremente. */
 const RANK_TIERS = [
   { name: 'Iniciado',            xp: 0,    color: '#9aa4b8' },
-  { name: 'Escudero',            xp: 150,   color: '#5fd38d' },
-  { name: 'Campeón',             xp: 450,  color: '#4aa8ff' },
-  { name: 'Señor de la Guerra',  xp: 900,  color: '#b76bff' },
-  { name: 'Gran Mariscal',       xp: 1500,  color: '#ff8a3c' },
-  { name: 'Leyenda',             xp: 2300, color: '#ffd24a' },
+  { name: 'Escudero',            xp: 300,   color: '#5fd38d' },
+  { name: 'Campeón',             xp: 900,  color: '#4aa8ff' },
+  { name: 'Señor de la Guerra',  xp: 2000,  color: '#b76bff' },
+  { name: 'Gran Mariscal',       xp: 3500,  color: '#ff8a3c' },
+  { name: 'Leyenda',             xp: 5500, color: '#ffd24a' },
 ];
 const COLORS = {
   R: { m: '#ff4d6d', l: '#ffa3b4', d: '#a8133a' },
@@ -755,6 +1062,7 @@ const Snd = {
   bubble() { const f = rand(700, 900); this.v(f, 0.12, { to: f * 2.2, vol: 0.25 }); this.n(0.05, { f: 4000, q: 2, vol: 0.15 }); this.bell(f * 2, 0.3, 0.05, 0.02, 2.4); },
   splash(v = 1) { this.n(0.28, { f: 1100, to: 260, q: 1.2, vol: 0.2 * v }); this.v(rand(280, 400), 0.16, { mid: 720, to: 180, vol: 0.13 * v }); },
   bolt() { this.n(0.45, { type: 'highpass', f: 2400, to: 500, vol: 0.4, rev: true }); this.v(80, 0.4, { vol: 0.35, to: 30, type: 'sawtooth' }); },
+  wind() { this.n(0.8, { f: 380, to: 1900, q: 1.4, vol: 0.26, att: 0.15, rev: true }); this.n(0.6, { f: 1900, to: 450, q: 2, vol: 0.15, delay: 0.3 }); },
   hiss() { this.n(0.16, { type: 'highpass', f: 3000, to: 7000, vol: 0.18 }); },
   turn() { this.v(900, 0.12, { type: 'triangle', vol: 0.14, to: 1800, rev: true }); },
   boom(n = 1) {
@@ -780,10 +1088,10 @@ const G = { state: 'menu', time: 0, levelIdx: 0, xp: 0, unlocked: 1, streak: 0, 
 let S = null;                               // estado lógico del nivel (núcleo)
 const V = { sp: new Map(), bodies: [], q: [], cur: null, parts: [], floaters: [], fx: [], orbs: [], floor: [], hist: [],
   moves: 0, mana: 0, shake: 0, slow: 0, flash: null, banner: null, aim: null, sel: null, link: null, portalMode: false,
-  intro: null, buf: null, say: null, praise: null, slosh: 0, liq: 826, zoom: 0, scorch: [], look: null, fuseX: 270, fuseY: 800, tint: 'G', colors: [], levelXp: 0, maxCombo: 0, L: null };
+  intro: null, buf: null, say: null, praise: null, slosh: 0, liq: 826, ca: 0, bloom: 0, waves: [], zoom: 0, scorch: [], look: null, fuseX: 270, fuseY: 800, tint: 'G', colors: [], levelXp: 0, maxCombo: 0, L: null };
 
-function save() { try { localStorage.setItem('chromadrop_v2', JSON.stringify({ xp: G.xp, unlocked: G.unlocked, stars: G.stars, streak: G.streak, story: G.story })); } catch (e) {} }
-function load() { try { const d = JSON.parse(localStorage.getItem('chromadrop_v2')); if (d) { G.xp = d.xp | 0; G.unlocked = clamp(d.unlocked | 0, 1, LEVELS.length); G.stars = d.stars || []; G.streak = d.streak | 0; G.story = d.story | 0; } } catch (e) {} }
+function save() { try { localStorage.setItem('chromadrop_v2', JSON.stringify({ v: 3, xp: G.xp, unlocked: G.unlocked, stars: G.stars, streak: G.streak, story: G.story })); } catch (e) {} }
+function load() { try { const d = JSON.parse(localStorage.getItem('chromadrop_v2')); if (d) { G.xp = d.xp | 0; G.unlocked = clamp(d.unlocked | 0, 1, LEVELS.length); G.stars = d.v === 3 ? (d.stars || []) : []; G.streak = d.streak | 0; G.story = d.story | 0; } } catch (e) {} }
 /* Historia y meta del juego */
 const STORY = { title: 'La Bóveda del Archimago', lines: [
   'Los Fluffies son espíritus de color',
@@ -793,13 +1101,19 @@ const STORY = { title: 'La Bóveda del Archimago', lines: [
   'Cada 3 del mismo color se funden en un',
   'hechizo. Libéralos a todos y Caldo',
   'destilará la poción de la sala.',
-  'Reúne las 20 pociones para romper',
+  'Reúne 40 pociones para romper',
   'el sello de la Torre.'] };
-const POTIONS = ['Tónico del Aprendiz', 'Filtro de Encrucijada', 'Elixir de Escarcha', 'Arena Embotellada', 'Esencia del Guardián',
-  'Pólvora Líquida', 'Esencia de Eco', 'Lacre Fundido', 'Aguanieve Volátil', 'Corazón de Cripta',
-  'Brebaje Giratorio', 'Maná Destilado', 'Chispa Errante', 'Tinta de Sello', 'Fuego de Forja',
-  'Néctar Arcoíris', 'Prisma Explosivo', 'Luz Refractada', 'Vigilia del Mago', 'Elixir del Archimago',
-  'Espuma Iridiscente', 'Lodo Alquímico', 'Elixir Gemelo', 'Burbuja Eterna', 'Piedra Filosofal'];
+const POTIONS = [
+  'Elixir de Chispa', 'Tónico de Brasa', 'Savia Espinosa', 'Caldo Menguante', 'Doble Infusión',
+  'Polvo de Roca', 'Eco Destilado', 'Bálsamo del Aprendiz', 'Esencia de Granito', 'Elixir del Guardián',
+  'Rocío Helado', 'Escarcha Ígnea', 'Raíz Glacial', 'Filtro Errante', 'Hervor Arcano',
+  'Arena Congelada', 'Cuarteto Elemental', 'Agua de Pozo', 'Gota Exacta', 'Lágrima de la Cripta',
+  'Pólvora Dulce', 'Néctar Resonante', 'Sello Líquido', 'Hielo Explosivo', 'Coro Destilado',
+  'Mecha Ardiente', 'Óxido de Cadena', 'Brebaje Sellado', 'Chispa Oscura', 'Fuego de Forja',
+  'Tinta Rúnica', 'Luz de Prisma', 'Maná de Muralla', 'Chispa Giratoria', 'Prisma Cautivo',
+  'Vino Maldito', 'Polvo de Estrellas', 'Aguja de Brújula', 'Velo del Archimago', 'Elixir de la Torre',
+  'Pompa Flotante', 'Lodo Lunar', 'Gemelo Etéreo', 'Espuma Mágica', 'Arcoíris Líquido',
+  'Destilado Prohibido', 'Matraz Sombrío', 'Fórmula Inestable', 'Umbral Dorado', 'Piedra Filosofal'];
 const COLOR_NAME = { R: 'rojo', G: 'verde', B: 'azul', Y: 'amarillo', P: 'morado' };
 function say(text, dur = 2.8) { V.say = { text, t: dur }; }                  // frase de Caldo en su placa
 function praise(text, color, sub) { V.praise = { text, color, sub, t: 0, dur: 1.4 }; V.zoom = Math.max(V.zoom, 0.05); }   // elogio gigante
@@ -832,7 +1146,7 @@ function buildView() {      // reconstruye sprites y caldero desde el estado ló
 }
 function loadLevel(i) {
   const L = LEVELS[i]; G.state = 'play'; G.levelIdx = i; G.res = null; V.L = L; S = parseLevel(L);
-  V.parts = []; V.floaters = []; V.fx = []; V.scorch = []; V.zoom = 0; V.hist = []; V.shake = 0; V.slow = 0; V.flash = null; V.banner = null;
+  V.parts = []; V.floaters = []; V.fx = []; V.scorch = []; V.zoom = 0; V.waves = []; V.ca = 0; V.bloom = 0; V.hist = []; V.shake = 0; V.slow = 0; V.flash = null; V.banner = null;
   V.levelXp = 0; V.maxCombo = 0; V.intro = L.intro || null; V.praise = null; V.slosh = 0; V.liq = 826; V.tint = 'G';
   if (!G.story && i === 0) { V.intro = Object.assign({}, STORY, { next: L.intro }); G.story = 1; save(); }
   say('Libera ' + S.total + ' Fluffies y destilo la poción', 4);
@@ -874,14 +1188,14 @@ function killSprite(id, how, cx, cy) {
 
 function dust(x, y, k = 1) { V.parts.push({ x, y, vx: rand(-50, 50), vy: rand(-60, -10), life: rand(0.5, 0.8), max: 0.8, color: '#cfc6ee', size: rand(10, 18) * k, grav: -20, type: 'dust', rot: 0, drag: 2 }); }
 function popOne(id) {           // reventar burbuja: anillo iridiscente y gotas
-  const s = V.sp.get(id); if (!s) return; s.bub = false; s.sq = 0.3; Snd.bubble(); ring(s.x, s.y, '#dff6ff', 64, 0.35, 4);
+  const s = V.sp.get(id); if (!s) return; s.bub = false; s.sq = 0.3; Snd.bubble(); shock(s.x, s.y, 0.005, 300, 0.35); ring(s.x, s.y, '#dff6ff', 64, 0.35, 4);
   for (let i = 0; i < 18; i++) { const a = i / 18 * TAU; V.parts.push({ x: s.x + Math.cos(a) * 32, y: s.y + Math.sin(a) * 32, vx: Math.cos(a) * 170, vy: Math.sin(a) * 170, life: 0.45, max: 0.45, color: 'hsl(' + (i * 20) + ',90%,80%)', size: 3.5, grav: 260, type: 'dot', rot: 0, drag: 1.5 }); }
   floater(s.x, s.y - 44, '¡Libre!', '#dff6ff', 16, 0.9);
 }
 function teleFx(x1, y1, x2, y2) {
   Snd.tele();
-  for (const [x, y, c] of [[x1, y1, '#5ce1ff'], [x2, y2, '#ff6ad5']]) { V.fx.push({ type: 'vortex', x, y, r: 54, color: c, t: 0, dur: 0.45, dark: true }); burst(x, y, c, 12, 240, 0, 'star'); }
-  V.fx.push({ type: 'bolt', x1, y1, x2, y2, color: '#bfa8ff', t: 0, dur: 0.3 });
+  for (const [x, y, c] of [[x1, y1, '#5ce1ff'], [x2, y2, '#ff6ad5']]) { V.fx.push({ type: 'vortex', x, y, r: 54, color: c, t: 0, dur: 0.45, dark: true, el: 'P' }); burst(x, y, c, 12, 240, 0, 'star'); }
+  V.fx.push({ type: 'bolt', x1, y1, x2, y2, color: '#bfa8ff', t: 0, dur: 0.3 }); shock(x1, y1, 0.006, 400, 0.4); shock(x2, y2, 0.006, 400, 0.4);
 }
 function gooFx(x, y) {
   Snd.goo(); V.fx.push({ type: 'ripple', x, y: y + 18, color: '#b6ff7a', t: 0, dur: 0.5, rx: 46, ry: 14 });
@@ -895,7 +1209,7 @@ function explodeFx(x, y, n = 1, quiet) {
   V.fx.push({ type: 'light', x, y, r: 230 * pw, t: 0, dur: 0.55 });
   V.fx.push({ type: 'fire', x, y, rad: 1.9 * CELL * pw, t: 0, dur: 0.45 });
   ring(x, y, '#ffffff', 200 * pw, 0.32, 16); ring(x, y, '#ffb347', 150 * pw, 0.55, 9); ring(x, y, '#ff6a3d', 110 * pw, 0.75, 5);
-  V.fx.push({ type: 'vortex', x, y, r: 115 * pw, color: '#ff8a3c', t: 0, dur: 0.5 });
+  V.fx.push({ type: 'vortex', x, y, r: 115 * pw, color: '#ff8a3c', t: 0, dur: 0.5, el: 'R' });
   for (let i = 0; i < 14; i++) { const a = rand(0, TAU), v = rand(60, 240) * pw, d = rand(0, 22);
     V.parts.push({ x: x + Math.cos(a) * d, y: y + Math.sin(a) * d, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 30, life: rand(0.7, 1.25), max: 1.25, color: '', size: rand(20, 34) * pw, grav: -70, type: 'puff', rot: 0, drag: 3.2 }); }
   for (let i = 0; i < 30; i++) { const a = rand(0, TAU), v = rand(420, 950) * pw;
@@ -904,6 +1218,7 @@ function explodeFx(x, y, n = 1, quiet) {
     V.parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 260, life: rand(0.8, 1.2), max: 1.2, color: i % 2 ? '#8a4a2a' : '#b5653a', size: rand(8, 13), grav: 1500, type: 'plank', rot: rand(0, 6), spin: rand(-16, 16), drag: 0.4 }); }
   for (let i = 0; i < 16; i++) V.parts.push({ x: x + rand(-30, 30), y: y + rand(-30, 30), vx: rand(-60, 60), vy: rand(-140, -40), life: rand(1, 1.9), max: 1.9, color: i % 2 ? '#ff9a3c' : '#ffd27a', size: rand(1.5, 3), grav: -50, type: 'dot', rot: 0, drag: 1 });
   V.scorch.push({ x, y, r: 42 * pw, t: 0, dur: 4 });
+  shock(x, y, 0.014 * pw, 720, 0.55); V.ca = Math.max(V.ca, 0.004 + 0.002 * n); V.bloom = Math.max(V.bloom, 0.3);
   if (!quiet) Snd.boom(n);
   V.shake = Math.max(V.shake, 16 + n * 4); V.zoom = Math.max(V.zoom, 0.05 + 0.02 * n); V.slow = Math.max(V.slow, 0.07); V.flash = { color: '#ffd28a', a: Math.max(V.flash ? V.flash.a : 0, 0.2) };
 }
@@ -926,8 +1241,116 @@ function timeFx() {
   for (let i = 0; i < 16; i++) V.parts.push({ x: rand(BX, BX + BW), y: rand(BY, BB), vx: 0, vy: rand(-30, -10), life: rand(0.6, 1.3), max: 1.3, color: '#fff2c0', size: rand(3, 5), grav: 0, type: 'star', rot: rand(0, 6), spin: rand(-3, 3) });
   ring(393, 60, '#ffe27a', 80, 0.6, 7); ring(393, 60, '#fff2c0', 50, 0.9, 3);
   V.flash = { color: '#ffd76a', a: 0.13 }; V.slow = Math.max(V.slow, 0.22);
+  shock(cx, cy, 0.007, 420, 1); V.fx.push({ type: 'light', x: cx, y: cy, r: 320, t: 0, dur: 1.2, rgb: '255,215,106' }); V.bloom = Math.max(V.bloom, 0.4);
   Snd.time();
 }
+
+/* =====================================================================
+   POSPROCESADO WebGL: el canvas 2D se sube como textura y se compone con
+   - bloom (resplandor): zona brillante → desenfoque gaussiano a 1/4 de resolución
+   - ondas de choque que deforman la imagen (hasta 8 a la vez)
+   - calor que ondula el aire sobre el fuego (braseros, antorchas, remolinos de fuego)
+   - separación cromática en las explosiones
+   Si no hay WebGL, se pierde el contexto o el móvil va lento, se apaga y queda el canvas 2D.
+   ===================================================================== */
+function shock(x, y, amp = 0.01, spd = 650, dur = 0.6) { V.waves.push({ x, y, amp, spd, dur, t: 0 }); if (V.waves.length > 8) V.waves.shift(); }
+const Post = {
+  on: false, gl: null, ema: 0.016,
+  init() {
+    const c = document.getElementById('fx'); this.c = c; let gl = null;
+    try { gl = c.getContext('webgl', { alpha: false, antialias: false, premultipliedAlpha: false, depth: false, stencil: false }); } catch (e) {}
+    if (!gl) { c.style.display = 'none'; return; }
+    this.gl = gl;
+    const vs = 'attribute vec2 p; varying vec2 vUv; void main(){ vUv = p * 0.5 + 0.5; gl_Position = vec4(p, 0., 1.); }';
+    const mk = fs => {
+      const pr = gl.createProgram();
+      for (const [ty, src] of [[gl.VERTEX_SHADER, vs], [gl.FRAGMENT_SHADER, 'precision mediump float; varying vec2 vUv;\n' + fs]]) {
+        const sh = gl.createShader(ty); gl.shaderSource(sh, src); gl.compileShader(sh);
+        if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(sh)); gl.attachShader(pr, sh);
+      }
+      gl.bindAttribLocation(pr, 0, 'p'); gl.linkProgram(pr); if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(pr));
+      const u = {}, n = gl.getProgramParameter(pr, gl.ACTIVE_UNIFORMS);
+      for (let i = 0; i < n; i++) { const info = gl.getActiveUniform(pr, i); u[info.name.replace('[0]', '')] = gl.getUniformLocation(pr, info.name); }
+      return { pr, u };
+    };
+    try {
+      this.bright = mk('uniform sampler2D t; void main(){ vec3 c = texture2D(t, vUv).rgb; float l = dot(c, vec3(0.299, 0.587, 0.114)); gl_FragColor = vec4(c * smoothstep(0.76, 1.0, l), 1.); }');
+      this.blur = mk('uniform sampler2D t; uniform vec2 d; void main(){ vec3 s = texture2D(t, vUv).rgb * 0.227; s += (texture2D(t, vUv + d * 1.385).rgb + texture2D(t, vUv - d * 1.385).rgb) * 0.316; s += (texture2D(t, vUv + d * 3.231).rgb + texture2D(t, vUv - d * 3.231).rgb) * 0.070; gl_FragColor = vec4(s, 1.); }');
+      this.comp = mk([
+        'uniform sampler2D t; uniform sampler2D b; uniform float time; uniform float ca; uniform float bk; uniform float asp;',
+        'uniform vec4 wave[8]; uniform vec4 heat[6]; uniform vec4 fire[4]; uniform float hot;',
+        'float hsh(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }',
+        'float nse(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f); return mix(mix(hsh(i), hsh(i + vec2(1., 0.)), f.x), mix(hsh(i + vec2(0., 1.)), hsh(i + vec2(1., 1.)), f.x), f.y); }',
+        'float fbm(vec2 p){ float v = 0., a = 0.5; for (int i = 0; i < 5; i++) { v += a * nse(p); p = p * 2.03 + vec2(1.7, 9.2); a *= 0.5; } return v; }',
+        '/* llama: lengua que se estrecha hacia arriba, deformada por dos capas de ruido que suben */',
+        'vec3 flame(vec2 uv, vec4 F, float sd){',
+        '  vec2 q = (uv - F.xy) / F.zw; if (q.y < -0.25 || q.y > 1.45 || abs(q.x) > 0.95) return vec3(0.);',
+        '  float n = fbm(vec2(q.x * 3.2 + sd, q.y * 2.4 - time * 2.6)); float n2 = fbm(vec2(q.x * 7. - sd, q.y * 5.5 - time * 4.6));',
+        '  float w = (1. - clamp(q.y, 0., 1.)) * 0.72 + 0.05; float d = abs(q.x + (n - 0.5) * 0.42 * q.y) / w;',
+        '  float body = 1. - d - q.y * 0.25 + (n2 - 0.5) * 0.7 * q.y; float f = clamp(body * 1.4, 0., 1.) * smoothstep(-0.18, 0.08, q.y);',
+        '  vec3 c1 = mix(vec3(1., .22, .04), vec3(.15, .4, 1.), hot), c2 = mix(vec3(1., .62, .12), vec3(.45, .78, 1.), hot), c3 = mix(vec3(1., .97, .82), vec3(.9, .98, 1.), hot);',
+        '  vec3 col = mix(c1, c2, smoothstep(.2, .6, f)); col = mix(col, c3, smoothstep(.78, 1., f));',
+        '  float glow = exp(-dot(q * vec2(1.6, 1.1) - vec2(0., .35), q * vec2(1.6, 1.1) - vec2(0., .35)) * 2.2) * 0.22;',
+        '  return col * f * 1.2 * (1. - smoothstep(0.85, 1.35, q.y)) + c1 * glow;',
+        '}',
+        'void main(){',
+        '  vec2 uv = vUv; vec2 off = vec2(0.);',
+        '  for (int i = 0; i < 8; i++) { vec4 w = wave[i]; if (w.w > 0.0) { vec2 d = (uv - w.xy) * vec2(asp, 1.); float dist = length(d); float q = (dist - w.z) / 0.032; off -= (d / (dist + 0.0001)) * exp(-q * q) * w.w; } }',
+        '  for (int i = 0; i < 6; i++) { vec4 h = heat[i]; if (h.z > 0.0) { vec2 d = (uv - h.xy) / h.zw; float m = max(0., 1. - dot(d, d)); m *= m; off.x += sin(uv.y * 170. + time * 11. + float(i) * 3.) * 0.0024 * m; off.y += sin(uv.x * 130. - time * 8.) * 0.0016 * m; } }',
+        '  uv = clamp(uv + off, 0.001, 0.999);',
+        '  vec3 c; if (ca > 0.0005) { vec2 dir = (uv - 0.5) * ca; c = vec3(texture2D(t, uv + dir).r, texture2D(t, uv).g, texture2D(t, uv - dir).b); } else { c = texture2D(t, uv).rgb; }',
+        '  c += texture2D(b, uv).rgb * bk;',
+        '  for (int i = 0; i < 4; i++) { if (fire[i].z > 0.0) c += flame(uv, fire[i], float(i) * 7.3); }',
+        '  gl_FragColor = vec4(min(c, vec3(1.)), 1.);',
+        '}'].join('\n'));
+    } catch (e) { console.warn('Post FX desactivado:', e); c.style.display = 'none'; this.gl = null; return; }
+    const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    this.scene = this.tex(); this.waves = new Float32Array(32); this.heat = new Float32Array(24); this.fire = new Float32Array(16);
+    c.addEventListener('webglcontextlost', e => { e.preventDefault(); this.off(); });
+    this.on = true;
+  },
+  off() { this.on = false; if (this.c) this.c.style.display = 'none'; if (cv) cv.style.opacity = '1'; },
+  tex(w, h) {
+    const gl = this.gl, t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    if (w) gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null); return t;
+  },
+  fbo(w, h) { const gl = this.gl, t = this.tex(w, h), f = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, f); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0); gl.bindFramebuffer(gl.FRAMEBUFFER, null); return { t, f, w, h }; },
+  resize(w, h, cw, ch, left, top) {
+    if (!this.on) return; const c = this.c; c.width = w; c.height = h; c.style.width = cw + 'px'; c.style.height = ch + 'px'; c.style.left = left + 'px'; c.style.top = top + 'px';
+    const bw = Math.max(2, w >> 2), bh = Math.max(2, h >> 2); this.A = this.fbo(bw, bh); this.B = this.fbo(bw, bh); cv.style.opacity = '0';
+  },
+  pass(prog, target, tex, setU) {
+    const gl = this.gl; gl.bindFramebuffer(gl.FRAMEBUFFER, target ? target.f : null); gl.viewport(0, 0, target ? target.w : this.c.width, target ? target.h : this.c.height);
+    gl.useProgram(prog.pr); gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex); gl.uniform1i(prog.u.t, 0); if (setU) setU(prog.u); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  },
+  render(src) {
+    if (!this.on || !this.A) return; const gl = this.gl;
+    gl.bindTexture(gl.TEXTURE_2D, this.scene); gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, src);
+    this.pass(this.bright, this.A, this.scene);
+    for (let i = 0; i < 2; i++) { const k = 1 + i * 1.5; this.pass(this.blur, this.B, this.A.t, u => gl.uniform2f(u.d, k / this.A.w, 0)); this.pass(this.blur, this.A, this.B.t, u => gl.uniform2f(u.d, 0, k / this.A.h)); }
+    const wv = this.waves, ht = this.heat; wv.fill(0); ht.fill(0);
+    V.waves.forEach((w, i) => { const k = 1 - w.t / w.dur; wv[i * 4] = w.x / W; wv[i * 4 + 1] = 1 - w.y / H; wv[i * 4 + 2] = w.spd * w.t / H; wv[i * 4 + 3] = w.amp * k * k; });
+    let n = 0; const addHeat = (x, y, rx, ry) => { if (n >= 6) return; ht[n * 4] = x / W; ht[n * 4 + 1] = 1 - y / H; ht[n * 4 + 2] = rx / W; ht[n * 4 + 3] = ry / H; n++; };
+    if (G.state !== 'menu') { addHeat(22, 380, 20, 34); addHeat(W - 22, 380, 20, 34); }
+    const fr = this.fire; fr.fill(0); let nf = 0; const addFire = (x, by, w, h) => { fr[nf * 4] = x / W; fr[nf * 4 + 1] = 1 - by / H; fr[nf * 4 + 2] = w / W; fr[nf * 4 + 3] = h / H; nf++; };
+    if (G.state !== 'menu') { addFire(22, 405, 30, 46); addFire(W - 22, 405, 30, 46); }   // en el menú las tarjetas tapan las antorchas
+    let hotV = 0;
+    if (G.state !== 'menu' && S) {
+      const heat = S.heat % 3; hotV = heat === 2 ? 1 : 0;
+      addFire(W / 2 - 208, 890, 56 + heat * 8, 58 + heat * 20); addFire(W / 2 + 208, 890, 56 + heat * 8, 58 + heat * 20);
+      addHeat(W / 2 - 208, 840, 50, 80); addHeat(W / 2 + 208, 840, 50, 80); for (const f of V.fx) if (f.type === 'vortex' && f.el === 'R') addHeat(f.x, f.y, f.r, f.r);
+    }
+    this.hotV = hotV;
+    this.pass(this.comp, null, this.scene, u => {
+      gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, this.A.t); gl.uniform1i(u.b, 1);
+      gl.uniform1f(u.time, G.time); gl.uniform1f(u.ca, V.ca); gl.uniform1f(u.bk, 0.4 + V.bloom); gl.uniform1f(u.asp, W / H);
+      gl.uniform4fv(u.wave, wv); gl.uniform4fv(u.heat, ht); gl.uniform4fv(u.fire, this.fire); gl.uniform1f(u.hot, this.hotV);
+    });
+  },
+};
 
 /* ---------- reproducción de eventos del núcleo ---------- */
 function doMove(m) {
@@ -982,15 +1405,20 @@ const HANDLERS = {
       return true;
     };
   },
-  unchain(ev) { const s = V.sp.get(ev.id); if (s) { s.ch = false; s.shake = 1; Snd.chain(); burst(s.x, s.y, '#c8ccd6', 14, 260); floater(s.x, s.y - 40, '¡Cadena rota!', '#e6e9f2', 16, 0.9); } V.shake = 5; return 0.08; },
+  unchain(ev) { const s = V.sp.get(ev.id); if (s) { s.ch = false; s.shake = 1; Snd.chain(); burst(s.x, s.y, '#c8ccd6', 14, 260); impactFx(s.x, s.y, ev.col, 0.6, '#aab0bf'); floater(s.x, s.y - 40, '¡Cadena rota!', '#e6e9f2', 16, 0.9); } V.shake = 5; return 0.08; },
   crack(ev) {
     const s = V.sp.get(ev.id);
+    if (s) impactFx(s.x, s.y, ev.col, 0.65, s.k === 'frost' ? '#c9f1ff' : '#9a94a8');
     if (s) { s.hp = 1; s.shake = 1; if (s.k === 'stone') { Snd.thud(); burst(s.x, s.y, '#3ddc84', 10, 220, 400, 'shard'); floater(s.x, s.y - 40, '¡Raíces! 1 golpe más', '#a8f5c9', 15, 1); } else { Snd.crack(); burst(s.x, s.y, '#dff6ff', 8, 200, 500, 'shard'); } }
     V.shake = 5; return 0.05;
   },
   break(ev) {
     const s = V.sp.get(ev.id);
-    if (s && ev.by === 'fire') { floater(s.x, s.y - 40, '¡Derretido!', '#ffb347', 17, 1); V.fx.push({ type: 'vortex', x: s.x, y: s.y, r: 60, color: '#ff8a3c', t: 0, dur: 0.5 }); }
+    if (s) impactFx(s.x, s.y, ev.col, 1, s.k === 'frost' ? '#c9f1ff' : '#9a94a8');
+    if (s && ev.by === 'fire') floater(s.x, s.y - 40, '¡Derretido!', '#ffb347', 17, 1);
+    if (s && ev.col === 'P') floater(s.x, s.y - 40, '¡Remolino!', '#dfc0ff', 17, 1);
+    if (s && ev.col === 'Y' && !ev.by) floater(s.x, s.y - 40, '¡Fulminado!', '#ffe27a', 17, 1);
+    if (s && ev.col === 'B' && !ev.by) floater(s.x, s.y - 40, '¡Pulverizado!', '#a5d6ff', 17, 1);
     if (s && ev.by === 'root') { floater(s.x, s.y - 40, '¡Piedra rota!', '#a8f5c9', 17, 1); V.fx.push({ type: 'pillar', x: s.x, y: s.y, color: '#3ddc84', t: 0, dur: 0.5 }); }
     Snd.shatter(); killSprite(ev.id); V.shake = 7; return 0.08;
   },
@@ -1017,7 +1445,8 @@ const HANDLERS = {
         V.link.t = t / 0.5;
         if (t < 0.5) return false;
         V.link = null; V.fuseX = cx; V.fuseY = cy; V.tint = ev.color; V.slosh = 1;
-        V.fx.push({ type: 'vortex', x: cx, y: cy, r: 120, color: C.m, t: 0, dur: 0.7 });
+        V.fx.push({ type: 'vortex', x: cx, y: cy, r: 120, color: C.m, t: 0, dur: 0.7, el: ev.color }); elemBurst(cx, cy, ev.color, 22, 320);
+        V.fx.push({ type: 'light', x: cx, y: cy, r: 300, t: 0, dur: 0.7, rgb: ELCOL[ev.color][1] }); shock(cx, cy, 0.009, 600, 0.6); V.bloom = Math.max(V.bloom, 0.45 + 0.15 * ev.combo);
         V.fx.push({ type: 'pillar', x: cx, y: cy + 20, top: BB - 30, color: C.m, t: 0, dur: 0.6, w: 70 });
         if (ev.boil) { praise('¡HERVOR!', '#ff8a3c', 'El caldero sobrecarga el hechizo'); say('¡HIERVO! Hechizo sobrecargado'); }
         else if (ev.heat % 3 === 2) say('La próxima fusión: SOBRECARGA', 3.5);
@@ -1041,7 +1470,8 @@ const HANDLERS = {
     const C = COLORS[ev.color], el = ELEMENTS[ev.color]; V.moves = ev.moves; V.mana = ev.mana;
     const pts = ev.ids.map(id => V.sp.get(id)).filter(Boolean).map(q => [q.x, q.y]);
     V.fx.push({ type: 'link', pts, color: C.l, t: 0, dur: 0.5 });
-    pts.forEach(([x, y]) => V.fx.push({ type: 'vortex', x, y, r: 58, color: C.m, t: 0, dur: 0.6 }));
+    pts.forEach(([x, y]) => { V.fx.push({ type: 'vortex', x, y, r: 58, color: C.m, t: 0, dur: 0.6, el: ev.color }); elemBurst(x, y, ev.color, 9, 220); });
+    { const mx = pts.reduce((a, q) => a + q[0], 0) / (pts.length || 1), my = pts.reduce((a, q) => a + q[1], 0) / (pts.length || 1); V.fx.push({ type: 'light', x: mx, y: my, r: 240, t: 0, dur: 0.6, rgb: ELCOL[ev.color][1] }); shock(mx, my, 0.007, 520, 0.5); V.bloom = Math.max(V.bloom, 0.4); if (ev.color === 'Y') V.ca = Math.max(V.ca, 0.004); }
     ev.ids.forEach(id => killSprite(id));
     ev.extra.forEach(id => { const q = V.sp.get(id); if (q) V.fx.push({ type: 'pillar', x: q.x, y: q.y, color: C.m, t: 0, dur: 0.55 }); killSprite(id); });
     ev.un.forEach(id => { const q = V.sp.get(id); if (q) { q.ch = false; q.shake = 1; burst(q.x, q.y, '#c8ccd6', 12, 240); } });
@@ -1082,7 +1512,7 @@ const HANDLERS = {
     if (ev.kind === 'bomb') return orbTo(ev.color, cellX(ev.c), cellY(ev.r), () => {
       const rad = (ev.amp ? 2.6 : 1.6) * CELL; V.fx.push({ type: 'fire', x: cellX(ev.c), y: cellY(ev.r), rad, t: 0, dur: 0.6 });
       for (let i = 0; i < 46; i++) { const a = rand(0, TAU), v = rand(60, 420); V.parts.push({ x: cellX(ev.c), y: cellY(ev.r), vx: Math.cos(a) * v, vy: Math.sin(a) * v - 80, life: rand(0.4, 1), max: 1, color: ['#fff3b0', '#ffb347', '#ff6a3d', '#ff4d6d'][i % 4], size: rand(4, 10), grav: -260, type: 'dot' }); }
-      V.fx.push({ type: 'vortex', x: cellX(ev.c), y: cellY(ev.r), r: rad * 0.9, color: '#ff6a3d', t: 0, dur: 0.6 });
+      V.fx.push({ type: 'vortex', x: cellX(ev.c), y: cellY(ev.r), r: rad * 0.9, color: '#ff6a3d', t: 0, dur: 0.6, el: 'R' });
       explodeFx(cellX(ev.c), cellY(ev.r), ev.amp ? 3 : 2, true);
       Snd.fire(); V.shake = 18; V.slow = 0.12; V.flash = { color: '#ff8a3c', a: 0.35 }; ev.ids.forEach(id => killSprite(id, null, cellX(ev.c), cellY(ev.r))); (ev.pops || []).forEach(popOne); squashNear(ev.cells);
     });
@@ -1090,11 +1520,14 @@ const HANDLERS = {
       const cols = [...new Set(ev.cells.map(c => c[0]))]; cols.forEach(c => V.fx.push({ type: 'thorn', c, t: 0, dur: 0.6 }));
       cols.forEach(c => { for (let i = 0; i < 14; i++) V.parts.push({ x: cellX(c) + rand(-24, 24), y: rand(BY, BB), vx: rand(-90, 90), vy: rand(-500, -150), life: rand(0.4, 0.9), max: 0.9, color: i % 2 ? '#a8f5c9' : '#3ddc84', size: rand(3, 7), grav: 500, type: 'shard', rot: rand(0, 6) }); });
       ev.ids.forEach(id => { const q = V.sp.get(id); if (q) V.fx.push({ type: 'pillar', x: q.x, y: q.y, color: '#3ddc84', t: 0, dur: 0.55 }); });
+      cols.forEach(c => { for (let k = 0; k < 3; k++) elemBurst(cellX(c), BY + 40 + k * (BH - 80) / 2, 'G', 5, 220); });
       Snd.thorns(); V.shake = 14; V.flash = { color: '#3ddc84', a: 0.28 }; ev.ids.forEach(id => killSprite(id, null, cellX(ev.c), cellY(ev.r))); (ev.pops || []).forEach(popOne); squashNear(ev.cells);
     }, true);
     if (ev.kind === 'thaw') return orbTo(ev.color, W / 2, BY + BH / 2, () => {
       ring(W / 2, BY + BH / 2, '#c9f1ff', 420, 0.8, 16); ring(W / 2, BY + BH / 2, '#3fa7ff', 320, 0.7, 6);
+      shock(W / 2, BY + BH / 2, 0.013, 900, 0.85); V.fx.push({ type: 'light', x: W / 2, y: BY + BH / 2, r: 380, t: 0, dur: 0.8, rgb: ELCOL.B[1] }); V.bloom = Math.max(V.bloom, 0.5);
       ev.ids.concat(ev.un).forEach(id => { const q = V.sp.get(id); if (q) V.fx.push({ type: 'pillar', x: q.x, y: q.y, color: '#3fa7ff', t: 0, dur: 0.6 }); });
+      ev.ids.concat(ev.un).forEach(id => { const q = V.sp.get(id); if (q) elemBurst(q.x, q.y, 'B', 8, 240); }); elemBurst(W / 2, BY + BH / 2, 'B', 18, 380);
       Snd.thaw(); V.flash = { color: '#a5d6ff', a: 0.4 }; V.shake = 8;
       ev.ids.forEach(id => killSprite(id)); if (ev.ids.length) Snd.shatter();
       ev.un.forEach(id => { const s = V.sp.get(id); if (s) { s.ch = false; s.shake = 1; burst(s.x, s.y, '#c8ccd6', 12, 240); } }); if (ev.un.length) Snd.chain();
@@ -1111,8 +1544,8 @@ const HANDLERS = {
   },
   portal(ev) {
     V.mana = 0; V.portalMode = false; Snd.portal(); V.shake = 14; V.flash = { color: '#b76bff', a: 0.3 };
-    V.fx.push({ type: 'portalRow', r: ev.r, t: 0, dur: 0.7 });
-    for (const x of [BX - 6, BX + BW + 6]) V.fx.push({ type: 'vortex', x, y: cellY(ev.r), r: 80, color: '#b76bff', t: 0, dur: 0.7, dark: true }); banner('Portal Dimensional', 'La fila se desvanece', '#b76bff');
+    V.fx.push({ type: 'portalRow', r: ev.r, t: 0, dur: 0.7 }); shock(BX, cellY(ev.r), 0.011, 700, 0.7); shock(BX + BW, cellY(ev.r), 0.011, 700, 0.7); V.ca = Math.max(V.ca, 0.003); V.bloom = Math.max(V.bloom, 0.5);
+    for (const x of [BX - 6, BX + BW + 6]) V.fx.push({ type: 'vortex', x, y: cellY(ev.r), r: 80, color: '#b76bff', t: 0, dur: 0.7, dark: true, el: 'P' }); banner('Portal Dimensional', 'La fila se desvanece', '#b76bff');
     ev.ids.forEach(id => { const s = V.sp.get(id); if (s) burst(s.x, s.y, '#dfc0ff', 10, 260, 0, 'star'); killSprite(id); }); (ev.pops || []).forEach(popOne);
     return 0.35;
   },
@@ -1140,7 +1573,7 @@ function finish(win) {
   if (win) {
     stars = rem >= L.par ? 3 : rem >= Math.ceil(L.par / 2) ? 2 : 1; G.streak = (G.streak || 0) + 1;
     bonus = Math.round((20 + stars * 10 + rem * 2) * (1 + Math.min(5, G.streak - 1) * 0.1)); addXp(bonus); Snd.win(); Snd.cheer(); say('¡Poción destilada: ' + POTIONS[G.levelIdx % POTIONS.length] + '!', 30);
-    V.fx.push({ type: 'vortex', x: 270, y: 780, r: 170, color: COLORS[V.tint].m, t: 0, dur: 0.9 }); V.fx.push({ type: 'pillar', x: 270, y: 800, top: 140, color: COLORS[V.tint].m, t: 0, dur: 0.9, w: 110 }); V.slosh = 1;
+    V.fx.push({ type: 'vortex', x: 270, y: 780, r: 170, color: COLORS[V.tint].m, t: 0, dur: 0.9, el: V.tint }); V.fx.push({ type: 'pillar', x: 270, y: 800, top: 140, color: COLORS[V.tint].m, t: 0, dur: 0.9, w: 110 }); V.slosh = 1;
     V.bodies.forEach(b => { b.vy = -rand(450, 850); });
     G.stars[G.levelIdx] = Math.max(G.stars[G.levelIdx] || 0, stars);
     G.unlocked = Math.max(G.unlocked, Math.min(LEVELS.length, G.levelIdx + 2)); save();
@@ -1206,8 +1639,10 @@ function update(rdt) {
   if (V.say) { V.say.t -= rdt; if (V.say.t <= 0) V.say = null; }
   V.slosh = Math.max(0, V.slosh - rdt * 0.9);
   for (const p of V.parts) { p.life -= dt; p.vy += p.grav * dt; if (p.drag) { const k = Math.max(0, 1 - p.drag * dt); p.vx *= k; p.vy *= k; } p.x += p.vx * dt; p.y += p.vy * dt; p.rot += dt * (p.spin || 6); }
+  for (const p of V.parts) if (p.type === 'orbit') { p.ang += p.angv * dt; p.rad += p.radv * dt; p.x = p.cx + Math.cos(p.ang) * p.rad; p.y = p.cy + Math.sin(p.ang) * p.rad * 0.55 - (1 - p.life / p.max) * 55; }
   for (const sc of V.scorch) sc.t += rdt; V.scorch = V.scorch.filter(sc => sc.t < sc.dur);
-  V.zoom *= Math.max(0, 1 - rdt * 6);
+  V.zoom *= Math.max(0, 1 - rdt * 6); V.ca *= Math.max(0, 1 - rdt * 5); V.bloom *= Math.max(0, 1 - rdt * 2.5);
+  for (const w of V.waves) w.t += rdt; V.waves = V.waves.filter(w => w.t < w.dur);
   V.parts = V.parts.filter(p => p.life > 0);
   for (const f of V.floaters) { f.life -= rdt; f.y -= 34 * rdt; }
   V.floaters = V.floaters.filter(f => f.life > 0);
@@ -1317,33 +1752,218 @@ function spellIcon(k, x, y, s) {
   ctx.restore();
 }
 
-function drawFluffy(x, y, r, color, sq, mood, ph) {
-  const C = color === 'W' ? rainbowC(ph) : COLORS[color]; sq = clamp(sq, -0.3, 0.4);
-  ctx.save(); ctx.translate(x, y + r * sq * 0.6); ctx.scale(1 + sq * 0.8, 1 - sq);
-  if (color === 'W') { ctx.shadowColor = C.l; ctx.shadowBlur = 16; }
-  if (mood === 'hype') { ctx.shadowColor = C.l; ctx.shadowBlur = 14 + 8 * Math.sin(G.time * 8 + ph); }
-  ctx.fillStyle = C.m;
-  for (let i = 0; i < 12; i++) { const a = i / 12 * TAU + ph; if (color === 'W') ctx.fillStyle = 'hsl(' + ((i * 30 + G.time * 90) % 360) + ',95%,62%)'; ctx.beginPath(); ctx.arc(Math.cos(a) * r * 0.8, Math.sin(a) * r * 0.8, r * (color === 'W' ? 0.31 : 0.27), 0, TAU); ctx.fill(); }
-  ctx.shadowBlur = 0;
-  ctx.fillStyle = C.d; ctx.beginPath(); ctx.moveTo(-r * 0.12, -r * 0.95); ctx.quadraticCurveTo(r * 0.05, -r * 1.45, r * 0.3, -r * 1.2); ctx.quadraticCurveTo(r * 0.12, -r * 1.15, r * 0.14, -r * 0.9); ctx.fill();
-  const g = ctx.createRadialGradient(-r * 0.3, -r * 0.35, r * 0.1, 0, 0, r); g.addColorStop(0, C.l); g.addColorStop(1, C.m);
-  ctx.fillStyle = g; ctx.beginPath(); ctx.arc(0, 0, r * 0.9, 0, TAU); ctx.fill();
-  const ex = r * 0.34, ey = -r * 0.1, blink = ((G.time + ph * 3) % 3.7) < 0.13, er = r * (mood === 'fall' ? 0.27 : 0.22);
-  for (const s of [-1, 1]) {
-    if (blink && mood === 'idle') { ctx.strokeStyle = '#2a1a3a'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(s * ex - er, ey); ctx.lineTo(s * ex + er, ey); ctx.stroke(); continue; }
-    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(s * ex, ey, er, 0, TAU); ctx.fill();
-    let lx = 0, ly = 0; if (V.look && G.time - V.look.t < 3 && mood !== 'fall') { const dx = V.look.x - x, dy = V.look.y - y, d = Math.hypot(dx, dy) || 1; lx = dx / d * er * 0.3; ly = dy / d * er * 0.3; }   // miran a tu dedo
-    ctx.fillStyle = '#231433'; ctx.beginPath(); ctx.arc(s * ex + lx, ey + ly + (mood === 'fall' ? er * 0.3 : 0), er * 0.55, 0, TAU); ctx.fill();
-    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(s * ex - er * 0.2, ey - er * 0.25, er * (mood === 'hype' ? 0.32 : 0.2), 0, TAU); ctx.fill();
+/* CRIATURAS ELEMENTALES: cada una está hecha de su elemento y tiene carácter propio.
+   R fuego vivo (genio vivo, llamaradas) · G espíritu-arbusto de hojas (calmado, florece) ·
+   B gelatina de agua con cáusticas (tiembla y gotea) · Y cristal de ámbar con rayos dentro (nervioso) ·
+   P nebulosa arcana con runas orbitando (pícaro, levita) · W nube iridiscente (juguetona, guiña) */
+const FL = {
+  R: { hi: '#ff9a7a', mid: '#f0301e', lo: '#9e0f08', iris: '#ffae00', eyeY: 0.18, eyes: 'angry', gl: [-0.45, -0.22] },
+  G: { hi: '#d6ff9e', mid: '#45d23a', lo: '#167a1e', iris: '#6b4f12', eyeY: 0.14, eyes: 'calm', gl: [-0.42, -0.38] },
+  B: { hi: '#c9ecff', mid: '#3fa0ff', lo: '#1450b0', iris: '#1d4fa8', eyeY: 0.24, eyes: 'round', gl: [-0.4, -0.22] },
+  Y: { hi: '#fff3b8', mid: '#ffbf2e', lo: '#c27a00', iris: '#8a5a00', eyeY: 0.14, eyes: 'happy', gl: [-0.38, -0.5] },
+  P: { hi: '#e6c2ff', mid: '#8a3cf0', lo: '#3d1180', iris: '#4a2290', eyeY: 0.04, eyes: 'sly', gl: [-0.42, -0.22] },
+  W: { hi: '#ffffff', mid: '#f1ecff', lo: '#b8b0d8', iris: '#6a5acd', eyeY: 0.2, eyes: 'wink', gl: [-0.38, -0.2] },
+};
+const CRYS = [[-0.15, -0.95], [0.55, -0.78], [0.95, -0.1], [0.78, 0.72], [0, 0.95], [-0.78, 0.7], [-0.95, -0.1], [-0.62, -0.72]];
+
+/* ---- mini-shaders en JS: ruido de valor + fbm, texturas de 40×40 recalculadas a 30 fps ---- */
+const PERM = new Uint8Array(512);
+{ const p = []; for (let i = 0; i < 256; i++) p[i] = i; let sd = 1337; for (let i = 255; i > 0; i--) { sd = (sd * 16807) % 2147483647; const j = sd % (i + 1); const tmp = p[i]; p[i] = p[j]; p[j] = tmp; } for (let i = 0; i < 512; i++) PERM[i] = p[i & 255]; }
+function vnoise(x, y) {
+  const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi, u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf), X = xi & 255, Y = yi & 255;
+  const a = PERM[PERM[X] + Y], b = PERM[PERM[X + 1] + Y], c = PERM[PERM[X] + Y + 1], d = PERM[PERM[X + 1] + Y + 1];
+  return (a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v) / 255;
+}
+function fbm2(x, y, o) { let s = 0, a = 0.5, n = 0; for (let i = 0; i < o; i++) { s += a * vnoise(x, y); n += a; x = x * 2.02 + 17.3; y = y * 2.02 + 9.1; a *= 0.5; } return s / n; }
+function lut(stops) {
+  const out = new Uint8ClampedArray(768);
+  for (let i = 0; i < 256; i++) { const q = i / 255; let j = 1; while (j < stops.length - 1 && q > stops[j][0]) j++; const A = stops[j - 1], B = stops[j], k = clamp((q - A[0]) / ((B[0] - A[0]) || 1), 0, 1); for (let c = 0; c < 3; c++) out[i * 3 + c] = A[1 + c] + (B[1 + c] - A[1 + c]) * k; }
+  return out;
+}
+const LUT = {
+  R: lut([[0, 120, 10, 8], [0.3, 210, 35, 18], [0.5, 255, 85, 30], [0.68, 255, 160, 45], [0.85, 255, 225, 120], [1, 255, 252, 225]]),
+  G: lut([[0, 18, 85, 34], [0.45, 52, 165, 64], [0.75, 112, 215, 88], [1, 196, 248, 146]]),
+  P: lut([[0, 26, 6, 64], [0.4, 105, 40, 205], [0.7, 185, 105, 255], [0.88, 255, 168, 250], [1, 255, 236, 255]]),
+};
+function hsl2rgb(h, sa, l) { const k = n => (n + h / 30) % 12, A = sa * Math.min(l, 1 - l), f = n => l - A * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1)); return [f(0) * 255, f(8) * 255, f(4) * 255]; }
+const TEX = {};
+function texFor(el) {
+  const N = 40, fr = Math.floor(G.time * 30); let T = TEX[el];
+  if (!T) { const c = document.createElement('canvas'); c.width = c.height = N; const x = c.getContext('2d'); T = TEX[el] = { c, x, img: x.createImageData(N, N), f: -1 }; }
+  if (T.f === fr) return T.c; T.f = fr;
+  const d = T.img.data, t = G.time;
+  for (let py = 0; py < N; py++) for (let px = 0; px < N; px++) {
+    const u = px / N, v = py / N, i = (py * N + px) * 4; let r = 0, g = 0, bl = 0, al = 255;
+    if (el === 'R') {                          // fuego: dos capas de ruido que suben
+      const n = fbm2(u * 3.5, v * 3.5 + t * 1.7, 4), n2 = fbm2(u * 7 - t * 0.3, v * 7 + t * 3.2, 2), h = n * 0.7 + n2 * 0.3 + v * 0.3 + (1 - Math.abs(u - 0.5) * 2) * 0.18 - 0.12, k = Math.round(clamp(h, 0, 1) * 255) * 3;
+      r = LUT.R[k]; g = LUT.R[k + 1]; bl = LUT.R[k + 2];
+    } else if (el === 'B') {                   // agua: cáusticas (líneas de luz que se cruzan)
+      const x = u * 6, y = v * 6, w1 = Math.sin(x * 1.7 + t * 1.3 + Math.sin(y * 2.1 - t) * 1.2), w2 = Math.sin(y * 1.9 - t * 1.1 + Math.sin(x * 1.6 + t * 0.7) * 1.3);
+      let c = 1 - Math.abs(w1 * w2); c = c * c; c = c * c * c;
+      r = 70 - 50 * v + 175 * c; g = 165 - 90 * v + 85 * c; bl = 255 - 40 * v; al = 235;
+    } else if (el === 'P') {                   // nebulosa en espiral
+      const dx = u - 0.5, dy = v - 0.5, rad = Math.sqrt(dx * dx + dy * dy), an = Math.atan2(dy, dx) + rad * 5 - t * 0.8, n = fbm2(Math.cos(an) * rad * 3.2 + 5, Math.sin(an) * rad * 3.2 + 5, 4), k = Math.round(clamp(n * 1.25 - rad * 0.45, 0, 1) * 255) * 3;
+      r = LUT.P[k]; g = LUT.P[k + 1]; bl = LUT.P[k + 2];
+    } else if (el === 'G') {                   // musgo y hojas
+      const n = fbm2(u * 5 + 3, v * 5 + t * 0.15, 3), k = Math.round(clamp(n * 1.1 - v * 0.3 + 0.15, 0, 1) * 255) * 3;
+      r = LUT.G[k]; g = LUT.G[k + 1]; bl = LUT.G[k + 2];
+    } else {                                   // nube: bandas iridiscentes que fluyen
+      const h = (u * 140 + v * 70 + t * 35 + fbm2(u * 2 + t * 0.2, v * 2, 2) * 160) % 360; [r, g, bl] = hsl2rgb(h, 0.85, 0.86);
+    }
+    d[i] = r; d[i + 1] = g; d[i + 2] = bl; d[i + 3] = al;
   }
-  ctx.fillStyle = 'rgba(255,255,255,.28)';
-  for (const s of [-1, 1]) { ctx.beginPath(); ctx.arc(s * r * 0.58, r * 0.22, r * 0.12, 0, TAU); ctx.fill(); }
-  ctx.fillStyle = '#2a1a3a';
-  if (mood === 'fall') { ctx.beginPath(); ctx.ellipse(0, r * 0.36, r * 0.11, r * 0.15, 0, 0, TAU); ctx.fill(); }
-  else if (mood === 'hype') { ctx.beginPath(); ctx.arc(0, r * 0.22, r * 0.2, 0, Math.PI); ctx.fill(); }
-  else { ctx.strokeStyle = '#2a1a3a'; ctx.lineWidth = 2.6; ctx.lineCap = 'round'; ctx.beginPath(); ctx.arc(0, r * 0.2, r * 0.2, 0.15 * Math.PI, 0.85 * Math.PI); ctx.stroke(); }
-  if (color === 'W') { ctx.fillStyle = '#fff'; starPath(0, -r * 0.62, r * 0.3, 4, 0.35, G.time * 3); ctx.fill(); }
+  T.x.putImageData(T.img, 0, 0); return T.c;
+}
+
+function bodyPath(col, r, t) {
+  ctx.beginPath();
+  if (col === 'R') {                           // gelatina de fuego: base con bultos y cima redondeada (la llama va encima)
+    const j = k => 1 + 0.03 * Math.sin(t * 4.2 + k * 1.9);
+    ctx.moveTo(-r * 0.95, r * 0.3);
+    ctx.quadraticCurveTo(-r * 1.08, r * 0.88, -r * 0.52, r * 0.86); ctx.quadraticCurveTo(-r * 0.25, r * 1.06, r * 0.05, r * 0.9);
+    ctx.quadraticCurveTo(r * 0.4, r * 1.06, r * 0.66, r * 0.84); ctx.quadraticCurveTo(r * 1.1, r * 0.74, r * 0.95, r * 0.26);
+    ctx.bezierCurveTo(r * 0.98 * j(1), -r * 0.3, r * 0.6 * j(2), -r * 0.78, 0, -r * 0.78);
+    ctx.bezierCurveTo(-r * 0.6 * j(3), -r * 0.78, -r * 0.98 * j(4), -r * 0.3, -r * 0.95, r * 0.3);  } else if (col === 'G') {                    // slime: cima redonda, base ancha que se desparrama
+    const j = k => 1 + 0.035 * Math.sin(t * 2.2 + k * 1.6);
+    ctx.moveTo(0, -r * 0.8);
+    ctx.bezierCurveTo(r * 0.5, -r * 0.82, r * 0.72 * j(1), -r * 0.35, r * 0.82 * j(1), r * 0.15);
+    ctx.bezierCurveTo(r * 0.95 * j(2), r * 0.55, r * 1.04 * j(2), r * 0.9, r * 0.62, r * 0.93);
+    ctx.quadraticCurveTo(r * 0.3, r * 1.0, 0, r * 0.94); ctx.quadraticCurveTo(-r * 0.3, r * 1.0, -r * 0.62, r * 0.93);
+    ctx.bezierCurveTo(-r * 1.04 * j(3), r * 0.9, -r * 0.95 * j(3), r * 0.55, -r * 0.82 * j(4), r * 0.15);
+    ctx.bezierCurveTo(-r * 0.72 * j(4), -r * 0.35, -r * 0.5, -r * 0.82, 0, -r * 0.8);  } else if (col === 'B') {                    // gota de gelatina que tiembla
+    const j = k => 1 + 0.04 * Math.sin(t * 3.1 + k * 1.7), w = Math.sin(t * 2.4) * r * 0.05;
+    ctx.moveTo(r * 0.02, -r * 1.12);
+    ctx.bezierCurveTo(r * 0.45 + w, -r * 1.32, r * 0.62 + w, -r * 0.98, r * 0.32, -r * 0.86);
+    ctx.bezierCurveTo(r * 0.78 * j(1), -r * 0.45, r * 0.96 * j(2), r * 0.05, r * 0.9 * j(3), r * 0.32);
+    ctx.bezierCurveTo(r * 0.85 * j(4), r * 0.8, r * 0.45, r * 0.96 * j(5), 0, r * 0.96 * j(5));
+    ctx.bezierCurveTo(-r * 0.5, r * 0.96 * j(5), -r * 0.92 * j(6), r * 0.75, -r * 0.92 * j(7), r * 0.3);
+    ctx.bezierCurveTo(-r * 0.92 * j(8), -r * 0.2, -r * 0.4, -r * 0.6, r * 0.02, -r * 1.12);
+  } else if (col === 'Y') {
+    CRYS.forEach(([x, y], i) => i ? ctx.lineTo(x * r, y * r) : ctx.moveTo(x * r, y * r));
+  } else if (col === 'P') {
+    ctx.moveTo(r * 0.49, -r * 0.46);
+    ctx.arcTo(r * 0.98, 0, 0, r * 0.92, r * 0.36); ctx.arcTo(0, r * 0.92, -r * 0.98, 0, r * 0.42); ctx.arcTo(-r * 0.98, 0, 0, -r * 0.92, r * 0.36); ctx.arcTo(0, -r * 0.92, r * 0.98, 0, r * 0.3);
+    ctx.closePath();
+    const w = Math.sin(t * 2.2) * r * 0.08;
+    ctx.moveTo(-r * 0.22, -r * 0.72); ctx.bezierCurveTo(-r * 0.3, -r * 1.12, r * 0.02 + w, -r * 1.46, r * 0.3 + w, -r * 1.24);
+    ctx.bezierCurveTo(r * 0.1 + w, -r * 1.24, -r * 0.02, -r * 1.04, r * 0.22, -r * 0.72);
+  } else {
+    for (const [cx, cy, rad] of [[-0.5, 0.15, 0.48], [0.02, -0.22, 0.6], [0.52, 0.06, 0.5], [0.8, 0.42, 0.34], [-0.82, 0.45, 0.32]]) { ctx.moveTo(cx * r + rad * r, cy * r); ctx.arc(cx * r, cy * r, rad * r, 0, TAU); }
+    ctx.moveTo(r * 0.85, r * 0.45); ctx.ellipse(0, r * 0.45, r * 0.85, r * 0.38, 0, 0, TAU);
+  }
+  ctx.closePath();
+}
+function drawFace(D, r, mood, ph, x, y) {
+  const ey = D.eyeY * r, ex = r * 0.33, fall = mood === 'fall', hype = mood === 'hype', er = r * (fall ? 0.2 : 0.17);
+  const blink = ((G.time + ph * 3) % 3.7) < 0.13 && mood === 'idle';
+  let lx = 0, ly = 0; if (V.look && G.time - V.look.t < 3 && !fall) { const dx = V.look.x - x, dy = V.look.y - y, d = Math.hypot(dx, dy) || 1; lx = dx / d * er * 0.32; ly = dy / d * er * 0.32; }
+  for (const sd of [-1, 1]) {
+    const cx = sd * ex, closed = !fall && (blink || D.eyes === 'happy' || (D.eyes === 'wink' && sd < 0));
+    if (closed) { ctx.strokeStyle = '#2a1a3a'; ctx.lineWidth = r * 0.075; ctx.lineCap = 'round'; ctx.beginPath(); ctx.arc(cx, ey + er * 0.35, er * 0.8, Math.PI * 1.15, Math.PI * 1.85); ctx.stroke(); continue; }
+    ctx.save(); ctx.beginPath(); ctx.ellipse(cx, ey, er * 0.95, er * 1.12, 0, 0, TAU); ctx.fillStyle = '#ffffff'; ctx.fill(); ctx.clip();
+    const py = ey + ly + (fall ? er * 0.25 : 0);
+    ctx.fillStyle = D.iris; ctx.beginPath(); ctx.arc(cx + lx * 0.8, py, er * 0.7, 0, TAU); ctx.fill();
+    ctx.fillStyle = '#1a0f22'; ctx.beginPath(); ctx.arc(cx + lx, py, er * 0.38, 0, TAU); ctx.fill();
+    ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(cx + lx - er * 0.25, py - er * 0.32, er * (hype ? 0.32 : 0.21), 0, TAU); ctx.fill();
+    const lid = { angry: [-sd * 0.5, 1.25], sly: [-sd * 0.1, 1.6], calm: [0, 1.05] }[D.eyes];
+    if (!fall && lid) {                        // párpados: enfadado, pícaro o tranquilo
+      ctx.translate(cx, ey); ctx.rotate(lid[0]); ctx.fillStyle = D.mid; ctx.fillRect(-er * 1.5, -er * 1.7, er * 3, er * lid[1]);
+      ctx.strokeStyle = 'rgba(40,10,40,.55)'; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(-er * 1.2, -er * (1.7 - lid[1])); ctx.lineTo(er * 1.2, -er * (1.7 - lid[1])); ctx.stroke();
+    }
+    ctx.restore();
+  }
+  if (D.eyes === 'angry' && !fall) { ctx.strokeStyle = '#5a0a05'; ctx.lineWidth = r * 0.08; ctx.lineCap = 'round'; for (const sd of [-1, 1]) { ctx.beginPath(); ctx.moveTo(sd * ex * 1.45, ey - er * 1.45); ctx.lineTo(sd * ex * 0.45, ey - er * 0.95); ctx.stroke(); } }   // cejas fruncidas
+  ctx.fillStyle = 'rgba(255,110,150,.28)'; for (const sd of [-1, 1]) { ctx.beginPath(); ctx.ellipse(sd * r * 0.56, ey + er * 1.15, r * 0.1, r * 0.06, 0, 0, TAU); ctx.fill(); }
+  const my = ey + r * 0.3; ctx.fillStyle = '#2a1a3a'; ctx.strokeStyle = '#2a1a3a'; ctx.lineCap = 'round';
+  if (fall) { ctx.beginPath(); ctx.ellipse(0, my + r * 0.04, r * 0.09, r * 0.12, 0, 0, TAU); ctx.fill(); }
+  else if (hype) { ctx.beginPath(); ctx.arc(0, my - r * 0.04, r * 0.16, 0.05 * Math.PI, 0.95 * Math.PI); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#ff7a9a'; ctx.beginPath(); ctx.arc(0, my + r * 0.07, r * 0.07, 0, Math.PI); ctx.fill(); }
+  else if (D.eyes === 'angry') { ctx.lineWidth = r * 0.075; ctx.beginPath(); ctx.moveTo(-r * 0.12, my); ctx.quadraticCurveTo(0, my - r * 0.08, r * 0.14, my + r * 0.02); ctx.stroke(); }   // mueca
+  else { ctx.lineWidth = r * 0.075; ctx.beginPath(); ctx.arc(0, my - r * 0.08, r * 0.13, 0.2 * Math.PI, 0.8 * Math.PI); ctx.stroke(); }
+}
+function drawRunes(r, t, back) {               // runas arcanas que orbitan (detrás o delante del cuerpo)
+  for (let k = 0; k < 3; k++) {
+    const an = t * 1.3 + k * TAU / 3, dp = Math.sin(an); if (back ? dp >= 0 : dp < 0) continue;
+    const rx = Math.cos(an) * r * 1.3, ry = r * 0.12 + dp * r * 0.42, sc = 0.75 + 0.25 * (dp + 1) / 2;
+    ctx.save(); ctx.translate(rx, ry); ctx.scale(sc, sc); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = back ? 0.45 : 0.95;
+    ctx.strokeStyle = '#e6c2ff'; ctx.shadowColor = '#b76bff'; ctx.shadowBlur = 8; ctx.lineWidth = 1.6; const z = r * 0.16;
+    ctx.beginPath(); ctx.arc(0, 0, z, 0, TAU); ctx.stroke(); ctx.beginPath();
+    if (k === 0) { ctx.moveTo(-z * 0.5, z * 0.4); ctx.lineTo(0, -z * 0.55); ctx.lineTo(z * 0.5, z * 0.4); } else if (k === 1) { ctx.moveTo(0, -z * 0.6); ctx.lineTo(0, z * 0.6); ctx.moveTo(-z * 0.45, 0); ctx.lineTo(z * 0.45, 0); } else { ctx.moveTo(-z * 0.5, -z * 0.3); ctx.lineTo(z * 0.5, -z * 0.3); ctx.lineTo(-z * 0.5, z * 0.4); ctx.lineTo(z * 0.5, z * 0.4); }
+    ctx.stroke(); ctx.restore();
+  }
+}
+function drawFluffy(x, y, r, color, sq, mood, ph) {
+  const D = FL[color] || FL.R, t = G.time + ph; sq = clamp(sq, -0.3, 0.4);
+  ctx.save(); ctx.translate(x, y + r * sq * 0.6); ctx.scale(1 + sq * 0.8, 1 - sq);
+  ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.beginPath(); ctx.ellipse(0, r * 0.98, r * 0.72, r * 0.15, 0, 0, TAU); ctx.fill();   // sombra
+  // ---- carácter: cada elemento se mueve a su manera ----
+  let flare = 0;
+  if (color === 'R') { flare = Math.pow(Math.max(0, Math.sin(t * 0.9 + ph * 2)), 10); ctx.translate(Math.sin(t * 45) * r * 0.015 * (0.3 + flare), 0); ctx.scale(1 + flare * 0.08, 1 + flare * 0.1); }   // genio vivo: llamarada
+  else if (color === 'G') { ctx.translate(0, r * 0.9); ctx.rotate(Math.sin(t * 1.2) * 0.07); ctx.translate(0, -r * 0.9); }                                  // se mece con calma
+  else if (color === 'B') { const bb = Math.sin(t * 3) * 0.035; ctx.scale(1 + bb, 1 - bb); }                                                                // respira, gelatina
+  else if (color === 'Y') ctx.translate(Math.sin(t * 60) * r * 0.012, 0);                                                                                  // vibra de energía
+  else if (color === 'P') ctx.translate(0, Math.sin(t * 2) * r * 0.08);                                                                                     // levita
+  else ctx.translate(Math.sin(t * 1.3) * r * 0.04, Math.sin(t * 1.7) * r * 0.03);                                                                           // flota
+  if (color === 'R') drawFlame(Math.sin(t * 3.4) * r * 0.1, -r * 0.62, r * 0.55, r * (1.0 + flare * 0.6), FIRE, ph * 5, 0.5 + flare * 0.4);
+  if (color === 'R') {                                   // llama viva en la cabeza (detrás del cuerpo, que tapa su base)
+    const w = Math.sin(t * 3.4) * r * 0.1, hh = 1.55 + 0.15 * fnz(t * 3, 2) + flare * 0.35;
+    const fl = (k, wd) => { ctx.beginPath(); ctx.moveTo(-r * 0.3 * wd, -r * 0.5); ctx.bezierCurveTo(-r * 0.44 * wd, -r * 0.98, -r * 0.06 + w, -r * (hh - 0.45) * k, r * 0.06 + w * 1.2, -r * hh * k);
+      ctx.bezierCurveTo(r * 0.14 + w * 0.6, -r * (hh - 0.3) * k, r * 0.46 * wd, -r * 1.0, r * 0.32 * wd, -r * 0.5); ctx.closePath(); };
+    const fg = ctx.createLinearGradient(0, -r * 0.6, 0, -r * hh); fg.addColorStop(0, '#ff3a14'); fg.addColorStop(0.45, '#ff8c1f'); fg.addColorStop(1, '#ffe27a');
+    ctx.save(); ctx.shadowColor = '#ff8a3c'; ctx.shadowBlur = 16; fl(1, 1); ctx.fillStyle = fg; ctx.fill(); ctx.restore();
+    fl(0.82, 0.55); const cg = ctx.createLinearGradient(0, -r * 0.6, 0, -r * hh * 0.82); cg.addColorStop(0, 'rgba(255,200,80,.9)'); cg.addColorStop(1, 'rgba(255,250,215,.95)'); ctx.fillStyle = cg; ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.beginPath(); ctx.ellipse(-r * 0.1 + w * 0.5, -r * 1.02, r * 0.05, r * 0.12, -0.3, 0, TAU); ctx.fill();
+  }
+  if (color === 'P') drawRunes(r, t, true);
+  if (mood === 'hype' || color === 'W') { ctx.shadowColor = D.hi; ctx.shadowBlur = color === 'W' ? 12 : 14 + 8 * Math.sin(G.time * 8 + ph); }
+  bodyPath(color, r, t);
+  let g;
+  if (color === 'Y') { g = ctx.createLinearGradient(0, -r, 0, r); g.addColorStop(0, D.hi); g.addColorStop(0.45, D.mid); g.addColorStop(1, D.lo); }
+  else { g = ctx.createRadialGradient(D.gl[0] * r * 0.6, D.gl[1] * r, r * 0.08, 0, r * 0.1, r * 1.3); g.addColorStop(0, D.hi); g.addColorStop(0.45, D.mid); g.addColorStop(1, D.lo); }
+  ctx.fillStyle = g; ctx.fill(); ctx.shadowBlur = 0;
+  ctx.save(); bodyPath(color, r, t); ctx.clip();
+  if (color !== 'Y') { ctx.globalAlpha = color === 'B' ? 0.82 : color === 'R' ? 0.5 : color === 'G' ? 0.42 : 0.95; ctx.drawImage(texFor(color), -r * 1.25, -r * 1.65, r * 2.5, r * 2.8); ctx.globalAlpha = 1; }   // textura procedural del elemento
+  if (color === 'W') { const wg = ctx.createLinearGradient(0, -r, 0, r); wg.addColorStop(0, 'rgba(255,255,255,.45)'); wg.addColorStop(1, 'rgba(255,255,255,0)'); ctx.fillStyle = wg; ctx.fillRect(-r * 1.5, -r * 1.5, r * 3, r * 3); }
+  if (color === 'Y') {                                   // cristal: facetas, núcleo que late y rayos dentro
+    const P = CRYS.map(([u, v]) => [u * r, v * r]), Q = P.map(([u, v]) => [u * 0.5, v * 0.5 - r * 0.12]);
+    for (let i = 0; i < P.length; i++) { const j = (i + 1) % P.length; ctx.beginPath(); ctx.moveTo(P[i][0], P[i][1]); ctx.lineTo(P[j][0], P[j][1]); ctx.lineTo(Q[j][0], Q[j][1]); ctx.lineTo(Q[i][0], Q[i][1]); ctx.closePath(); ctx.fillStyle = i % 2 ? 'rgba(255,255,255,.18)' : 'rgba(120,60,0,.16)'; ctx.fill(); }
+    ctx.beginPath(); Q.forEach(([u, v], i) => i ? ctx.lineTo(u, v) : ctx.moveTo(u, v)); ctx.closePath(); ctx.fillStyle = 'rgba(255,250,215,.3)'; ctx.fill(); ctx.strokeStyle = 'rgba(255,245,200,.55)'; ctx.lineWidth = 1; ctx.stroke();
+    ctx.globalCompositeOperation = 'lighter';
+    const pg = ctx.createRadialGradient(0, -r * 0.05, 0, 0, -r * 0.05, r * 0.8); pg.addColorStop(0, 'rgba(255,240,150,' + (0.35 + 0.25 * Math.sin(t * 6)) + ')'); pg.addColorStop(1, 'rgba(255,200,60,0)'); ctx.fillStyle = pg; ctx.fillRect(-r, -r, r * 2, r * 2);
+    if (Math.random() < 0.75) for (let k = 0; k < 2; k++) {
+      let px = rand(-0.7, 0.7) * r, py = rand(-0.7, 0.7) * r; const tx = rand(-0.7, 0.7) * r, ty = rand(-0.7, 0.7) * r, pts = [[px, py]];
+      for (let j = 1; j <= 5; j++) pts.push([lerp(px, tx, j / 5) + rand(-0.12, 0.12) * r, lerp(py, ty, j / 5) + rand(-0.12, 0.12) * r]);
+      for (const [lw, cl] of [[r * 0.13, 'rgba(255,210,70,.45)'], [r * 0.045, 'rgba(255,255,235,.95)']]) { ctx.strokeStyle = cl; ctx.lineWidth = lw; ctx.lineJoin = 'round'; ctx.beginPath(); pts.forEach(([u, v], i) => i ? ctx.lineTo(u, v) : ctx.moveTo(u, v)); ctx.stroke(); }
+    }
+    ctx.globalCompositeOperation = 'source-over';
+  }
+  if (color === 'B') for (let k = 0; k < 5; k++) { const q = (t * 0.35 + k * 0.23) % 1; ctx.strokeStyle = 'rgba(255,255,255,' + (0.7 * (1 - q)) + ')'; ctx.lineWidth = 1.3; ctx.beginPath(); ctx.arc(r * (0.3 + 0.18 * Math.sin(k * 2.3)), r * (0.8 - q * 0.95), r * (0.045 + 0.03 * (k % 2)), 0, TAU); ctx.stroke(); }
+  if (color === 'P') { ctx.fillStyle = '#ffffff'; for (let k = 0; k < 7; k++) { const sx = (((Math.sin(k * 12.9898 + ph * 3) * 43758.5453) % 1 + 1) % 1 - 0.5) * r * 1.3, sy = (((Math.sin(k * 78.233 + ph) * 12345.678) % 1 + 1) % 1 - 0.5) * r * 1.3; ctx.globalAlpha = 0.35 + 0.65 * Math.abs(Math.sin(t * 2.5 + k * 1.7)); starPath(sx, sy, r * (0.05 + 0.03 * (k % 2)), 4, 0.35, 0); ctx.fill(); } ctx.globalAlpha = 1; }
+  const sh = ctx.createRadialGradient(r * 0.25, r * 0.95, r * 0.1, r * 0.25, r * 0.95, r * 1.15); sh.addColorStop(0, 'rgba(0,0,0,.3)'); sh.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = sh; ctx.fillRect(-r * 1.6, -r * 1.7, r * 3.2, r * 3.4);
+  if (color !== 'W') { bodyPath(color, r, t); ctx.strokeStyle = color === 'R' ? 'rgba(255,190,150,.45)' : 'rgba(255,255,255,.38)'; ctx.lineWidth = r * 0.14; ctx.stroke(); }   // luz de borde
   ctx.restore();
+  if (color !== 'W') { bodyPath(color, r, t); ctx.strokeStyle = 'rgba(30,10,40,.38)'; ctx.lineWidth = 1.5; ctx.lineJoin = 'round'; ctx.stroke(); }
+  ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.beginPath(); ctx.ellipse(D.gl[0] * r, D.gl[1] * r, r * 0.2, r * 0.1, -0.6, 0, TAU); ctx.fill();   // brillo
+  ctx.beginPath(); ctx.arc(D.gl[0] * r + r * 0.26, D.gl[1] * r - r * 0.12, r * 0.05, 0, TAU); ctx.fill();
+  if (color === 'G') {                                   // hoja grande con gota de rocío, se mece
+    ctx.save(); ctx.translate(r * 0.05, -r * 0.76); ctx.strokeStyle = '#3a6a1a'; ctx.lineWidth = r * 0.07; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(0, 0); ctx.quadraticCurveTo(r * 0.02, -r * 0.12, r * 0.06, -r * 0.18); ctx.stroke();
+    ctx.translate(r * 0.06, -r * 0.16); ctx.rotate(0.95 + Math.sin(t * 1.8) * 0.12); ctx.translate(0, -r * 0.34);
+    const lg = ctx.createLinearGradient(-r * 0.25, -r * 0.34, r * 0.25, r * 0.34); lg.addColorStop(0, '#b6ff8a'); lg.addColorStop(0.5, '#46c93a'); lg.addColorStop(1, '#1d8a24');
+    ctx.save(); ctx.shadowColor = 'rgba(0,0,0,.3)'; ctx.shadowBlur = 4; ctx.shadowOffsetY = 2; ctx.fillStyle = lg; leafPath(r * 0.36); ctx.fill(); ctx.restore();
+    ctx.strokeStyle = 'rgba(20,90,30,.7)'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(0, r * 0.32); ctx.lineTo(0, -r * 0.28); ctx.stroke();
+    for (const sd of [-1, 1]) for (let k = 0; k < 2; k++) { ctx.beginPath(); ctx.moveTo(0, r * (0.12 - k * 0.2)); ctx.lineTo(sd * r * 0.12, r * (0.0 - k * 0.2)); ctx.stroke(); }
+    ctx.fillStyle = 'rgba(255,255,255,.45)'; ctx.beginPath(); ctx.ellipse(-r * 0.08, -r * 0.06, r * 0.04, r * 0.14, 0.2, 0, TAU); ctx.fill();
+    const dg = ctx.createRadialGradient(r * 0.1, r * 0.06, 0, r * 0.12, r * 0.08, r * 0.08); dg.addColorStop(0, '#ffffff'); dg.addColorStop(1, 'rgba(190,240,255,.85)'); ctx.fillStyle = dg; ctx.beginPath(); ctx.arc(r * 0.12, r * 0.08, r * 0.075, 0, TAU); ctx.fill();
+    ctx.restore();
+  }
+  if (color === 'Y' && Math.sin(t * 1.7) > 0.8)  if (color === 'Y' && Math.sin(t * 1.7) > 0.8) { ctx.fillStyle = '#fffbe0'; starPath(r * 0.5, -r * 0.55, r * 0.14 * (Math.sin(t * 1.7) - 0.8) * 5, 4, 0.3, t); ctx.fill(); }
+  if (color === 'W') for (let k = 0; k < 3; k++) { const q = (t * 0.3 + k * 0.33) % 1; ctx.fillStyle = 'rgba(255,255,255,' + (0.3 * (1 - q)) + ')'; ctx.beginPath(); ctx.arc(r * (0.55 + 0.2 * k), -r * (0.7 + q * 0.5), r * (0.12 + q * 0.1), 0, TAU); ctx.fill(); }
+  if (color === 'P') drawRunes(r, t, false);
+  drawFace(D, r, mood, ph, x, y);
+  ctx.restore();
+  // partículas propias de cada elemento
+  if (color === 'R' && Math.random() < 0.05 + flare * 0.3) V.parts.push({ x: x + rand(-r * 0.4, r * 0.4), y: y - r * 0.9, vx: rand(-20, 20), vy: rand(-110, -50), life: rand(0.4, 0.8), max: 0.8, color: Math.random() < 0.5 ? '#ffcf6a' : '#ff7a3c', size: rand(1.2, 2.4), grav: -30, type: 'spark', rot: 0, drag: 1 });
+  if (color === 'B' && Math.random() < 0.006) V.parts.push({ x: x + rand(-r * 0.3, r * 0.3), y: y + r * 0.9, vx: 0, vy: 40, life: 0.6, max: 0.6, color: '#a5d6ff', size: 2.6, grav: 900, type: 'drop', rot: 0 });
+  if (color === 'Y' && Math.random() < 0.03) { const a = rand(0, TAU); V.parts.push({ x: x + Math.cos(a) * r * 0.8, y: y + Math.sin(a) * r * 0.8, vx: Math.cos(a) * 160, vy: Math.sin(a) * 160, life: 0.2, max: 0.2, color: '#fff6c2', size: 1.6, grav: 0, type: 'spark', rot: 0, drag: 3 }); }
 }
 
 function drawBlock(e) {
@@ -1354,7 +1974,7 @@ function drawBlock(e) {
     if (e.wob) { const w = e.wob; if (ax >= ay) { sx *= 1 - w; sy *= 1 + w * 0.7; } else { sy *= 1 - w; sx *= 1 + w * 0.7; } }                   // aplastado al frenar
     ctx.scale(sx, sy); }
   if (e.k === 'frost') {
-    const g = ctx.createLinearGradient(0, -s / 2, 0, s / 2); g.addColorStop(0, '#f1fcff'); g.addColorStop(1, '#7cc4ea');
+    const g = ctx.createLinearGradient(0, -s / 2, 0, s / 2); g.addColorStop(0, '#c6ecff'); g.addColorStop(0.5, '#7cc8f2'); g.addColorStop(1, '#3a8fd0');
     ctx.fillStyle = g; rr(-s / 2, -s / 2, s, s, 12); ctx.fill(); ctx.strokeStyle = '#ffffffcc'; ctx.lineWidth = 3; ctx.stroke();
     ctx.strokeStyle = 'rgba(255,255,255,.9)'; ctx.lineWidth = 3; ctx.lineCap = 'round';
     for (let i = 0; i < 3; i++) { const a = i * Math.PI / 3; ctx.beginPath(); ctx.moveTo(Math.cos(a) * 17, Math.sin(a) * 17); ctx.lineTo(-Math.cos(a) * 17, -Math.sin(a) * 17); ctx.stroke(); }
@@ -1381,10 +2001,18 @@ function drawBlock(e) {
     ctx.save(); ctx.translate(0, -4); ctx.rotate(G.time * 0.6); starPath(0, 0, 13, 3, 0.4); ctx.fillStyle = C.m; ctx.fill(); ctx.restore();
     for (let i = 0; i < 3; i++) { ctx.fillStyle = i < n ? C.l : '#3a3357'; ctx.beginPath(); ctx.arc(-12 + i * 12, 23, 4, 0, TAU); ctx.fill(); }
   } else {
-    const C = COLORS[e.col], g = ctx.createLinearGradient(0, -s / 2, 0, s / 2); g.addColorStop(0, C.m); g.addColorStop(1, C.d);
-    ctx.fillStyle = g; rr(-s / 2, -s / 2, s, s, e.k === 'free' ? 22 : 13); ctx.fill();
-    ctx.strokeStyle = C.l; ctx.lineWidth = 2.5; ctx.stroke();
-    ctx.fillStyle = 'rgba(255,255,255,.16)'; rr(-s / 2 + 5, -s / 2 + 5, s - 10, s * 0.36, e.k === 'free' ? 16 : 9); ctx.fill();
+    const C = COLORS[e.col], rad = e.k === 'free' ? 22 : 13, BK = { R: ['#ff7a5c', '#e42a1c', '#8a0c05'], G: ['#86ff8e', '#2fbf3a', '#127a1b'], B: ['#94d4ff', '#2f8cff', '#1250b0'], Y: ['#ffe58a', '#ffb81f', '#b07200'], P: ['#d9a8ff', '#9446f0', '#4a1696'] }[e.col] || [C.l, C.m, C.d];
+    ctx.fillStyle = 'rgba(0,0,0,.38)'; rr(-s / 2 + 1, -s / 2 + 5, s, s, rad); ctx.fill();                                // sombra proyectada
+    const g = ctx.createLinearGradient(0, -s / 2, 0, s / 2); g.addColorStop(0, BK[0]); g.addColorStop(0.22, BK[1]); g.addColorStop(0.75, BK[1]); g.addColorStop(1, BK[2]);
+    ctx.fillStyle = g; rr(-s / 2, -s / 2, s, s, rad); ctx.fill();
+    drawBlockEmblem(e.col, s, e.ph || 0, rad);
+    ctx.save(); rr(-s / 2, -s / 2, s, s, rad); ctx.clip();
+    const bv = ctx.createLinearGradient(0, -s / 2, 0, s / 2); bv.addColorStop(0, 'rgba(255,255,255,.5)'); bv.addColorStop(0.13, 'rgba(255,255,255,.06)'); bv.addColorStop(0.82, 'rgba(0,0,0,0)'); bv.addColorStop(1, 'rgba(0,0,0,.4)');
+    ctx.fillStyle = bv; ctx.fillRect(-s / 2, -s / 2, s, s);                                                                // bisel: luz arriba, sombra abajo
+    ctx.fillStyle = 'rgba(255,255,255,.26)'; ctx.beginPath(); ctx.ellipse(-s * 0.06, -s * 0.31, s * 0.42, s * 0.15, -0.08, 0, TAU); ctx.fill();   // brillo de caramelo
+    ctx.restore();
+    ctx.strokeStyle = 'rgba(0,0,0,.5)'; ctx.lineWidth = 2; rr(-s / 2, -s / 2, s, s, rad); ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,.45)'; ctx.lineWidth = 1.5; rr(-s / 2 + 2.5, -s / 2 + 2.5, s - 5, s - 5, rad - 2); ctx.stroke();
     { const sw = ((G.time * 0.45 + e.ph * 0.37) % 2.4) - 0.7;            // destello que recorre el bloque de vez en cuando
       if (sw > -0.4 && sw < 1.4) { ctx.save(); rr(-s / 2, -s / 2, s, s, e.k === 'free' ? 22 : 13); ctx.clip(); ctx.transform(1, 0, -0.5, 1, 0, 0);
         const sx2 = -s / 2 + sw * s * 1.3, lg3 = ctx.createLinearGradient(sx2 - 12, 0, sx2 + 12, 0); lg3.addColorStop(0, 'rgba(255,255,255,0)'); lg3.addColorStop(0.5, 'rgba(255,255,255,.4)'); lg3.addColorStop(1, 'rgba(255,255,255,0)');
@@ -1392,7 +2020,8 @@ function drawBlock(e) {
     ctx.fillStyle = '#fff'; ctx.shadowColor = '#0008'; ctx.shadowBlur = 4;
     if (e.k === 'arrow') {
       ctx.rotate(ROT[e.dir]); const o = e.ch ? 0 : Math.max(0, Math.sin(G.time * 4 + e.ph)) * 3; ctx.translate(o, 0);
-      ctx.beginPath(); ctx.moveTo(-17, -7); ctx.lineTo(2, -7); ctx.lineTo(2, -17); ctx.lineTo(20, 0); ctx.lineTo(2, 17); ctx.lineTo(2, 7); ctx.lineTo(-17, 7); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(-18, -7.5); ctx.lineTo(1, -7.5); ctx.lineTo(1, -18); ctx.lineTo(21, 0); ctx.lineTo(1, 18); ctx.lineTo(1, 7.5); ctx.lineTo(-18, 7.5); ctx.closePath();
+      ctx.shadowOffsetY = 2.5; ctx.fill(); ctx.shadowColor = 'transparent'; ctx.shadowOffsetY = 0; ctx.strokeStyle = 'rgba(50,10,20,.55)'; ctx.lineWidth = 2.4; ctx.lineJoin = 'round'; ctx.stroke();
       ctx.translate(-o, 0); ctx.rotate(-ROT[e.dir]);
     } else {
       ctx.beginPath(); ctx.moveTo(0, -11); ctx.lineTo(11, 0); ctx.lineTo(0, 11); ctx.lineTo(-11, 0); ctx.closePath(); ctx.fill();
@@ -1421,6 +2050,154 @@ function drawBubble(x, y, ph) {
   ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.beginPath(); ctx.ellipse(-r * 0.42, -r * 0.46, 7, 3.5, -0.7, 0, TAU); ctx.fill();
   ctx.restore();
 }
+/* FUEGO: ruido suave (suma de senos) + lenguas superpuestas en modo aditivo:
+   halo de luz, capa exterior roja, capa media naranja, núcleo blanco y flecos que se desprenden. */
+const fnz = (t, s) => Math.sin(t * 1.7 + s) * 0.5 + Math.sin(t * 3.1 + s * 1.9) * 0.3 + Math.sin(t * 5.3 + s * 2.7) * 0.2;
+const FIRE = { core: 'rgba(255,248,220,', mid: 'rgba(255,178,56,', out: 'rgba(255,74,28,', glow: 'rgba(255,110,40,' };
+const BLUEFIRE = { core: 'rgba(240,251,255,', mid: 'rgba(127,208,255,', out: 'rgba(47,107,255,', glow: 'rgba(80,150,255,' };
+function flameTongue(x, by, w, h, sway) {
+  ctx.beginPath(); ctx.moveTo(x - w / 2, by);
+  ctx.bezierCurveTo(x - w * 0.6, by - h * 0.35, x - w * 0.12 + sway * 0.5, by - h * 0.68, x + sway, by - h);
+  ctx.bezierCurveTo(x + w * 0.12 + sway * 0.5, by - h * 0.68, x + w * 0.6, by - h * 0.35, x + w / 2, by);
+  ctx.quadraticCurveTo(x, by + w * 0.32, x - w / 2, by); ctx.fill();
+}
+function drawFlame(x, by, w, h, pal, seed, alpha = 1) {
+  const t = G.time; ctx.save(); ctx.globalCompositeOperation = 'lighter';
+  const hg = ctx.createRadialGradient(x, by - h * 0.35, 0, x, by - h * 0.35, h * 1.2); hg.addColorStop(0, pal.glow + (0.4 * alpha) + ')'); hg.addColorStop(1, pal.glow + '0)');
+  ctx.fillStyle = hg; ctx.fillRect(x - h * 1.2, by - h * 1.55, h * 2.4, h * 2.4);
+  for (const [k, col, a, n] of [[1, pal.out, 0.6, 3], [0.74, pal.mid, 0.8, 2], [0.44, pal.core, 1, 1]]) {
+    for (let i = 0; i < n; i++) {
+      const mid = i === (n - 1) / 2, off = (i - (n - 1) / 2) * w * 0.3 * k, sd = seed + i * 3.3 + k * 7;
+      const hh = h * k * (0.76 + 0.24 * fnz(t * 2.6, sd)) * (mid ? 1 : 0.72), sway = fnz(t * 3.2, sd + 1) * w * 0.5 * k;
+      const g = ctx.createLinearGradient(0, by, 0, by - hh); g.addColorStop(0, col + (a * alpha) + ')'); g.addColorStop(0.55, col + (a * alpha * 0.85) + ')'); g.addColorStop(1, col + '0)');
+      ctx.fillStyle = g; flameTongue(x + off, by, w * k * (mid ? 1 : 0.68), hh, sway);
+    }
+  }
+  for (let i = 0; i < 3; i++) {             // flecos de llama que se separan y suben
+    const q = (t * 1.7 + i * 0.37 + seed * 0.13) % 1, fx = x + fnz(t * 2 + i, seed + i * 5) * w * 0.35, fy = by - h * (0.68 + q * 0.6), r = w * 0.13 * (1 - q);
+    ctx.fillStyle = pal.mid + ((1 - q) * 0.8 * alpha) + ')'; ctx.beginPath(); ctx.ellipse(fx, fy, r, r * 1.9, fnz(t, i) * 0.4, 0, TAU); ctx.fill();
+  }
+  ctx.restore();
+}
+
+/* ELEMENTOS: cada color tiene su forma. Fuego = llama, Naturaleza = hojas, Agua = gota/olas,
+   Rayo = zigzag eléctrico, Arcano = estrellas y runas. */
+const ELCOL = { R: ['255,250,220', '255,170,60', '255,60,20'], G: ['220,255,200', '61,220,132', '20,128,63'], B: ['230,248,255', '63,167,255', '21,87,176'], Y: ['255,255,230', '255,226,122', '255,170,0'], P: ['245,230,255', '183,107,255', '106,35,184'] };
+function leafPath(L) { ctx.beginPath(); ctx.moveTo(0, -L); ctx.quadraticCurveTo(L * 0.62, -L * 0.1, 0, L); ctx.quadraticCurveTo(-L * 0.62, -L * 0.1, 0, -L); ctx.closePath(); }
+function dropPath(r) { ctx.beginPath(); ctx.moveTo(0, -r * 1.7); ctx.bezierCurveTo(r * 0.5, -r * 0.9, r, -r * 0.3, r, 0.15 * r); ctx.arc(0, 0.15 * r, r, 0, Math.PI); ctx.bezierCurveTo(-r, -r * 0.3, -r * 0.5, -r * 0.9, 0, -r * 1.7); ctx.closePath(); }
+function boltPath(z) { ctx.beginPath(); ctx.moveTo(z * 0.25, -z); ctx.lineTo(-z * 0.45, z * 0.1); ctx.lineTo(-z * 0.02, z * 0.1); ctx.lineTo(-z * 0.3, z); ctx.lineTo(z * 0.5, -z * 0.18); ctx.lineTo(z * 0.05, -z * 0.18); ctx.closePath(); }
+/* remolino con la forma del elemento (sustituye al genérico cuando se conoce el elemento) */
+function drawElemSwirl(f, p) {
+  const e3 = 1 - Math.pow(1 - p, 3), R = f.r * (0.35 + 0.65 * e3), a = p < 0.6 ? 1 : (1 - p) / 0.4, rot = f.t * 7, [c0, c1, c2] = ELCOL[f.el] || ELCOL.P;
+  ctx.translate(f.x, f.y);
+  if (f.dark) { ctx.globalAlpha = 0.7 * a; ctx.fillStyle = '#05030c'; ctx.beginPath(); ctx.arc(0, 0, R * 0.5, 0, TAU); ctx.fill(); }
+  ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 1; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  if (f.el === 'R') {                        // lenguas de fuego girando en espiral
+    for (let k = 0; k < 7; k++) {
+      ctx.save(); ctx.rotate(rot + k * TAU / 7); const L = R * (0.85 + 0.15 * Math.sin(f.t * 22 + k * 2));
+      const g = ctx.createLinearGradient(0, 0, L, 0); g.addColorStop(0, 'rgba(' + c0 + ',' + a + ')'); g.addColorStop(0.45, 'rgba(' + c1 + ',' + 0.9 * a + ')'); g.addColorStop(1, 'rgba(' + c2 + ',0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(0, 0); ctx.quadraticCurveTo(L * 0.45, -L * 0.5, L, -L * 0.08 + Math.sin(f.t * 30 + k) * L * 0.07);
+      ctx.quadraticCurveTo(L * 0.6, -L * 0.06, L * 0.18, L * 0.16); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = 'rgba(' + c1 + ',' + 0.8 * a + ')'; ctx.beginPath(); ctx.ellipse(L * 0.96, -L * 0.2, L * 0.05, L * 0.1, 0.5, 0, TAU); ctx.fill();   // chispa en la punta
+      ctx.restore();
+    }
+    for (let k = 0; k < 8; k++) { ctx.save(); ctx.rotate(rot * 0.8 + k * TAU / 8); drawFlame(0, -R * 0.32, R * 0.3, R * 0.62 * (0.8 + 0.2 * Math.sin(f.t * 18 + k)), FIRE, k * 3, a); ctx.restore(); }   // corona de llamas que gira
+  } else if (f.el === 'B') {                 // olas curvas con espuma y gotas
+    for (let k = 0; k < 4; k++) {
+      const an = rot * 0.75 + k * TAU / 4, path = () => { ctx.beginPath(); for (let j = 0; j <= 22; j++) { const u = j / 22, rr2 = R * (0.22 + 0.78 * u), ang = an + u * 2.3, wb = Math.sin(u * 13 - f.t * 18) * R * 0.045; j ? ctx.lineTo(Math.cos(ang) * (rr2 + wb), Math.sin(ang) * (rr2 + wb)) : ctx.moveTo(Math.cos(ang) * (rr2 + wb), Math.sin(ang) * (rr2 + wb)); } };
+      path(); ctx.strokeStyle = 'rgba(' + c1 + ',' + 0.85 * a + ')'; ctx.lineWidth = R * 0.13 * (1 - p * 0.5); ctx.stroke();
+      path(); ctx.strokeStyle = 'rgba(' + c0 + ',' + a + ')'; ctx.lineWidth = 2.5; ctx.stroke();
+      const ea = an + 2.3; for (let d = 0; d < 3; d++) { ctx.save(); ctx.translate(Math.cos(ea) * R * (1.05 + d * 0.08), Math.sin(ea) * R * (1.05 + d * 0.08)); ctx.rotate(ea + Math.PI / 2); ctx.fillStyle = 'rgba(' + c0 + ',' + a + ')'; dropPath(3 - d * 0.7); ctx.fill(); ctx.restore(); }
+    }
+  } else if (f.el === 'G') {                 // zarcillos en espiral y hojas que giran
+    for (let k = 0; k < 3; k++) {
+      const an = rot * 0.5 + k * TAU / 3; ctx.beginPath();
+      for (let j = 0; j <= 24; j++) { const u = j / 24, ang = an + u * 3.6, rr2 = R * u; j ? ctx.lineTo(Math.cos(ang) * rr2, Math.sin(ang) * rr2) : ctx.moveTo(0, 0); }
+      ctx.strokeStyle = 'rgba(' + c1 + ',' + 0.9 * a + ')'; ctx.lineWidth = 4 * (1 - p * 0.5); ctx.stroke();
+    }
+    for (let k = 0; k < 9; k++) {
+      const ang = -rot * 0.55 + k * TAU / 9 + p * 2.5, rad = R * (k % 2 ? 0.7 : 0.95); ctx.save(); ctx.translate(Math.cos(ang) * rad, Math.sin(ang) * rad); ctx.rotate(ang + Math.PI / 2 + Math.sin(f.t * 12 + k) * 0.4);
+      const L = R * 0.15, lg = ctx.createLinearGradient(0, -L, 0, L); lg.addColorStop(0, 'rgba(' + c0 + ',' + a + ')'); lg.addColorStop(1, 'rgba(' + c1 + ',' + a + ')');
+      ctx.fillStyle = lg; leafPath(L); ctx.fill(); ctx.strokeStyle = 'rgba(' + c2 + ',' + a + ')'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(0, -L * 0.8); ctx.lineTo(0, L * 0.9); ctx.stroke(); ctx.restore();
+    }
+  } else if (f.el === 'Y') {                 // anillo eléctrico con arcos que chisporrotean
+    ctx.strokeStyle = 'rgba(' + c1 + ',' + a + ')'; ctx.lineWidth = 3; ctx.beginPath();
+    for (let j = 0; j <= 40; j++) { const ang = j / 40 * TAU, rr2 = R * (0.95 + rand(-0.06, 0.06)); j ? ctx.lineTo(Math.cos(ang) * rr2, Math.sin(ang) * rr2) : ctx.moveTo(rr2, 0); } ctx.stroke();
+    for (let k = 0; k < 6; k++) {
+      const ang = rot + k * TAU / 6; ctx.beginPath(); ctx.moveTo(Math.cos(ang) * R * 0.2, Math.sin(ang) * R * 0.2);
+      for (let j = 1; j <= 5; j++) { const u = 0.2 + j / 5 * 0.8, ja = ang + rand(-0.25, 0.25); ctx.lineTo(Math.cos(ja) * R * u, Math.sin(ja) * R * u); }
+      ctx.strokeStyle = 'rgba(' + c1 + ',' + a + ')'; ctx.lineWidth = 5 * (1 - p * 0.6); ctx.stroke(); ctx.strokeStyle = 'rgba(' + c0 + ',' + a + ')'; ctx.lineWidth = 1.8; ctx.stroke();
+    }
+  } else {                                   // arcano: círculo rúnico doble, hexagrama y estrellas
+    const tint = f.color || 'rgb(' + c1 + ')';
+    ctx.strokeStyle = tint; ctx.globalAlpha = a; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(0, 0, R, 0, TAU); ctx.stroke(); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(0, 0, R * 0.78, 0, TAU); ctx.stroke();
+    ctx.save(); ctx.rotate(rot * 0.4);
+    for (let k = 0; k < 10; k++) { ctx.save(); ctx.rotate(k * TAU / 10); ctx.translate(0, -R * 0.89); ctx.lineWidth = 1.8; ctx.beginPath();
+      if (k % 3 === 0) { ctx.moveTo(-4, 4); ctx.lineTo(0, -5); ctx.lineTo(4, 4); } else if (k % 3 === 1) { ctx.moveTo(0, -5); ctx.lineTo(0, 5); ctx.moveTo(-4, -1); ctx.lineTo(4, 1); } else { ctx.arc(0, 0, 3.5, 0, TAU); } ctx.stroke(); ctx.restore(); }
+    ctx.restore();
+    ctx.save(); ctx.rotate(-rot * 0.6); ctx.lineWidth = 2; for (const off of [0, Math.PI]) { ctx.beginPath(); for (let j = 0; j < 3; j++) { const ang = off + j * TAU / 3 - Math.PI / 2; j ? ctx.lineTo(Math.cos(ang) * R * 0.7, Math.sin(ang) * R * 0.7) : ctx.moveTo(Math.cos(ang) * R * 0.7, Math.sin(ang) * R * 0.7); } ctx.closePath(); ctx.stroke(); } ctx.restore();
+    ctx.fillStyle = '#fff'; for (let k = 0; k < 6; k++) { const ang = rot * 1.3 + k * TAU / 6; starPath(Math.cos(ang) * R * 1.08, Math.sin(ang) * R * 1.08, 4 + 2 * Math.sin(f.t * 15 + k), 4, 0.35, f.t * 4); ctx.fill(); }
+  }
+  ctx.globalAlpha = a; const cg = ctx.createRadialGradient(0, 0, 0, 0, 0, R * 0.42); cg.addColorStop(0, 'rgba(255,255,255,1)'); cg.addColorStop(0.4, 'rgba(' + c1 + ',.8)'); cg.addColorStop(1, 'rgba(' + c1 + ',0)');
+  ctx.fillStyle = cg; ctx.beginPath(); ctx.arc(0, 0, R * 0.42, 0, TAU); ctx.fill();
+}
+/* IMPACTO ELEMENTAL: cuando un bloque agrieta o rompe un obstáculo, el golpe toma la forma de su elemento.
+   Fuego = llamas y gotas de fuego · Agua = salpicadura y olas · Naturaleza = raíces y hojas ·
+   Rayo = descargas en todas direcciones · Arcano = remolino de aire que arrastra los escombros. */
+function impactFx(x, y, col, k = 1, debris) {
+  if (!col || !ELCOL[col]) return;
+  V.fx.push({ type: 'light', x, y, r: 210 * k, t: 0, dur: 0.5, rgb: ELCOL[col][1] }); shock(x, y, 0.008 * k, 480, 0.45);
+  if (col === 'R') {
+    V.fx.push({ type: 'vortex', x, y, r: 72 * k, color: '#ff8a3c', t: 0, dur: 0.55, el: 'R' }); elemBurst(x, y, 'R', Math.round(10 * k), 200);
+    for (let i = 0; i < 6 * k; i++) V.parts.push({ x: x + rand(-26, 26), y: y + 18, vx: 0, vy: rand(30, 90), life: rand(0.5, 0.9), max: 0.9, color: '#ffb347', size: rand(2, 4), grav: 320, type: 'drop', rot: 0 });
+    Snd.hiss();
+  } else if (col === 'B') {
+    V.fx.push({ type: 'vortex', x, y, r: 72 * k, color: '#3fa7ff', t: 0, dur: 0.6, el: 'B' }); elemBurst(x, y, 'B', Math.round(16 * k), 320);
+    V.fx.push({ type: 'ripple', x, y, color: '#a5d6ff', t: 0, dur: 0.6, rx: 72 * k, ry: 72 * k }); Snd.splash(1);
+  } else if (col === 'G') {
+    V.fx.push({ type: 'vortex', x, y, r: 64 * k, color: '#3ddc84', t: 0, dur: 0.6, el: 'G' }); elemBurst(x, y, 'G', Math.round(12 * k), 240);
+    V.fx.push({ type: 'roots', x, y, t: 0, dur: 0.8, seed: Math.floor(Math.random() * 99999), k });
+  } else if (col === 'Y') {
+    for (let i = 0; i < 5; i++) { const a = rand(0, TAU); V.fx.push({ type: 'bolt', x1: x, y1: y, x2: x + Math.cos(a) * 95 * k, y2: y + Math.sin(a) * 95 * k, color: '#ffe27a', t: 0, dur: 0.32 }); }
+    V.fx.push({ type: 'vortex', x, y, r: 64 * k, color: '#ffe27a', t: 0, dur: 0.45, el: 'Y' }); elemBurst(x, y, 'Y', Math.round(16 * k), 300); V.ca = Math.max(V.ca, 0.003); Snd.bolt();
+  } else {
+    V.fx.push({ type: 'wind', x, y, r: 90 * k, t: 0, dur: 0.95 }); V.fx.push({ type: 'vortex', x, y, r: 56 * k, color: '#b76bff', t: 0, dur: 0.6, el: 'P' });
+    for (let i = 0; i < 18 * k; i++) V.parts.push({ type: 'orbit', cx: x, cy: y, ang: rand(0, TAU), rad: rand(6, 26), angv: rand(9, 14), radv: rand(40, 95), x, y, vx: 0, vy: 0, grav: 0, life: rand(0.6, 1), max: 1, color: i % 3 ? '#dfc0ff' : '#ffffff', size: rand(2.5, 5), rot: rand(0, 6), spin: 8, dot: true });
+    if (debris) for (let i = 0; i < 8 * k; i++) V.parts.push({ type: 'orbit', cx: x, cy: y, ang: rand(0, TAU), rad: rand(10, 30), angv: rand(7, 11), radv: rand(50, 110), x, y, vx: 0, vy: 0, grav: 0, life: rand(0.7, 1.1), max: 1.1, color: debris, size: rand(6, 10), rot: rand(0, 6), spin: rand(-12, 12) });
+    Snd.wind();
+  }
+}
+/* partículas con la forma del elemento */
+function elemBurst(x, y, el, n = 14, sp = 280) {
+  for (let i = 0; i < n; i++) {
+    const a = rand(0, TAU), v = rand(0.3, 1) * sp;
+    if (el === 'R') V.parts.push({ x, y, vx: Math.cos(a) * v * 0.6, vy: Math.sin(a) * v * 0.6 - 120, life: rand(0.5, 1), max: 1, color: '', size: rand(8, 14), grav: -160, type: 'puff', rot: 0, drag: 2.5 });
+    else if (el === 'G') V.parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 80, life: rand(0.8, 1.4), max: 1.4, color: i % 2 ? '#3ddc84' : '#a8f5c9', size: rand(5, 8), grav: 160, type: 'leaf', rot: rand(0, 6), spin: rand(-8, 8), drag: 1.8 });
+    else if (el === 'B') V.parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 140, life: rand(0.5, 0.9), max: 0.9, color: i % 2 ? '#a5d6ff' : '#3fa7ff', size: rand(3, 5), grav: 1000, type: 'drop', rot: 0 });
+    else if (el === 'Y') V.parts.push({ x, y, vx: Math.cos(a) * v * 1.8, vy: Math.sin(a) * v * 1.8, life: rand(0.2, 0.45), max: 0.45, color: i % 2 ? '#fff6c2' : '#ffe27a', size: rand(2, 3.5), grav: 0, type: 'spark', rot: 0, drag: 3 });
+    else V.parts.push({ x, y, vx: Math.cos(a) * v * 0.7, vy: Math.sin(a) * v * 0.7, life: rand(0.6, 1.1), max: 1.1, color: i % 2 ? '#dfc0ff' : '#ffffff', size: rand(3, 6), grav: -30, type: 'star', rot: rand(0, 6), spin: rand(-5, 5), drag: 1.5 });
+  }
+}
+/* emblema del elemento sobre la cabeza del Fluffy */
+function drawTuft(col, r, ph) {
+  ctx.save();
+  if (col === 'R') { ctx.translate(0, -r * 0.78); drawFlame(0, 0, r * 0.62, r * 0.95, FIRE, ph * 5); }
+  else if (col === 'G') { for (const sd of [-1, 1]) { ctx.save(); ctx.translate(sd * r * 0.12, -r * 0.92); ctx.rotate(sd * 0.7 + Math.sin(G.time * 2 + ph) * 0.12); ctx.translate(0, -r * 0.22); ctx.fillStyle = sd < 0 ? '#2fbf6c' : '#5ff0a0'; leafPath(r * 0.26); ctx.fill(); ctx.strokeStyle = '#14803f'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(0, -r * 0.2); ctx.lineTo(0, r * 0.22); ctx.stroke(); ctx.restore(); } }
+  else if (col === 'B') { ctx.translate(0, -r * 1.02 + Math.sin(G.time * 3 + ph) * 1.5); const g = ctx.createLinearGradient(0, -r * 0.4, 0, r * 0.2); g.addColorStop(0, '#d6eeff'); g.addColorStop(1, '#3fa7ff'); ctx.fillStyle = g; dropPath(r * 0.22); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.beginPath(); ctx.ellipse(-r * 0.07, -r * 0.05, r * 0.04, r * 0.08, 0.3, 0, TAU); ctx.fill(); }
+  else if (col === 'Y') { ctx.translate(r * 0.05, -r * 1.05); ctx.rotate(0.15); ctx.shadowColor = '#ffe27a'; ctx.shadowBlur = 10 + 6 * Math.sin(G.time * 18 + ph); ctx.fillStyle = '#fff3a0'; boltPath(r * 0.32); ctx.fill(); ctx.strokeStyle = '#b17a00'; ctx.lineWidth = 1.2; ctx.stroke(); }
+  else if (col === 'P') { ctx.translate(0, -r * 1.1 + Math.sin(G.time * 2.5 + ph) * 2); ctx.rotate(G.time * 1.5 + ph); ctx.shadowColor = '#dfc0ff'; ctx.shadowBlur = 12; ctx.fillStyle = '#f0e0ff'; starPath(0, 0, r * 0.2, 4, 0.38, 0); ctx.fill(); ctx.rotate(Math.PI / 4); ctx.globalAlpha = 0.6; starPath(0, 0, r * 0.13, 4, 0.38, 0); ctx.fill(); }
+  ctx.restore();
+}
+/* marca del elemento dentro de un bloque rúnico (tenue, detrás de la flecha) */
+function drawBlockEmblem(col, s, ph, round) {
+  ctx.save(); rr(-s / 2, -s / 2, s, s, round); ctx.clip(); const t = G.time + ph;
+  if (col === 'R') { for (let i = 0; i < 5; i++) drawFlame(-s / 2 + 6 + i * (s - 12) / 4, s / 2 + 3, 15, 22 + 9 * fnz(t * 2.2, i * 1.7), FIRE, ph * 3 + i, 0.95); }   // llamas que lamen el borde
+  else if (col === 'B') { for (let k = 0; k < 2; k++) { ctx.fillStyle = k ? 'rgba(220,245,255,.5)' : 'rgba(150,215,255,.35)'; ctx.beginPath(); ctx.moveTo(-s / 2, s / 2); for (let x = -s / 2; x <= s / 2; x += 3) ctx.lineTo(x, s * (0.3 + k * 0.1) + Math.sin(x * 0.16 + t * 3 + k * 2) * 3); ctx.lineTo(s / 2, s / 2); ctx.closePath(); ctx.fill(); } }   // olas
+  else if (col === 'G') { for (const [x, y, ro, L] of [[-s * 0.36, s * 0.34, -0.9, 10], [-s * 0.2, s * 0.42, -0.3, 7], [s * 0.36, s * 0.34, 0.9, 10], [s * 0.2, s * 0.42, 0.3, 7]]) { ctx.save(); ctx.translate(x, y); ctx.rotate(ro + Math.sin(t * 1.6 + x) * 0.12); const lg = ctx.createLinearGradient(0, -L, 0, L); lg.addColorStop(0, '#b6ff8a'); lg.addColorStop(1, '#1f8a2a'); ctx.fillStyle = lg; leafPath(L); ctx.fill(); ctx.strokeStyle = 'rgba(15,80,25,.6)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(0, L * 0.8); ctx.lineTo(0, -L * 0.7); ctx.stroke(); ctx.restore(); } }   // hojas en las esquinas
+  else if (col === 'Y') { const fl = Math.sin(t * 13) > 0.5 ? 0.9 : 0.45; ctx.fillStyle = 'rgba(255,252,220,' + fl + ')'; ctx.save(); ctx.translate(-s * 0.32, s * 0.3); ctx.rotate(-0.3); boltPath(9); ctx.fill(); ctx.restore(); ctx.save(); ctx.translate(s * 0.32, s * 0.3); ctx.rotate(0.3); boltPath(9); ctx.fill(); ctx.restore(); }   // rayitos
+  else if (col === 'P') { ctx.strokeStyle = 'rgba(240,225,255,.38)'; ctx.lineWidth = 1.5; ctx.rotate(t * 0.5); ctx.beginPath(); ctx.arc(0, 0, s * 0.38, 0, TAU); ctx.stroke(); for (let k = 0; k < 6; k++) { ctx.save(); ctx.rotate(k * TAU / 6); ctx.beginPath(); ctx.moveTo(-2.5, -s * 0.38 + 3); ctx.lineTo(0, -s * 0.38 - 3); ctx.lineTo(2.5, -s * 0.38 + 3); ctx.stroke(); ctx.restore(); } }   // runas
+  ctx.restore();
+}
 const potCount = k => V.bodies.reduce((n, b) => n + (b.color === k && b.inPot ? 1 : 0), 0);
 const nearFuse = col => { const w = potCount('W'); return col === 'W' ? COLOR_KEYS.some(k => potCount(k) >= 1 && potCount(k) + w >= 2) : potCount(col) + w === 2; };
 function rainbowC() { return { m: '#efe6ff', l: '#ffffff', d: '#b9a8e6' }; }   // cuerpo blanco; el pelaje lleva el arcoíris
@@ -1434,7 +2211,8 @@ function drawBackground() {
   for (const x of [22, W - 22]) {    // antorchas
     const f = 0.8 + 0.2 * Math.sin(G.time * 11 + x) * Math.sin(G.time * 7.3), tg = ctx.createRadialGradient(x, 400, 4, x, 400, 190 * f);
     tg.addColorStop(0, 'rgba(255,170,80,.30)'); tg.addColorStop(1, 'rgba(255,170,80,0)'); ctx.fillStyle = tg; ctx.fillRect(x - 200, 200, 400, 400);
-    ctx.fillStyle = '#ffcf7a'; ctx.beginPath(); ctx.ellipse(x, 400 - 6 * f, 5, 10 * f, 0, 0, TAU); ctx.fill();
+    ctx.fillStyle = '#3a3048'; ctx.fillRect(x - 2.5, 404, 5, 28); ctx.fillStyle = '#5a4a6e'; ctx.beginPath(); ctx.moveTo(x - 10, 402); ctx.lineTo(x + 10, 402); ctx.lineTo(x + 6, 412); ctx.lineTo(x - 6, 412); ctx.closePath(); ctx.fill();   // soporte
+    if (!Post.on) drawFlame(x, 403, 16, 30, FIRE, x * 0.1, 0.95);
   }
   for (let i = 0; i < 20; i++) {
     const x = (i * 97 + G.time * (8 + i % 5)) % W, y = (i * 173 - G.time * (12 + i % 7) + 4000 * H) % H;
@@ -1602,13 +2380,17 @@ function drawCauldronFront() {  // parte delantera: brillo, borde, brasero con c
   }
   text('CAPACIDAD', 96, POT.rim + 1, 9.5, '#e6deff', 'left', 700); text(used + '/' + S.cap, 444, POT.rim + 1, 10.5, full ? '#ff9db0' : '#e6deff', 'right', 800);
   // fuego del brasero: crece con las fusiones; azul cuando está a punto de hervir
-  ctx.save(); ctx.globalCompositeOperation = 'lighter';
-  for (const side of [-1, 1]) for (let i = 0; i < 4; i++) {
-    const x = W / 2 + side * (186 + i * 13), h = (18 + heat * 16) * (0.6 + 0.5 * Math.abs(Math.sin(G.time * 9 + i * 1.7 + side))), w = 10, by = 886;
-    const fg = ctx.createLinearGradient(0, by, 0, by - h); fg.addColorStop(0, hot ? '#bfe6ff' : '#ffd27a'); fg.addColorStop(0.5, hot ? '#3fa7ff' : '#ff7a3c'); fg.addColorStop(1, 'rgba(255,60,40,0)');
-    ctx.fillStyle = fg; ctx.beginPath(); ctx.moveTo(x - w, by); ctx.quadraticCurveTo(x - w * 0.7, by - h * 0.5, x + Math.sin(G.time * 7 + i) * 4, by - h); ctx.quadraticCurveTo(x + w * 0.7, by - h * 0.5, x + w, by); ctx.closePath(); ctx.fill();
+  for (const side of [-1, 1]) {
+    const fx = W / 2 + side * 208, pal = hot ? BLUEFIRE : FIRE;
+    // brasas: montón de carbón con grietas incandescentes
+    ctx.fillStyle = '#1c1420'; ctx.beginPath(); ctx.ellipse(fx, 892, 30, 8, 0, 0, TAU); ctx.fill();
+    for (let k = 0; k < 7; k++) { const sx = fx - 36 + k * 12, sy = 896 + Math.abs(k - 3) * -1.2, sg = ctx.createLinearGradient(0, sy - 7, 0, sy + 6); sg.addColorStop(0, '#8a8096'); sg.addColorStop(1, '#3a3344'); ctx.fillStyle = sg; ctx.beginPath(); ctx.ellipse(sx, sy, 7.5, 5.5, (k - 3) * 0.12, 0, TAU); ctx.fill(); ctx.fillStyle = hot ? 'rgba(120,190,255,.35)' : 'rgba(255,150,70,.35)'; ctx.beginPath(); ctx.ellipse(sx, sy - 3, 4.5, 1.6, 0, 0, TAU); ctx.fill(); }   // piedras
+    for (let k = 0; k < 5; k++) { const kx = fx - 22 + k * 11, glow = 0.5 + 0.5 * Math.sin(G.time * 4 + k * 1.3 + side); ctx.fillStyle = '#2a1f2a'; ctx.beginPath(); ctx.ellipse(kx, 888 - (k % 2) * 3, 8, 5, k, 0, TAU); ctx.fill();
+      ctx.fillStyle = (hot ? 'rgba(120,200,255,' : 'rgba(255,120,40,') + (0.4 + 0.5 * glow) + ')'; ctx.fillRect(kx - 4, 887 - (k % 2) * 3, 8, 1.6); }
+    if (!Post.on) drawFlame(fx, 888, 44 + heat * 6, 46 + heat * 20, pal, side > 0 ? 11 : 3);
+    if (Math.random() < 0.07) V.parts.push({ x: fx + rand(-10, 10), y: 836 - heat * 18, vx: rand(-12, 12), vy: rand(-55, -30), life: rand(1.2, 1.8), max: 1.8, color: '#3a3044', size: rand(10, 16), grav: -10, type: 'dust', rot: 0, drag: 0.6 });   // humo
+    if (Math.random() < 0.3 + heat * 0.15) V.parts.push({ x: fx + rand(-14, 14), y: 872, vx: rand(-25, 25), vy: rand(-160, -70), life: rand(0.5, 1.1), max: 1.1, color: hot ? '#9fe0ff' : '#ffcf6a', size: rand(1.2, 2.4), grav: -40, type: 'spark', rot: 0, drag: 0.8 });
   }
-  ctx.restore();
   if (hot && Math.random() < 0.35) V.parts.push({ x: rand(110, 430), y: POT.rim - 8, vx: rand(-12, 12), vy: rand(-80, -30), life: 0.9, max: 0.9, color: '#ffffff', size: rand(4, 9), grav: -30, type: 'dot', rot: 0 });
   // brasero
   const bg = ctx.createLinearGradient(0, 852, 0, 894); bg.addColorStop(0, '#4a4070'); bg.addColorStop(1, '#1a1530');
@@ -1644,7 +2426,7 @@ function drawFx() {
     if (f.type === 'ring') { ctx.globalAlpha = 1 - p; ctx.strokeStyle = f.color; ctx.lineWidth = f.w * (1 - p) + 1; ctx.beginPath(); ctx.arc(f.x, f.y, 10 + (f.r1 - 10) * (1 - Math.pow(1 - p, 3)), 0, TAU); ctx.stroke(); }
     else if (f.type === 'fire') {
       const r = f.rad * (0.3 + 0.7 * (1 - Math.pow(1 - p, 3))), g = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, r);
-      g.addColorStop(0, 'rgba(255,255,230,' + (1 - p) + ')'); g.addColorStop(0.4, 'rgba(255,190,70,' + (0.9 * (1 - p)) + ')'); g.addColorStop(0.8, 'rgba(255,80,50,' + (0.6 * (1 - p)) + ')'); g.addColorStop(1, 'rgba(255,60,40,0)');
+      g.addColorStop(0, 'rgba(255,235,190,' + (0.7 * (1 - p)) + ')'); g.addColorStop(0.4, 'rgba(255,170,60,' + (0.8 * (1 - p)) + ')'); g.addColorStop(0.8, 'rgba(255,80,50,' + (0.6 * (1 - p)) + ')'); g.addColorStop(1, 'rgba(255,60,40,0)');
       ctx.fillStyle = g; ctx.beginPath(); ctx.arc(f.x, f.y, r, 0, TAU); ctx.fill();
       ctx.globalAlpha = 1 - p; ctx.strokeStyle = '#fff3b0'; ctx.lineWidth = 8 * (1 - p) + 1; ctx.beginPath(); ctx.arc(f.x, f.y, r, 0, TAU); ctx.stroke();
     } else if (f.type === 'thorn') {
@@ -1653,6 +2435,22 @@ function drawFx() {
       ctx.shadowBlur = 0; ctx.fillStyle = '#a8f5c9';
       for (let y = BB - 20, k = 0; y > top + 30; y -= 34, k++) { const s = k % 2 ? 1 : -1; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + s * 30, y - 16); ctx.lineTo(x, y - 14); ctx.closePath(); ctx.fill(); }
       ctx.fillStyle = '#fff'; ctx.fillRect(x - 2, top + 10, 4, BB - top);
+    } else if (f.type === 'wind') {             // remolino de aire: trazos en espiral que suben girando
+      const a = p < 0.2 ? p / 0.2 : (1 - p) / 0.8; ctx.translate(f.x, f.y); ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round';
+      for (let k = 0; k < 8; k++) {
+        const base = f.t * 10 + k * TAU / 8; ctx.beginPath();
+        for (let j = 0; j <= 16; j++) { const u = j / 16, ang = base + u * 2.8, rr2 = f.r * (0.2 + 0.8 * u) * (0.7 + 0.3 * p), px = Math.cos(ang) * rr2, py = Math.sin(ang) * rr2 * 0.55 - u * 36 * p; j ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }
+        ctx.strokeStyle = 'rgba(232,218,255,' + (0.6 * a) + ')'; ctx.lineWidth = 3.2 - k * 0.28; ctx.stroke();
+      }
+    } else if (f.type === 'roots') {            // raíces que crecen desde el golpe
+      const grow = Math.min(1, p * 2.2), a = p < 0.6 ? 1 : (1 - p) / 0.4; ctx.translate(f.x, f.y); ctx.lineCap = 'round'; ctx.shadowColor = '#3ddc84'; ctx.shadowBlur = 8;
+      let sd = f.seed; const rnd = () => { sd = (sd * 9301 + 49297) % 233280; return sd / 233280; };
+      for (let k = 0; k < 6; k++) {
+        let ang = k * TAU / 6 + rnd() * 0.6, x = 0, y = 0, len = 0; const L = (48 + rnd() * 40) * f.k * grow;
+        ctx.strokeStyle = 'rgba(61,220,132,' + a + ')'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(0, 0);
+        while (len < L) { ang += (rnd() - 0.5) * 0.8; x += Math.cos(ang) * 8; y += Math.sin(ang) * 8; len += 8; ctx.lineTo(x, y); }
+        ctx.stroke(); if (L > 10) { ctx.fillStyle = 'rgba(168,245,201,' + a + ')'; ctx.save(); ctx.translate(x, y); ctx.rotate(ang + Math.PI / 2); leafPath(5.5); ctx.fill(); ctx.restore(); }
+      }
     } else if (f.type === 'clockDial') {        // esfera de reloj con agujas que retroceden
       const a = (p < 0.15 ? p / 0.15 : (1 - p) / 0.85) * 0.55, R = f.r * (0.92 + 0.08 * Math.min(1, p * 4));
       ctx.translate(f.x, f.y); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = a; ctx.lineCap = 'round';
@@ -1680,12 +2478,12 @@ function drawFx() {
       ctx.fillStyle = '#ffd76a'; rr(-w - 12, -h - 12, w * 2 + 24, 12, 5); ctx.fill(); rr(-w - 12, h, w * 2 + 24, 12, 5); ctx.fill();
       ctx.fillStyle = '#fff2c0'; starPath(0, 0, 9 + 3 * Math.sin(f.t * 14), 4, 0.3, f.t * 3); ctx.fill();
     } else if (f.type === 'flashCore') {        // destello blanco del estallido
-      ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = Math.pow(1 - p, 2);
+      ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.7 * Math.pow(1 - p, 2);
       const fg = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r * (0.3 + 0.7 * p)); fg.addColorStop(0, '#ffffff'); fg.addColorStop(0.5, 'rgba(255,240,200,.8)'); fg.addColorStop(1, 'rgba(255,200,120,0)');
       ctx.fillStyle = fg; ctx.beginPath(); ctx.arc(f.x, f.y, f.r * (0.3 + 0.7 * p), 0, TAU); ctx.fill();
     } else if (f.type === 'light') {            // luz que ilumina el tablero
       ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.32 * (1 - p) * (1 - p);
-      const lg2 = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r); lg2.addColorStop(0, 'rgba(255,190,100,.9)'); lg2.addColorStop(1, 'rgba(255,120,40,0)');
+      const lg2 = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.r); const lc = f.rgb || '255,170,80'; lg2.addColorStop(0, 'rgba(' + lc + ',.9)'); lg2.addColorStop(1, 'rgba(' + lc + ',0)');
       ctx.fillStyle = lg2; ctx.fillRect(f.x - f.r, f.y - f.r, f.r * 2, f.r * 2);
     } else if (f.type === 'ripple') {           // onda en un líquido
       ctx.globalAlpha = 1 - p; ctx.strokeStyle = f.color; ctx.lineWidth = 3 * (1 - p) + 1;
@@ -1694,6 +2492,8 @@ function drawFx() {
       ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 1 - p; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
       const pts = [[f.x1, f.y1]], n = 9; for (let i = 1; i < n; i++) { const t = i / n; pts.push([lerp(f.x1, f.x2, t) + rand(-16, 16), lerp(f.y1, f.y2, t) + rand(-8, 8)]); } pts.push([f.x2, f.y2]);
       for (const [lw, col] of [[12 * (1 - p) + 3, f.color], [3, '#ffffff']]) { ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke(); }
+    } else if (f.type === 'vortex' && f.el) {
+      drawElemSwirl(f, p);
     } else if (f.type === 'vortex') {          // corte giratorio con núcleo blanco
       const e3 = 1 - Math.pow(1 - p, 3), R = f.r * (0.35 + 0.65 * e3), a = p < 0.6 ? 1 : (1 - p) / 0.4;
       ctx.translate(f.x, f.y);
@@ -1730,6 +2530,8 @@ function drawFx() {
 function drawParticles() {
   for (const p of V.parts) {
     const a = clamp(p.life / p.max * 1.4, 0, 1), s = p.size * (0.4 + p.life / p.max * 0.6); ctx.globalAlpha = a; ctx.fillStyle = p.color;
+    if (p.type === 'leaf') { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.globalAlpha = a; ctx.fillStyle = p.color; leafPath(p.size); ctx.fill(); ctx.strokeStyle = 'rgba(20,128,63,.8)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(0, -p.size * 0.8); ctx.lineTo(0, p.size * 0.9); ctx.stroke(); ctx.restore(); continue; }
+    if (p.type === 'drop') { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(Math.atan2(p.vy, p.vx) + Math.PI / 2); ctx.globalAlpha = a; ctx.fillStyle = p.color; dropPath(p.size); ctx.fill(); ctx.restore(); continue; }
     if (p.type === 'hglass' || p.type === 'pwatch') {
       const tw = 0.6 + 0.4 * Math.sin(G.time * 9 + p.ph), fade = Math.min(1, p.life / 0.45) * Math.min(1, (p.max - p.life) / 0.2), z = p.size;
       ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.globalAlpha = fade * tw; ctx.globalCompositeOperation = 'lighter'; ctx.shadowColor = '#ffcc4d'; ctx.shadowBlur = 8;
@@ -1747,6 +2549,7 @@ function drawParticles() {
     }
     if (p.type === 'spark') { ctx.globalCompositeOperation = 'lighter'; ctx.strokeStyle = p.color; ctx.lineWidth = p.size; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x - p.vx * 0.035, p.y - p.vy * 0.035); ctx.stroke(); ctx.globalCompositeOperation = 'source-over'; continue; }
     if (p.type === 'plank') { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.fillStyle = p.color; ctx.fillRect(-p.size, -p.size * 0.28, p.size * 2, p.size * 0.56); ctx.strokeStyle = '#3a2016'; ctx.lineWidth = 1.5; ctx.strokeRect(-p.size, -p.size * 0.28, p.size * 2, p.size * 0.56); ctx.restore(); continue; }
+    if (p.type === 'orbit') { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.globalAlpha = a; ctx.fillStyle = p.color; if (p.dot) { ctx.beginPath(); ctx.arc(0, 0, p.size * 0.6, 0, TAU); ctx.fill(); } else { rr(-p.size / 2, -p.size / 2, p.size, p.size, 2); ctx.fill(); } ctx.restore(); continue; }
     if (p.type === 'chunk') { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); const z = p.size * (0.6 + 0.4 * p.life / p.max); rr(-z / 2, -z / 2, z, z, 3); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.fillRect(-z / 2, -z / 2, z, z * 0.3); ctx.restore(); continue; }
     if (p.type === 'ghost') { ctx.globalAlpha = 0.28 * p.life / p.max; const z = p.size * (0.85 + 0.15 * p.life / p.max); rr(p.x - z, p.y - z, z * 2, z * 2, 13); ctx.fill(); continue; }
     if (p.type === 'dust') { const q = 1 - p.life / p.max; ctx.globalAlpha = 0.35 * (1 - q); ctx.beginPath(); ctx.arc(p.x, p.y, p.size * (0.5 + q), 0, TAU); ctx.fill(); continue; }
@@ -1817,7 +2620,7 @@ function drawResult() {
   ctx.fillStyle = 'rgba(5,3,12,.82)'; ctx.fillRect(0, 0, W, H);
   const R = G.res, win = G.state === 'win', x = 40, y = 190, w = 460, h = 560, i = rankIdx(G.xp), last = G.levelIdx === LEVELS.length - 1;
   ctx.fillStyle = '#1c1634'; rr(x, y, w, h, 24); ctx.fill(); ctx.strokeStyle = win ? '#ffd24a' : '#c2415f'; ctx.lineWidth = 3; ctx.stroke();
-  text(win ? (last ? '¡CAMPAÑA COMPLETADA!' : G.levelIdx === 19 ? '¡SELLO DE LA TORRE ROTO!' : (G.levelIdx + 1) % 5 === 0 ? '¡CAPÍTULO SUPERADO!' : '¡BÓVEDA DESPEJADA!') : S.over ? '¡CALDERO DESBORDADO!' : 'SIN JUGADAS', W / 2, y + 48, 28, win ? '#ffe27a' : '#ff7a93');
+  text(win ? (last ? '¡CAMPAÑA COMPLETADA!' : G.levelIdx === 39 ? '¡SELLO DE LA TORRE ROTO!' : (G.levelIdx + 1) % 5 === 0 ? '¡CAPÍTULO SUPERADO!' : '¡BÓVEDA DESPEJADA!') : S.over ? '¡CALDERO DESBORDADO!' : 'SIN JUGADAS', W / 2, y + 48, 28, win ? '#ffe27a' : '#ff7a93');
   if (!win && !S.over && R.left <= 2) text('¡Casi! Solo ' + (R.left === 1 ? 'faltaba 1 Fluffy' : 'faltaban 2 Fluffies'), W / 2, y + 82, 17, '#ffe27a', 'center', 700);
   else if (win) { const pn = POTIONS[G.levelIdx % POTIONS.length]; drawBottle(W / 2 - ctx.measureText(pn).width / 2 - 34, y + 82, 13, COLORS[V.tint].m); text('Has destilado: ' + pn, W / 2 + 10, y + 82, 16, '#e8e2ff', 'center', 700); }
   else text('Nivel ' + (G.levelIdx + 1) + ' · ' + V.L.name, W / 2, y + 82, 16, '#cfc6ee', 'center', 600);
@@ -1842,14 +2645,14 @@ function drawResult() {
   }
 }
 
-const CHAPTERS = ['I · Bóveda del Aprendiz', 'II · Cripta de Escarcha', 'III · Forja Rúnica', 'IV · Torre del Archimago', 'V · Laboratorio Prohibido'];
+const CHAPTERS = ['I · Bóveda del Aprendiz', 'II · Cripta de Escarcha', 'III · Forja de Pólvora', 'IV · Torre Rúnica', 'V · Laboratorio Prohibido'];
 function drawMenu() {
   drawBackground();
   ctx.save(); ctx.shadowColor = '#b76bff'; ctx.shadowBlur = 26;
   text('CHROMA', W / 2 - 92, 74, 54, '#fff'); text('DROP', W / 2 + 126, 74, 54, '#ffd24a'); ctx.restore();
   text('ARCANE ALCHEMIST', W / 2, 112, 17, '#cdb8ff', 'center', 700);
   const pot = G.stars.filter(x => x > 0).length;
-  text(pot >= LEVELS.length ? '¡Has dominado el Laboratorio Prohibido!' : pot >= 20 ? '¡Sello roto! Explora el Laboratorio Prohibido' : 'Destila 20 pociones y rompe el sello de la Torre', W / 2, 138, 13, '#ffe27a', 'center', 700);
+  text(pot >= LEVELS.length ? '¡Has dominado el Laboratorio Prohibido!' : pot >= 40 ? '¡Sello roto! Explora el Laboratorio Prohibido' : 'Destila 40 pociones y rompe el sello de la Torre', W / 2, 138, 13, '#ffe27a', 'center', 700);
   [...COLOR_KEYS, 'W'].forEach((k, i) => { const t = G.time * 2.4 + i * 1.1, b = Math.abs(Math.sin(t)); drawFluffy(85 + i * 74, 222 - b * 54, 25, k, b < 0.15 ? 0.3 * (1 - b / 0.15) : -0.08, b > 0.5 ? 'fall' : 'idle', i); });
   const i = rankIdx(G.xp); drawBadge(52, 296, 26, i);
   text(RANK_TIERS[i].name, 88, 283, 17, RANK_TIERS[i].color, 'left');
@@ -1858,15 +2661,15 @@ function drawMenu() {
   starPath(280, 289, 11); ctx.fillStyle = '#ffd24a'; ctx.fill(); text(ts + ' / ' + LEVELS.length * 3, 298, 290, 16, '#ffe27a', 'left');
   drawBottle(280, 316, 9, '#b76bff'); text('Pociones ' + pot + '/' + LEVELS.length, 296, 317, 12, '#cdb8ff', 'left', 700);
   btn(404, 266, 120, 60, 'JUGAR', () => loadLevel(Math.min(G.unlocked, LEVELS.length) - 1), { color: '#7b4dff', size: 24, glow: true });
-  const per = 5;
+  const per = 10;
   for (let ch = 0; ch * per < LEVELS.length; ch++) {
     const y0 = 346 + ch * 120, open = ch * per + 1 <= G.unlocked;
     ctx.fillStyle = 'rgba(12,10,23,.62)'; rr(16, y0, W - 32, 112, 16); ctx.fill(); ctx.strokeStyle = open ? '#8f6bff77' : '#ffffff14'; ctx.lineWidth = 1.5; ctx.stroke();
     text('CAPÍTULO ' + (CHAPTERS[ch] || ch + 1), 32, y0 + 17, 13, open ? '#e3d8ff' : '#6d668a', 'left', 800);
     for (let j = 0; j < per && ch * per + j < LEVELS.length; j++) {
-      const k = ch * per + j, cx = 70 + j * 100, lock = k + 1 > G.unlocked, cur = k + 1 === G.unlocked;
-      btn(cx - 36, y0 + 30, 72, 50, lock ? '···' : String(k + 1), () => loadLevel(k), { color: j === per - 1 ? '#a8562a' : '#3b4a7a', size: 22, disabled: lock, glow: cur });
-      for (let q = 0; q < 3; q++) { starPath(cx + (q - 1) * 16, y0 + 96, 6.5); ctx.fillStyle = q < (G.stars[k] || 0) ? '#ffd24a' : '#3a3357'; ctx.fill(); }
+      const k = ch * per + j, cx = 54 + j * 48, lock = k + 1 > G.unlocked, cur = k + 1 === G.unlocked;
+      btn(cx - 21, y0 + 30, 42, 46, lock ? '···' : String(k + 1), () => loadLevel(k), { color: j === per - 1 ? '#a8562a' : '#3b4a7a', size: 16, disabled: lock, glow: cur });
+      for (let q = 0; q < 3; q++) { starPath(cx + (q - 1) * 11, y0 + 94, 4.6); ctx.fillStyle = q < (G.stars[k] || 0) ? '#ffd24a' : '#3a3357'; ctx.fill(); }
     }
   }
   drawParticles();
@@ -1989,20 +2792,23 @@ function bindInput() {
 
 /* ---------- BUCLE PRINCIPAL ---------- */
 function resize() {
-  const s = Math.min(innerWidth / W, innerHeight / H), dpr = Math.min(window.devicePixelRatio || 1, 2.5);
-  cv.style.width = Math.floor(W * s) + 'px'; cv.style.height = Math.floor(H * s) + 'px';
+  const s = Math.min(innerWidth / W, innerHeight / H), dpr = Math.min(window.devicePixelRatio || 1, 2), cw = Math.floor(W * s), ch = Math.floor(H * s);
+  cv.style.width = cw + 'px'; cv.style.height = ch + 'px';
   cv.width = Math.round(W * s * dpr); cv.height = Math.round(H * s * dpr); scale = cv.width / W;
+  Post.resize(cv.width, cv.height, cw, ch, Math.floor((innerWidth - cw) / 2), Math.floor((innerHeight - ch) / 2));
 }
 let lastT = 0;
 function frame(t) {
-  const dt = Math.min(0.033, (t - lastT) / 1000 || 0.016); lastT = t;
+  const raw = (t - lastT) / 1000 || 0.016, dt = Math.min(0.033, raw); lastT = t;
   if (!(window.CHROMA && window.CHROMA.paused)) update(dt);   // paused: solo para depurar
-  draw(); requestAnimationFrame(frame);
+  draw(); Post.render(cv);
+  if (Post.on && raw < 0.2) { Post.ema = Post.ema * 0.97 + raw * 0.03; if (G.time > 5 && Post.ema > 0.03) Post.off(); }   // móvil lento: sin posprocesado
+  requestAnimationFrame(frame);
 }
 window.addEventListener('load', () => {
   cv = document.getElementById('game'); ctx = cv.getContext('2d');
-  load(); resize(); bindInput(); window.addEventListener('resize', resize);
-  window.CHROMA = { G, V, LEVELS, loadLevel, doMove, busy, get S() { return S; }, step(n) { for (let i = 0; i < n; i++) update(1 / 60); } };   // depuración
+  load(); Post.init(); resize(); bindInput(); window.addEventListener('resize', resize);
+  window.CHROMA = { G, V, LEVELS, loadLevel, doMove, busy, Post, get S() { return S; }, step(n) { for (let i = 0; i < n; i++) update(1 / 60); } };   // depuración
   requestAnimationFrame(frame);
 });
 </script>
