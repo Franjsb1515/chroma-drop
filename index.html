@@ -52,7 +52,7 @@ const RULES = { curseMana: 25, timeMoves: 2, timeMovesAmp: 4 };
    moves: límite · par: movimientos sobrantes para 3 estrellas                       */
 const LEVELS = [
   {
-    name: 'La Bóveda del Aprendiz', moves: 8, par: 3, cap: 6, manaPerCell: 2,
+    name: 'La Bóveda de Iniciación', moves: 8, par: 4, cap: 6, manaPerCell: 2,
     intro: { icons: true, title: 'Cómo jugar' },
     grid: [
       '.. .. .. .. .. ..',
@@ -64,25 +64,25 @@ const LEVELS = [
       '.. .. .. Bv .. ..',
     ],
   },
-  {   // 2 · azar 8% · solución de 5 movimientos netos
-    name: 'Primera Chispa', moves: 8, par: 3, cap: 6, manaPerCell: 2,
-    intro: { title: 'Bola de Fuego', lines: ['Rojo = Bola de Fuego: tú eliges', 'dónde estalla (área 3×3).'] },
+  {   // 2
+    name: 'Primera Chispa', moves: 13, par: 4, cap: 4, manaPerCell: 2,
+    intro: { title: 'Dos hechizos', lines: ['Rojos y verdes en el mismo tablero:', 'cada color lanza su propio hechizo.'] },
     grid: [
-      '.. .. G@ .. .. ..',
-      '.. .. %% .. .. ..',
-      '.. .. .. .. .. ..',
       '.. .. .. .. G@ ..',
-      'G@ .. .. .. Rv R@',
-      'G> R@ R@ .. .. G<',
-      '.. Gv R> .. .. ..',
+      '.. .. .. G@ Rv ..',
+      '.. .. .. Gv .. G@',
+      'R@ .. .. .. G> %%',
+      'G> .. .. %% .. ..',
+      '.. R@ R@ .. .. Rv',
+      '.. Rv %% .. .. ..',
     ],
   },
-  {   // 3 · azar 11.44% · solución de 8 movimientos netos
-    name: 'Pasillo de Espinas', moves: 11, par: 3, cap: 5, manaPerCell: 2,
-    intro: { title: 'Lanza de Espinas', lines: ['Verde = Lanza de Espinas: arrasa', 'la columna entera que elijas.'] },
+  {   // 3
+    name: 'Pasillo de Espinas', moves: 11, par: 4, cap: 5, manaPerCell: 2,
+    intro: { title: 'Piensa el orden', lines: ['Un mal movimiento puede dejar', 'el tablero sin salida: se te avisará.'] },
     grid: [
       'R@ .. G@ G< .. R@',
-      '%% .. R> .. .. G<',
+      '%% .. R> .. .. G>',
       '.. .. .. .. .. ..',
       '.. .. .. G@ .. ..',
       '.. R@ .. R< .. ..',
@@ -90,22 +90,22 @@ const LEVELS = [
       '.. .. %% .. .. G<',
     ],
   },
-  {   // 4 · azar 10.24% · solución de 9 movimientos netos
-    name: 'Caldero Estrecho', moves: 12, par: 3, cap: 4, manaPerCell: 2,
-    intro: { title: 'Cuidado con el caldero', lines: ['Mira los huecos del caldero:', 'si se llena sin fusionar,', '¡se desborda!'] },
+  {   // 4
+    name: 'Revuelto de Colores', moves: 10, par: 5, cap: 6, manaPerCell: 2,
+    intro: { title: 'Mezcla de colores', lines: ['Rojos y verdes revueltos:', 'decide cuál dejas caer primero.'] },
     grid: [
+      '.. .. G@ .. .. ..',
+      '.. .. %% .. .. ..',
+      '.. .. .. .. .. ..',
       '.. .. .. .. G@ ..',
-      '.. .. .. G@ Rv ..',
-      '.. .. .. Gv .. G@',
-      'R@ .. .. .. G> %%',
-      'G> .. .. %% .. ..',
-      '.. R@ R@ .. .. R<',
-      '.. Rv %% .. .. ..',
+      'G@ .. .. .. Rv R@',
+      'G> R@ R@ .. .. G<',
+      '.. Gv R< .. .. ..',
     ],
   },
-  {   // 5 · azar 3.04% · solución de 7 movimientos netos
-    name: 'Doble Hornada', moves: 9, par: 2, cap: 5, manaPerCell: 2,
-    intro: { title: 'Dos fusiones', lines: ['Seis Fluffies rojos: dos hechizos.', 'Cada uno debe abrir camino.'] },
+  {   // 5
+    name: 'Doble Hornada', moves: 11, par: 4, cap: 5, manaPerCell: 2,
+    intro: { title: 'Dos fusiones', lines: ['Seis Fluffies rojos: dos hechizos.', 'Cada fusión calienta a Caldo: cada 3.ª', 'HIERVE y su hechizo sale potenciado.'] },
     grid: [
       'R@ R@ .. .. .. ..',
       'R> Gv .. .. .. ..',
@@ -113,12 +113,12 @@ const LEVELS = [
       'R@ G@ .. R@ R@ R@',
       'G> R> .. %% G> %%',
       'G@ .. .. .. G@ ..',
-      'R^ .. .. .. R< ..',
+      'R^ .. .. .. R> ..',
     ],
   },
-  {   // 6 · azar 2.16% · solución de 9 movimientos netos
-    name: 'Muro de Piedra', moves: 11, par: 2, cap: 4, manaPerCell: 2,
-    intro: { title: 'Piedra', lines: ['La piedra frena tus bloques.', 'Un hechizo bien apuntado la rompe.'] },
+  {   // 6
+    name: 'Muro de Piedra', moves: 13, par: 4, cap: 3, manaPerCell: 2,
+    intro: { title: 'Piedra y caldero', lines: ['La piedra frena tus bloques.', 'Ojo: este caldero solo tiene 3 huecos;', 'si se llena sin fusionar, ¡se desborda!'] },
     grid: [
       '.. G@ R@ R@ .. ..',
       '.. G@ Rv R< G@ ..',
@@ -129,8 +129,8 @@ const LEVELS = [
       '.. .. G> %% G^ ..',
     ],
   },
-  {   // 7 · azar 1.68% · solución de 8 movimientos netos
-    name: 'Galería de Ecos', moves: 10, par: 2, cap: 5, manaPerCell: 2,
+  {   // 7
+    name: 'Galería de Ecos', moves: 12, par: 4, cap: 5, manaPerCell: 2,
     grid: [
       '.. R@ .. .. .. G@',
       '.. R> .. .. G@ G@',
@@ -141,34 +141,9 @@ const LEVELS = [
       'R^ %% G< .. .. %%',
     ],
   },
-  {   // 8 · azar 0.48% · solución de 9 movimientos netos
-    name: 'Sala de Prácticas', moves: 11, par: 2, cap: 4, manaPerCell: 2,
-    intro: { title: 'Orden de caída', lines: ['Doce Fluffies y poco sitio.', 'Piensa qué color cae primero.'] },
-    grid: [
-      'R@ .. .. .. G@ G@',
-      'R^ G@ R@ G@ G^ R>',
-      '.. R^ %% G< .. G@',
-      '.. G@ R@ .. R@ R<',
-      '.. G> %% .. R< ..',
-      '.. .. R@ .. .. R@',
-      '.. .. %% .. .. Gv',
-    ],
-  },
-  {   // 9 · azar 1.44% · solución de 11 movimientos netos
-    name: 'Umbral de Piedra', moves: 13, par: 2, cap: 4, manaPerCell: 2,
-    grid: [
-      'G@ .. .. .. .. R@',
-      'G> R@ G@ .. .. %%',
-      '.. G> %% .. .. G@',
-      '.. R@ G@ R< .. Gv',
-      '.. G< Rv G@ .. G^',
-      'R@ R@ .. R@ .. G@',
-      '%% %% .. G> .. G<',
-    ],
-  },
-  {   // 10 · azar 0% · solución de 11 movimientos netos
-    name: 'Guardián de la Bóveda', moves: 12, par: 1, cap: 3, manaPerCell: 2,
-    intro: { title: 'Examen del capítulo', lines: ['Caldero de solo 3 huecos', 'y un único movimiento de sobra.', 'Planifica antes de tocar.'] },
+  {   // 8
+    name: 'Sala de Prácticas', moves: 13, par: 4, cap: 4, manaPerCell: 2,
+    intro: { title: 'Caldero estrecho', lines: ['Solo 4 huecos en el caldero:', 'planifica antes de tocar.'] },
     grid: [
       'G@ .. .. .. R@ Gv',
       '%% .. R@ .. Gv ..',
@@ -179,12 +154,37 @@ const LEVELS = [
       '.. .. .. R^ Gv Gv',
     ],
   },
-  {   // 11 · azar 11.92% · solución de 8 movimientos netos
-    name: 'Primera Helada', moves: 11, par: 3, cap: 6, manaPerCell: 2,
-    intro: { title: 'Cripta de Escarcha', lines: ['El hielo aguanta 2 golpes de bloque.', 'Un bloque ROJO lo derrite de 1 golpe.', 'Azul = Deshielo: rompe todo el hielo.', 'Un bloque VERDE agrieta la piedra.', 'Amarillo = Reloj: +2 movimientos.'] },
+  {   // 9
+    name: 'Umbral de Piedra', moves: 15, par: 4, cap: 5, manaPerCell: 2,
+    grid: [
+      'G@ .. .. .. .. R@',
+      'G> R@ G@ .. .. %%',
+      '.. G> %% .. .. G@',
+      '.. R@ G@ R< .. Gv',
+      '.. G< Rv G@ .. G^',
+      'R@ R@ .. R@ .. G@',
+      '%% %% .. G> .. G<',
+    ],
+  },
+  {   // 10
+    name: 'Guardián de la Bóveda', moves: 13, par: 4, cap: 5, manaPerCell: 2,
+    intro: { title: 'Examen del capítulo', lines: ['Doce Fluffies y poco sitio.', 'Piensa qué color cae primero.'] },
+    grid: [
+      'R@ .. .. .. G@ G@',
+      'R^ G@ R@ G@ G^ R>',
+      '.. R^ %% G< .. G@',
+      '.. G@ R@ .. R@ R<',
+      '.. G> %% .. R< ..',
+      '.. .. R@ .. .. R@',
+      '.. .. %% .. .. Gv',
+    ],
+  },
+  {   // 11
+    name: 'Primera Helada', moves: 13, par: 5, cap: 6, manaPerCell: 2,
+    intro: { title: 'Cripta de Escarcha', lines: ['Un bloque ROJO derrite el hielo de 1 golpe.', 'Azul = Deshielo: rompe todo el hielo.'] },
     grid: [
       '.. B@ .. .. B@ R@',
-      '.. Bv .. .. R> ##',
+      '.. B^ .. .. R> ##',
       '.. .. .. .. .. ..',
       'R@ .. .. R@ .. ..',
       'B> B^ .. ## ## ..',
@@ -192,8 +192,8 @@ const LEVELS = [
       '.. .. R< .. .. ..',
     ],
   },
-  {   // 12 · azar 8.52% · solución de 8 movimientos netos
-    name: 'Brasas en la Escarcha', moves: 11, par: 3, cap: 5, manaPerCell: 2,
+  {   // 12
+    name: 'Brasas en la Escarcha', moves: 12, par: 4, cap: 5, manaPerCell: 2,
     intro: { title: 'Fuego contra hielo', lines: ['Usa los bloques rojos para abrir', 'paso a través del hielo.'] },
     grid: [
       '.. .. .. .. .. ..',
@@ -205,8 +205,8 @@ const LEVELS = [
       'B^ .. .. .. .. ..',
     ],
   },
-  {   // 13 · azar 9.04% · solución de 9 movimientos netos
-    name: 'Raíces y Témpanos', moves: 12, par: 3, cap: 5, manaPerCell: 2,
+  {   // 13
+    name: 'Raíces y Témpanos', moves: 13, par: 4, cap: 5, manaPerCell: 2,
     intro: { title: 'Naturaleza', lines: ['Dos golpes de un bloque verde', 'rompen la piedra.'] },
     grid: [
       '.. .. .. B> .. ..',
@@ -218,9 +218,9 @@ const LEVELS = [
       '.. B> .. .. ## ..',
     ],
   },
-  {   // 14 · azar 4.88% · solución de 6 movimientos netos
-    name: 'Portales Laterales', moves: 9, par: 3, cap: 5, manaPerCell: 2,
-    intro: { title: 'Bloques libres', lines: ['Arrastra el bloque redondo hasta', 'el portal lateral de su color.'] },
+  {   // 14
+    name: 'Portales Laterales', moves: 10, par: 4, cap: 5, manaPerCell: 2,
+    intro: { title: 'Bloques libres', lines: ['Arrastra el bloque libre (4 flechas)', 'hasta el portal lateral de su color.'] },
     grid: [
       '.. .. .. .. .. ..',
       '.. Y> .. Y@ .. ..',
@@ -232,8 +232,8 @@ const LEVELS = [
     ],
     portals: [{ side: 'R', i: 4, color: 'Y' }, { side: 'R', i: 2, color: 'B' }],
   },
-  {   // 15 · azar 2.32% · solución de 11 movimientos netos
-    name: 'El Caldero Hierve', moves: 13, par: 2, cap: 5, manaPerCell: 2,
+  {   // 15
+    name: 'El Caldero Hierve', moves: 14, par: 3, cap: 5, manaPerCell: 2,
     intro: { title: 'Hervor', lines: ['A la 3ª fusión el caldero HIERVE', 'y sobrecarga el hechizo.'] },
     grid: [
       'B@ R@ G^ G@ .. ..',
@@ -245,8 +245,8 @@ const LEVELS = [
       '.. B> ## .. .. ..',
     ],
   },
-  {   // 16 · azar 1.44% · solución de 8 movimientos netos
-    name: 'Reloj Congelado', moves: 10, par: 2, cap: 4, manaPerCell: 2,
+  {   // 16
+    name: 'Reloj Congelado', moves: 11, par: 3, cap: 4, manaPerCell: 2,
     grid: [
       '.. R@ ## B@ .. ..',
       '.. B> .. ## .. Rv',
@@ -258,8 +258,8 @@ const LEVELS = [
     ],
     portals: [{ side: 'R', i: 5, color: 'R' }],
   },
-  {   // 17 · azar 2% · solución de 10 movimientos netos
-    name: 'Cuatro Elementos', moves: 12, par: 2, cap: 5, manaPerCell: 2,
+  {   // 17
+    name: 'Cuatro Elementos', moves: 13, par: 3, cap: 5, manaPerCell: 2,
     grid: [
       '.. .. .. .. G@ Y@',
       '.. .. .. R@ G@ R@',
@@ -270,8 +270,8 @@ const LEVELS = [
       '%% R< .. .. .. ##',
     ],
   },
-  {   // 18 · azar 0.92% · solución de 12 movimientos netos
-    name: 'Pozo Helado', moves: 14, par: 2, cap: 4, manaPerCell: 2,
+  {   // 18
+    name: 'Pozo Helado', moves: 15, par: 3, cap: 4, manaPerCell: 2,
     grid: [
       'B@ .. .. R@ B@ R@',
       'R> .. R@ B> G^ G>',
@@ -282,9 +282,9 @@ const LEVELS = [
       '.. G< .. .. .. ..',
     ],
   },
-  {   // 19 · azar 0.76% · solución de 10 movimientos netos
-    name: 'Pasaje sin Margen', moves: 11, par: 1, cap: 4, manaPerCell: 2,
-    intro: { title: 'Sin margen', lines: ['Solo un movimiento de sobra.'] },
+  {   // 19
+    name: 'Pasaje sin Margen', moves: 12, par: 3, cap: 5, manaPerCell: 2,
+    intro: { title: 'Piensa antes de mover', lines: ['Cada movimiento cuenta:', 'planea el orden de caída.'] },
     grid: [
       '.. .. %% B@ G@ G@',
       '.. .. R@ ## G> %%',
@@ -295,9 +295,9 @@ const LEVELS = [
       'Yv .. .. .. ## R<',
     ],
   },
-  {   // 20 · azar 0.08% · solución de 12 movimientos netos
-    name: 'Guardián de la Cripta', moves: 13, par: 1, cap: 4, manaPerCell: 2,
-    intro: { title: 'Examen del capítulo', lines: ['Hielo y piedra por todas partes.', 'Un solo error y se acabó.'] },
+  {   // 20
+    name: 'Guardián de la Cripta', moves: 15, par: 3, cap: 4, manaPerCell: 2,
+    intro: { title: 'Examen del capítulo', lines: ['Hielo y piedra por todas partes.', 'Cada movimiento cuenta.'] },
     grid: [
       '.. B@ .. .. .. ..',
       '.. G@ R@ .. %% ..',
@@ -308,35 +308,35 @@ const LEVELS = [
       'B> G> ## .. .. ..',
     ],
   },
-  {   // 21 · azar 12.52% · solución de 7 movimientos netos
-    name: 'Barriles de Pólvora', moves: 10, par: 3, cap: 5, manaPerCell: 2,
-    intro: { title: 'Forja de Pólvora', lines: ['Golpea un barril: estalla en 3×3.', '3 bloques iguales en línea RESUENAN', 'y liberan su elemento alrededor.', 'Encadenado: un impacto lo libera.', 'Sello: se abre al fusionar su color.'] },
+  {   // 21
+    name: 'Barriles de Pólvora', moves: 13, par: 5, cap: 5, manaPerCell: 2,
+    intro: { title: 'Forja de Pólvora', lines: ['Golpea un barril: estalla en 3×3.', '3 bloques iguales en línea RESUENAN.'] },
     grid: [
       '.. .. .. .. .. ..',
       '.. .. .. G> .. R@',
       '.. G< .. G@ .. TT',
       '.. R@ .. Rv .. ..',
-      'G= R< .. .. .. ..',
+      '## R< .. .. .. ..',
       '.. G@ .. R< G@ R@',
-      '%% g< .. .. R< TT',
+      '%% G< .. .. R< TT',
     ],
   },
-  {   // 22 · azar 4.2% · solución de 6 movimientos netos
-    name: 'Eco Resonante', moves: 9, par: 3, cap: 5, manaPerCell: 2,
+  {   // 22
+    name: 'Cadenas de Hierro', moves: 14, par: 3, cap: 4, manaPerCell: 2,
     intro: { title: 'Resonancia', lines: ['Fuego resonante derrite el hielo,', 'Naturaleza rompe piedra y', 'Agua rompe cadenas.'] },
     grid: [
-      'R> .. R@ .. .. ..',
-      '.. B@ ## .. .. ..',
-      '.. B< .. .. .. B<',
-      '## .. R@ B@ TT ..',
-      'B@ .. b< R< .. ..',
-      'B< B^ .. .. .. R@',
-      '.. .. .. .. .. R>',
+      '.. R@ .. G@ .. B@',
+      'R@ Bv R@ R> G@ B@',
+      'G< B> B> .. rv G=',
+      'R@ .. .. G> B@ ..',
+      'B= .. .. R@ ## R@',
+      '.. .. .. B> G@ TT',
+      '.. ## .. TT B> ..',
     ],
   },
-  {   // 23 · azar 2.56% · solución de 7 movimientos netos
-    name: 'Sala de los Sellos', moves: 9, par: 2, cap: 5, manaPerCell: 2,
-    intro: { title: 'Sellos y cadenas', lines: ['Piensa qué color abre cada sello.'] },
+  {   // 23
+    name: 'Sala de los Sellos', moves: 11, par: 4, cap: 5, manaPerCell: 2,
+    intro: { title: 'Sellos', lines: ['Piensa qué color abre cada sello.'] },
     grid: [
       '.. .. .. G@ Y@ B@',
       '.. .. B@ Y> Gv y>',
@@ -347,8 +347,8 @@ const LEVELS = [
       'G> .. bv .. %% ..',
     ],
   },
-  {   // 24 · azar 4.44% · solución de 10 movimientos netos
-    name: 'Polvorín Helado', moves: 12, par: 2, cap: 4, manaPerCell: 2,
+  {   // 24
+    name: 'Polvorín Helado', moves: 13, par: 3, cap: 4, manaPerCell: 2,
     intro: { title: 'Pólvora y hielo', lines: ['Una explosión rompe hielo y piedra.'] },
     grid: [
       'B@ .. .. R@ G@ R@',
@@ -360,8 +360,8 @@ const LEVELS = [
       'G> .. ## %% G> %%',
     ],
   },
-  {   // 25 · azar 1.32% · solución de 7 movimientos netos
-    name: 'Coro de Runas', moves: 7, par: 2, cap: 4, manaPerCell: 2,
+  {   // 25
+    name: 'Coro de Runas', moves: 8, par: 3, cap: 4, manaPerCell: 2,
     grid: [
       '.. G@ G^ B@ R@ ..',
       'G@ g> .. G@ G< ..',
@@ -372,8 +372,8 @@ const LEVELS = [
       '.. .. G< .. .. TT',
     ],
   },
-  {   // 26 · azar 0.6% · solución de 11 movimientos netos
-    name: 'Mecha Corta', moves: 13, par: 2, cap: 4, manaPerCell: 2,
+  {   // 26
+    name: 'Mecha Corta', moves: 14, par: 3, cap: 4, manaPerCell: 2,
     grid: [
       '.. .. Y@ G@ .. Y@',
       '.. .. B= R> B@ Gv',
@@ -384,21 +384,21 @@ const LEVELS = [
       '.. B> .. .. %% ..',
     ],
   },
-  {   // 27 · azar 1.4% · solución de 11 movimientos netos
-    name: 'Cadenas de Hierro', moves: 13, par: 2, cap: 4, manaPerCell: 2,
+  {   // 27
+    name: 'Eco Resonante', moves: 10, par: 4, cap: 5, manaPerCell: 2,
     grid: [
-      '.. R@ .. G@ .. B@',
-      'R@ Bv R@ R> G@ B@',
-      'G< B> B> .. rv G=',
-      'R@ .. .. G> B@ ..',
-      'B= .. .. R@ ## R@',
-      '.. .. .. B> G@ TT',
-      '.. ## .. TT B> ..',
+      'R> .. R@ .. .. ..',
+      '.. B@ ## .. .. ..',
+      '.. B< .. .. .. B<',
+      '## .. R@ B@ TT ..',
+      'B@ .. b< R< .. ..',
+      'B< B^ .. .. .. R@',
+      '.. .. .. .. .. R>',
     ],
   },
-  {   // 28 · azar 0.48% · solución de 11 movimientos netos
-    name: 'Fragua Sellada', moves: 12, par: 1, cap: 3, manaPerCell: 2,
-    intro: { title: 'Sin margen', lines: ['Solo un movimiento de sobra.'] },
+  {   // 28
+    name: 'Fragua Sellada', moves: 14, par: 3, cap: 3, manaPerCell: 2,
+    intro: { title: 'Piensa antes de mover', lines: ['Cada movimiento cuenta:', 'planea el orden de caída.'] },
     grid: [
       '.. .. B@ R@ .. G@',
       '.. .. R@ %% ## R@',
@@ -409,8 +409,8 @@ const LEVELS = [
       '.. %% g< .. G> ##',
     ],
   },
-  {   // 29 · azar 0.08% · solución de 11 movimientos netos
-    name: 'Chispas en la Oscuridad', moves: 12, par: 1, cap: 4, manaPerCell: 2,
+  {   // 29
+    name: 'Chispas en la Oscuridad', moves: 14, par: 3, cap: 4, manaPerCell: 2,
     grid: [
       'G> R@ .. .. R@ ..',
       '.. TT B@ .. R> ..',
@@ -421,8 +421,8 @@ const LEVELS = [
       'G> .. R> .. gv G^',
     ],
   },
-  {   // 30 · azar 0% · solución de 11 movimientos netos
-    name: 'Guardián de la Forja', moves: 12, par: 1, cap: 3, manaPerCell: 2,
+  {   // 30
+    name: 'Guardián de la Forja', moves: 14, par: 3, cap: 3, manaPerCell: 2,
     intro: { title: 'Examen del capítulo', lines: ['Pólvora, sellos y cadenas.', 'Busca la reacción en cadena.'] },
     grid: [
       '.. B@ R@ R@ .. ..',
@@ -434,21 +434,21 @@ const LEVELS = [
       '.. B^ .. TT .. TT',
     ],
   },
-  {   // 31 · azar 16.88% · solución de 8 movimientos netos
-    name: 'Runas de Giro', moves: 11, par: 3, cap: 5, manaPerCell: 3,
-    intro: { title: 'Torre Rúnica', lines: ['Las runas de giro desvían bloques.', 'Morado = Maná Pleno: carga el Portal,', 'que destruye la fila que elijas.', 'Runa maldita (X): -1 mov. y -maná.', 'Arcoíris: comodín de cualquier color.'] },
+  {   // 31
+    name: 'Portal Arcano', moves: 11, par: 5, cap: 5, manaPerCell: 3,
+    intro: { title: 'Torre Rúnica', lines: ['Cada casilla nueva que pintas carga el MANÁ.', 'Con el maná lleno, el PORTAL borra una fila.', 'Morado = Maná Pleno: lo llena de golpe.'] },
     grid: [
       '.. .. .. R@ P@ ..',
       '.. .. .. Pv R< ..',
-      'W@ .. R@ .. .. ..',
+      'R@ .. R@ .. .. ..',
       'Rv P@ Pv .. .. ..',
-      '.. P> .. xx .. <<',
-      '.. vv .. .. .. P@',
-      '.. R> .. .. %% %%',
+      '.. P> .. .. .. ..',
+      '.. .. .. .. .. P@',
+      '.. R< .. .. %% %%',
     ],
   },
-  {   // 32 · azar 4.4% · solución de 9 movimientos netos
-    name: 'Prisma Errante', moves: 12, par: 3, cap: 5, manaPerCell: 3,
+  {   // 32
+    name: 'Prisma Errante', moves: 13, par: 4, cap: 5, manaPerCell: 3,
     intro: { title: 'Comodín', lines: ['El Arcoíris completa el color que', 'más Fluffies tenga en el caldero.'] },
     grid: [
       'P@ .. G@ B@ .. ..',
@@ -460,9 +460,9 @@ const LEVELS = [
       '.. .. .. .. .. P>',
     ],
   },
-  {   // 33 · azar 2.64% · solución de 7 movimientos netos
-    name: 'La Gran Muralla', moves: 9, par: 2, cap: 4, manaPerCell: 3,
-    intro: { title: 'Portal', lines: ['El Portal no gasta movimiento.', 'Guárdalo para la fila justa.'] },
+  {   // 33
+    name: 'La Gran Muralla', moves: 11, par: 4, cap: 4, manaPerCell: 3,
+    intro: { title: 'Portal', lines: ['El Portal no gasta movimiento.', 'Guárdalo para la fila justa.', 'Runa maldita (X): cuesta 1 movimiento y maná.'] },
     grid: [
       'R@ .. %% .. xx ..',
       'Yv .. .. Y@ .. %%',
@@ -473,8 +473,8 @@ const LEVELS = [
       'Y> .. xx .. .. ..',
     ],
   },
-  {   // 34 · azar 0.72% · solución de 9 movimientos netos
-    name: 'Laberinto de Chispas', moves: 11, par: 2, cap: 4, manaPerCell: 3,
+  {   // 34
+    name: 'Laberinto de Chispas', moves: 12, par: 3, cap: 4, manaPerCell: 3,
     grid: [
       '.. P@ B@ .. .. P@',
       'R@ B^ B^ G@ .. R<',
@@ -485,8 +485,8 @@ const LEVELS = [
       '.. P< .. .. vv ..',
     ],
   },
-  {   // 35 · azar 3.6% · solución de 10 movimientos netos
-    name: 'Prisma Sellado', moves: 12, par: 2, cap: 4, manaPerCell: 3,
+  {   // 35
+    name: 'Prisma Sellado', moves: 13, par: 3, cap: 4, manaPerCell: 3,
     grid: [
       'P@ B@ W@ .. R@ ..',
       'R> p> P@ P@ R> ..',
@@ -497,8 +497,8 @@ const LEVELS = [
       '## .. .. .. R< <<',
     ],
   },
-  {   // 36 · azar 0.2% · solución de 8 movimientos netos
-    name: 'Escalera Maldita', moves: 10, par: 2, cap: 4, manaPerCell: 3,
+  {   // 36
+    name: 'Escalera Maldita', moves: 11, par: 3, cap: 4, manaPerCell: 3,
     grid: [
       'Y@ .. R@ G@ Y@ ..',
       'Y< G@ ## TT %% R@',
@@ -509,8 +509,8 @@ const LEVELS = [
       '.. R> G^ .. xx R>',
     ],
   },
-  {   // 37 · azar 0.52% · solución de 10 movimientos netos
-    name: 'Observatorio', moves: 12, par: 2, cap: 4, manaPerCell: 3,
+  {   // 37
+    name: 'Observatorio', moves: 13, par: 3, cap: 4, manaPerCell: 3,
     grid: [
       '.. .. R= .. P@ ..',
       'TT .. B@ B@ P< R@',
@@ -521,9 +521,9 @@ const LEVELS = [
       'G> .. G> .. rv ..',
     ],
   },
-  {   // 38 · azar 0.6% · solución de 10 movimientos netos
-    name: 'Brújula Rota', moves: 11, par: 1, cap: 4, manaPerCell: 3,
-    intro: { title: 'Sin margen', lines: ['Solo un movimiento de sobra.'] },
+  {   // 38
+    name: 'Brújula Rota', moves: 13, par: 3, cap: 4, manaPerCell: 3,
+    intro: { title: 'Piensa antes de mover', lines: ['Cada movimiento cuenta:', 'planea el orden de caída.'] },
     grid: [
       'W@ .. B@ R@ .. B@',
       'G> .. Rv ## .. B^',
@@ -534,8 +534,8 @@ const LEVELS = [
       'Y< .. .. .. vv ..',
     ],
   },
-  {   // 39 · azar 0.12% · solución de 10 movimientos netos
-    name: 'Antesala del Archimago', moves: 11, par: 1, cap: 4, manaPerCell: 3,
+  {   // 39
+    name: 'Antesala del Archimago', moves: 13, par: 3, cap: 4, manaPerCell: 3,
     grid: [
       'G@ B@ .. G@ B@ ..',
       'P< G@ TT P< r> ..',
@@ -546,9 +546,9 @@ const LEVELS = [
       '## P< .. %% .. G<',
     ],
   },
-  {   // 40 · azar 0% · solución de 11 movimientos netos
-    name: 'Guardián de la Torre', moves: 12, par: 1, cap: 3, manaPerCell: 3,
-    intro: { title: 'Examen del capítulo', lines: ['Todo lo aprendido, casi sin margen.', 'Sigue cada giro con la vista.'] },
+  {   // 40
+    name: 'Guardián de la Torre', moves: 14, par: 3, cap: 3, manaPerCell: 3,
+    intro: { title: 'Examen del capítulo', lines: ['Todo lo aprendido, con poco margen.', 'Sigue cada giro con la vista.'] },
     grid: [
       'B@ P@ W@ >> G@ P@',
       'TT B> ## B= g^ G@',
@@ -559,21 +559,21 @@ const LEVELS = [
       '.. << P< B^ .. Rv',
     ],
   },
-  {   // 41 · azar 5% · solución de 9 movimientos netos
-    name: 'Burbujas Errantes', moves: 11, par: 2, cap: 5, manaPerCell: 3,
-    intro: { title: 'Laboratorio Prohibido', lines: ['Fluffy en burbuja: no cae hasta que', 'la revientes con un golpe o hechizo.', 'El lodo detiene cualquier bloque.', 'Dos portales gemelos están unidos:', 'entra por uno y sale por el otro.'] },
+  {   // 41
+    name: 'Burbujas Errantes', moves: 13, par: 5, cap: 5, manaPerCell: 3,
+    intro: { title: 'Laboratorio Prohibido', lines: ['El laboratorio guarda sus secretos', 'dentro de burbujas.'] },
     grid: [
       '.. .. B@ .. G@ R@',
       '.. R@ %% G@ Rv Rv',
-      '.. Rv oo R> .. B(',
-      '.. ~~ .. Bv .. ##',
+      '.. Rv .. R< .. B(',
+      '.. .. .. Bv .. ##',
       'R@ .. .. G( .. ..',
       'B> B@ .. ## .. ..',
-      'oo B< .. .. .. ..',
+      '.. B< .. .. .. ..',
     ],
   },
-  {   // 42 · azar 6.6% · solución de 9 movimientos netos
-    name: 'Charcos de Lodo', moves: 11, par: 2, cap: 5, manaPerCell: 3,
+  {   // 42
+    name: 'Charcos de Lodo', moves: 13, par: 4, cap: 5, manaPerCell: 3,
     intro: { title: 'Lodo', lines: ['Usa el lodo para frenar un bloque', 'justo donde lo necesitas.'] },
     grid: [
       '.. .. .. .. .. Yv',
@@ -585,8 +585,8 @@ const LEVELS = [
       '.. ~~ .. .. Bv B<',
     ],
   },
-  {   // 43 · azar 3.84% · solución de 9 movimientos netos
-    name: 'Portales Gemelos', moves: 11, par: 2, cap: 4, manaPerCell: 3,
+  {   // 43
+    name: 'Portales Gemelos', moves: 13, par: 4, cap: 4, manaPerCell: 3,
     intro: { title: 'Teletransporte', lines: ['El bloque sale por el otro portal', 'y sigue en la misma dirección.'] },
     grid: [
       '.. .. R@ .. R@ ..',
@@ -598,8 +598,8 @@ const LEVELS = [
       '.. %% .. G< .. ..',
     ],
   },
-  {   // 44 · azar 3.56% · solución de 10 movimientos netos
-    name: 'Espuma Burbujeante', moves: 12, par: 2, cap: 4, manaPerCell: 3,
+  {   // 44
+    name: 'Espuma Burbujeante', moves: 13, par: 3, cap: 4, manaPerCell: 3,
     grid: [
       'R@ .. R@ G@ .. ..',
       'Gv .. B@ ## .. ..',
@@ -610,8 +610,8 @@ const LEVELS = [
       'R> .. ## ~~ r> ..',
     ],
   },
-  {   // 45 · azar 0.6% · solución de 10 movimientos netos
-    name: 'Alambique Arcoíris', moves: 12, par: 2, cap: 4, manaPerCell: 3,
+  {   // 45
+    name: 'Alambique Arcoíris', moves: 13, par: 3, cap: 4, manaPerCell: 3,
     grid: [
       'P@ .. G( R@ P@ ..',
       'TT R@ P> Pv TT B@',
@@ -622,8 +622,8 @@ const LEVELS = [
       '.. Bv .. .. G= ..',
     ],
   },
-  {   // 46 · azar 0.32% · solución de 12 movimientos netos
-    name: 'Destilería', moves: 14, par: 2, cap: 4, manaPerCell: 3,
+  {   // 46
+    name: 'Destilería', moves: 15, par: 3, cap: 4, manaPerCell: 3,
     grid: [
       'oo .. G@ R( .. ..',
       'R@ R( Rv %% B@ B@',
@@ -634,9 +634,9 @@ const LEVELS = [
       '.. ## oo .. Y> ##',
     ],
   },
-  {   // 47 · azar 0.52% · solución de 11 movimientos netos
-    name: 'Matraz Maldito', moves: 12, par: 1, cap: 4, manaPerCell: 3,
-    intro: { title: 'Sin margen', lines: ['Solo un movimiento de sobra.'] },
+  {   // 47
+    name: 'Matraz Maldito', moves: 14, par: 3, cap: 4, manaPerCell: 3,
+    intro: { title: 'Piensa antes de mover', lines: ['Cada movimiento cuenta:', 'planea el orden de caída.'] },
     grid: [
       'R@ ~~ R@ P@ G@ ..',
       'Pv .. R< P@ B> ..',
@@ -647,8 +647,8 @@ const LEVELS = [
       'Rv .. B> Gv .. B<',
     ],
   },
-  {   // 48 · azar 0.4% · solución de 8 movimientos netos
-    name: 'Sala de Experimentos', moves: 9, par: 1, cap: 4, manaPerCell: 3,
+  {   // 48
+    name: 'Sala de Experimentos', moves: 11, par: 3, cap: 4, manaPerCell: 3,
     grid: [
       'G@ R= oo .. B@ ..',
       'Gv P@ .. .. R@ R@',
@@ -659,8 +659,8 @@ const LEVELS = [
       'P> .. .. bv .. ##',
     ],
   },
-  {   // 49 · azar 0.16% · solución de 10 movimientos netos
-    name: 'Umbral del Archimago', moves: 11, par: 1, cap: 4, manaPerCell: 3,
+  {   // 49
+    name: 'Umbral del Archimago', moves: 13, par: 3, cap: 4, manaPerCell: 3,
     grid: [
       '.. G( oo .. P@ G@',
       'oo ## R@ .. Y@ Y<',
@@ -671,9 +671,9 @@ const LEVELS = [
       'G> .. ~~ ## TT G^',
     ],
   },
-  {   // 50 · azar 0.04% · solución de 13 movimientos netos
-    name: 'Corazón del Laboratorio', moves: 14, par: 1, cap: 4, manaPerCell: 3,
-    intro: { title: 'Prueba suprema', lines: ['El último experimento del Archimago.', 'Un solo error y no hay vuelta atrás:', 'usa DESHACER sin miedo.'] },
+  {   // 50
+    name: 'Corazón del Laboratorio', moves: 16, par: 3, cap: 4, manaPerCell: 3,
+    intro: { title: 'Prueba suprema', lines: ['El último experimento del Archimago.', 'Poco margen: si te atascas,', 'pulsa VOLVER y prueba otro orden.'] },
     grid: [
       'R= Y@ G@ .. W@ P@',
       'R@ p> G@ Y( P( B<',
@@ -943,12 +943,17 @@ const CONFIG = { gravity: 2300, bounce: 0.52, slideSpeed: 1500, bodyR: 25, xpFus
 
 /* Rangos: edita nombres, XP necesaria y color libremente. */
 const RANK_TIERS = [
-  { name: 'Iniciado',            xp: 0,    color: '#9aa4b8' },
-  { name: 'Escudero',            xp: 300,   color: '#5fd38d' },
-  { name: 'Campeón',             xp: 900,  color: '#4aa8ff' },
-  { name: 'Señor de la Guerra',  xp: 2000,  color: '#b76bff' },
-  { name: 'Gran Mariscal',       xp: 3500,  color: '#ff8a3c' },
-  { name: 'Leyenda',             xp: 5500, color: '#ffd24a' },
+  { name: 'Aprendiz',            xp: 0,    color: '#9aa4b8' },
+  { name: 'Chispa Arcana',       xp: 400,   color: '#5fd38d' },
+  { name: 'Llama Brillante',     xp: 1200,  color: '#4aa8ff' },
+  { name: 'Estrella Alquímica',  xp: 2600,  color: '#b76bff' },
+  { name: 'Gran Maestría',       xp: 4500,  color: '#ff8a3c' },
+  { name: 'Leyenda',             xp: 7000,  color: '#ffd24a' },
+  { name: 'Mito Arcano',         xp: 10000, color: '#ff5df0' },
+  { name: 'Sabiduría Antigua',   xp: 14000, color: '#7ff0ff' },
+  { name: 'Alma del Caldero',    xp: 19000, color: '#ffffff' },
+  { name: 'Luz del Laboratorio', xp: 26000, color: '#ffe27a' },
+  { name: 'Alquimia Eterna',     xp: 36000, color: '#ff8af0' },
 ];
 const COLORS = {
   R: { m: '#ff4d6d', l: '#ffa3b4', d: '#a8133a' },
@@ -1020,11 +1025,12 @@ const Snd = {
     if (this.mode !== 0 || document.hidden || c.state !== 'running') { this.next = c.currentTime + 0.2; return; }
     if (this.next < c.currentTime) this.next = c.currentTime + 0.05;
     while (this.next < c.currentTime + 0.45) {
-      const s = this.step++, t = this.next, ch = [[220, 261.6, 329.6], [174.6, 220, 261.6], [261.6, 329.6, 392], [196, 246.9, 293.7]][(s >> 3) % 4], i = s % 8;
+      const PR = [[[220, 261.6, 329.6], [174.6, 220, 261.6], [261.6, 329.6, 392], [196, 246.9, 293.7]], [[293.7, 349.2, 440], [233.1, 293.7, 349.2], [349.2, 440, 523.3], [261.6, 329.6, 392]], [[164.8, 196, 246.9], [130.8, 164.8, 196], [146.8, 185, 220], [123.5, 155.6, 185]], [[261.6, 311.1, 392], [207.7, 261.6, 311.1], [311.1, 392, 466.2], [233.1, 293.7, 349.2]], [[185, 220, 277.2], [146.8, 185, 220], [220, 277.2, 329.6], [164.8, 207.7, 246.9]]];
+      const s = this.step++, t = this.next, ch = PR[(G.state === 'play' ? this.prog || 0 : 0) % 5][(s >> 3) % 4], i = s % 8;
       this.v(ch[[0, 1, 2, 1, 0, 2, 1, 2][i]] * 2, 0.55, { at: t, type: 'triangle', vol: 0.045, music: true, rev: true });
       if (i === 0) { this.v(ch[0] / 2, 2.5, { at: t, vol: 0.09, music: true, att: 0.05 }); ch.forEach(f => this.v(f, 2.7, { at: t, vol: 0.022, music: true, att: 0.9, rev: true })); }
       if (i === 5 && (s >> 3) % 2) this.v(ch[2] * 4, 0.9, { at: t, vol: 0.02, music: true, rev: true });
-      this.next += 0.34;
+      this.next += [0.34, 0.38, 0.3, 0.36, 0.28][(G.state === 'play' ? this.prog || 0 : 0) % 5];   // tempo por capítulo
     }
   },
   note(ci) { return [392, 440, 523.3, 587.3, 659.3][ci % 5]; },
@@ -1042,8 +1048,10 @@ const Snd = {
   absorb() { this.v(500, 0.35, { vol: 0.22, to: 1700, rev: true }); this.bell(1568, 0.5, 0.08, 0.2); },
   curse() { this.v(220, 0.4, { type: 'sawtooth', vol: 0.13, to: 62 }); this.v(233, 0.4, { type: 'sawtooth', vol: 0.1, to: 66 }); },
   charge() { this.v(180, 0.5, { type: 'sawtooth', vol: 0.07, to: 1400 }); this.n(0.5, { f: 600, to: 5000, q: 4, vol: 0.12 }); },
+  duck(t = 0.9) { if (!this.ctx || !this.mus) return; const g = this.mus.gain, n = this.ctx.currentTime; g.cancelScheduledValues(n); g.setValueAtTime(g.value, n); g.linearRampToValueAtTime(0.25, n + 0.05); g.linearRampToValueAtTime(0.5, n + t); },
   fuse(combo, ci) {
-    const root = [261.6, 293.7, 329.6, 392, 440, 523.3][Math.min(combo - 1, 5)] * (1 + ci * 0.0);
+    this.duck(1);
+    const root = [261.6, 293.7, 329.6, 392, 440, 523.3][Math.min(combo - 1, 5)] * [1, 1.122, 1.26, 0.891, 1.335][(ci < 0 ? 0 : ci) % 5];   // cada color suena en su propio tono
     [1, 1.26, 1.5, 2, 2.52].forEach((m, i) => this.bell(root * m, 0.9, 0.16, i * 0.055));
     this.n(0.25, { f: 1800, to: 300, vol: 0.3 }); this.v(150, 0.3, { vol: 0.4, to: 50 });
   },
@@ -1076,11 +1084,12 @@ const Snd = {
     else if (t === 3) { [392, 494, 587, 784].forEach((f, i) => { this.v(f, 1.6, { type: 'sawtooth', vol: 0.035, att: 0.25, rev: true }); this.v(f * 1.006, 1.6, { type: 'sawtooth', vol: 0.03, att: 0.3, rev: true }); }); this.bell(1568, 1.2, 0.1, 0.2, 2); }   // coro
     else { for (let k = 0; k < 3; k++) [523, 659, 784].forEach(f => this.v(f * (k === 2 ? 2 : 1), k === 2 ? 0.7 : 0.14, { type: 'square', vol: 0.05, delay: k * 0.16 })); this.n(0.8, { type: 'highpass', f: 5000, vol: 0.2, delay: 0.32, rev: true }); this.v(130, 0.6, { vol: 0.35, to: 65, delay: 0.32 }); }   // fanfarria
   },
+  reel(v = 1) { const n = this.ctx ? this.ctx.currentTime : 0; if (n - (this.lastReel || -9) < 0.3) return; this.lastReel = n; this.n(0.32, { f: 500, to: 3200, q: 3, vol: 0.14 * v }); for (let k = 0; k < 6; k++) this.v(1200 + k * 160, 0.03, { type: 'square', vol: 0.025 * v, delay: k * 0.04 }); },   // rodillo girando
   coin(i) { const f = 1800 + (i % 5) * 120; this.v(f, 0.05, { type: 'square', vol: 0.04, to: f * 1.3 }); },   // tic del conteo de puntos
   comboBreak() { this.v(520, 0.35, { type: 'triangle', vol: 0.12, to: 180 }); this.v(390, 0.35, { type: 'triangle', vol: 0.08, to: 130, delay: 0.08 }); },
   hiss() { this.n(0.16, { type: 'highpass', f: 3000, to: 7000, vol: 0.18 }); },
   turn() { this.v(900, 0.12, { type: 'triangle', vol: 0.14, to: 1800, rev: true }); },
-  boom(n = 1) {
+  boom(n = 1) { this.duck(0.8);
     const p = Math.pow(1.1, n - 1);
     this.n(0.05, { f: 5000, q: 1.5, vol: 0.5 });                                   // chasquido inicial
     this.v(120 * p, 0.7, { vol: 0.75, to: 28 }); this.v(60 * p, 0.9, { vol: 0.5, to: 24, type: 'triangle' });   // bombo
@@ -1093,7 +1102,7 @@ const Snd = {
   aim() { this.v(700, 0.09, { type: 'triangle', vol: 0.12, to: 1000 }); },
   undo() { this.v(700, 0.16, { type: 'triangle', vol: 0.12, to: 350 }); },
   star(i) { this.bell([784, 988, 1175][i], 0.7, 0.2); },
-  win() { [523, 659, 784, 1047, 1319].forEach((f, i) => { this.bell(f, 0.8, 0.14, i * 0.1); this.v(f / 2, 0.5, { type: 'triangle', vol: 0.12, delay: i * 0.1 }); }); },
+  win() { this.duck(2.2); [523, 659, 784, 1047, 1319].forEach((f, i) => { this.bell(f, 0.8, 0.14, i * 0.1); this.v(f / 2, 0.5, { type: 'triangle', vol: 0.12, delay: i * 0.1 }); }); },
   lose() { [392, 330, 262, 196].forEach((f, i) => this.v(f, 0.5, { type: 'triangle', vol: 0.2, delay: i * 0.17, rev: true })); },
   rankUp() { [659, 784, 988, 1319, 1568].forEach((f, i) => { this.v(f, 0.5, { type: 'square', vol: 0.06, delay: i * 0.08 }); this.bell(f, 0.8, 0.12, i * 0.08, 2); }); },
 };
@@ -1105,22 +1114,60 @@ const V = { sp: new Map(), bodies: [], q: [], cur: null, parts: [], floaters: []
   moves: 0, mana: 0, shake: 0, slow: 0, flash: null, banner: null, aim: null, sel: null, link: null, portalMode: false,
   intro: null, buf: null, say: null, praise: null, slosh: 0, liq: 826, streak: 0, chainEv: 0, score: 0, fireStage: 0, chainT: 0, ca: 0, bloom: 0, waves: [], rays: { x: 270, y: 480, k: 0 }, zoom: 0, scorch: [], look: null, fuseX: 270, fuseY: 800, tint: 'G', colors: [], levelXp: 0, maxCombo: 0, L: null };
 
-function save() { try { localStorage.setItem('chromadrop_v2', JSON.stringify({ v: 3, xp: G.xp, unlocked: G.unlocked, stars: G.stars, streak: G.streak, story: G.story })); } catch (e) {} }
-function load() { try { const d = JSON.parse(localStorage.getItem('chromadrop_v2')); if (d) { G.xp = d.xp | 0; G.unlocked = clamp(d.unlocked | 0, 1, LEVELS.length); G.stars = d.v === 3 ? (d.stars || []) : []; G.streak = d.streak | 0; G.story = d.story | 0; } } catch (e) {} }
+/* REGALO DIARIO: un premio de XP por entrar cada día; crece con los días seguidos */
+function dayKey(d) { return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
+function dailyCheck() {
+  const today = dayKey(new Date()); if (G.lastDay === today) return;
+  G.dayStreak = G.lastDay === dayKey(new Date(Date.now() - 86400000)) ? (G.dayStreak || 0) + 1 : 1; G.lastDay = today;
+  G.gift = { xp: 30 + 10 * Math.min(G.dayStreak, 7), t: 0 };
+}
+function drawDaily() {
+  const g = G.gift; if (!g) return; if (g.t0 === undefined) g.t0 = G.time; g.t = G.time - g.t0;
+  G.btns.push({ x: 0, y: 0, w: W, h: H, fn: () => {} });     // bloquea el menú de debajo
+  ctx.fillStyle = 'rgba(5,3,12,.75)'; ctx.fillRect(0, 0, W, H);
+  const sc = Math.min(1, g.t * 4); ctx.save(); ctx.translate(W / 2, 470); ctx.scale(0.6 + 0.4 * sc, 0.6 + 0.4 * sc);
+  ctx.fillStyle = '#1c1634'; rr(-200, -200, 400, 400, 24); ctx.fill(); ctx.strokeStyle = '#ffd24a'; ctx.lineWidth = 3; ctx.stroke();
+  text('REGALO DIARIO', 0, -160, 28, '#ffe27a'); text((G.dayStreak > 1 ? G.dayStreak + ' días seguidos' : 'Primer día'), 0, -126, 17, '#cdb8ff', 'center', 700);
+  ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.rotate(G.time * 0.6); for (let i = 0; i < 12; i++) { ctx.rotate(TAU / 12); ctx.fillStyle = 'rgba(255,210,74,.12)'; ctx.beginPath(); ctx.moveTo(0, -20); ctx.lineTo(-14, -120); ctx.lineTo(14, -120); ctx.closePath(); ctx.fill(); } ctx.restore();
+  ctx.save(); ctx.shadowColor = '#ffd24a'; ctx.shadowBlur = 20; drawBottle(0, -20 + Math.sin(G.time * 2) * 5, 30, '#ffd24a'); ctx.restore();
+  text('+' + g.xp + ' XP  ·  +1 pista', 0, 70, 28, '#fff', 'center', 900); text('Vuelve mañana: el premio sube cada día seguido', 0, 104, 15, '#cfc6ee', 'center', 600);
+  ctx.restore();
+  btn(W / 2 - 110, 586, 220, 54, 'RECOGER', () => { addXp(g.xp, true); G.hintBank = (G.hintBank | 0) + 1; burst(W / 2, 450, '#ffd24a', 30, 320, 200, 'star'); Snd.win(); G.gift = null; save(); }, { color: '#2fae6a', size: 21, glow: true });
+}
+/* ESTANTE DE POCIONES: una por nivel superado, ordenadas por capítulo */
+function drawShelf() {
+  drawBackground();
+  const got = G.stars.filter(x => x > 0).length;
+  text('ESTANTE DE POCIONES', W / 2, 54, 27, '#ffe27a'); text(got + ' / ' + LEVELS.length + ' destiladas · completa un estante: +200 XP', W / 2, 86, 13, '#cdb8ff', 'center', 700);
+  const EC = ['#ff4d6d', '#3fa7ff', '#ff8a3c', '#b76bff', '#3ddc84'];
+  for (let ch = 0; ch < 5; ch++) {
+    const y0 = 112 + ch * 150, done = (G.shelfDone || [])[ch];
+    text((CHAPTERS[ch] || '') + (done ? '  ✓' : ''), 26, y0 + 10, 13, done ? '#ffe27a' : '#cdb8ff', 'left', 800);
+    const pg = ctx.createLinearGradient(0, y0 + 112, 0, y0 + 126); pg.addColorStop(0, '#8a5a34'); pg.addColorStop(1, '#4a2c16'); ctx.fillStyle = pg; ctx.fillRect(18, y0 + 112, W - 36, 13);
+    for (let j = 0; j < 10; j++) {
+      const k = ch * 10 + j, x = 46 + j * 49.6, y = y0 + 74, has = (G.stars[k] || 0) > 0;
+      ctx.save(); if (has) { ctx.shadowColor = EC[ch]; ctx.shadowBlur = 12 + 4 * Math.sin(G.time * 3 + j); }
+      drawBottle(x, y + (has ? Math.sin(G.time * 2 + k) * 1.5 : 0), 16, has ? EC[(ch + j) % 5] : '#2a2440'); ctx.restore();
+      if (!has) text('?', x, y + 6, 14, '#6d668a', 'center', 900);
+      G.btns.push({ x: x - 22, y: y - 34, w: 44, h: 64, fn: () => { V.floaters = []; floater(W / 2, 104, has ? POTIONS[k] : 'Nivel ' + (k + 1) + ': sin destilar', has ? '#ffe27a' : '#cfc6ee', 15, 1.6); Snd.click(); } });
+    }
+  }
+  btn(W / 2 - 100, 878, 200, 56, 'VOLVER', () => { G.state = 'menu'; }, { color: '#6a4ab8', size: 20 });
+  drawParticles();
+}
+function save() { try { localStorage.setItem('chromadrop_v2', JSON.stringify({ v: 3, xp: G.xp, unlocked: G.unlocked, stars: G.stars, streak: G.streak, story: G.story, snd: Snd.mode, fxLow: G.fxLow ? 1 : 0, day: G.lastDay, dstr: G.dayStreak, shelf: G.shelfDone, hb: G.hintBank | 0, chests: G.chests || {}, dd: G.dailyDone || '', fails: G.fails || {}, dpick: G.dPick || null, att: G.attM || {}, best: G.best || {}, mst: G.master || {}, gift: G.gift ? G.gift.xp : 0, drun: G.dRun | 0, dlast: G.dLast || '' })); } catch (e) {} }
+function load() { try { const d = JSON.parse(localStorage.getItem('chromadrop_v2')); if (d) { G.xp = d.xp | 0; G.unlocked = clamp(d.unlocked | 0, 1, LEVELS.length); G.stars = d.v === 3 ? (d.stars || []) : []; G.streak = d.streak | 0; G.story = d.story | 0; Snd.mode = d.snd | 0; G.fxLow = !!d.fxLow; G.lastDay = d.day || ''; G.dayStreak = d.dstr | 0; G.shelfDone = d.shelf || []; G.hintBank = d.hb | 0; G.chests = d.chests || {}; G.dailyDone = d.dd || ''; G.best = d.best || {}; G.dPick = d.dpick || null; G.fails = d.fails || {}; G.attM = d.att || {}; G.master = d.mst || {}; G.dRun = d.drun | 0; G.dLast = d.dlast || ''; if (d.gift) G.gift = { xp: d.gift, t: 0 }; } } catch (e) {} dailyCheck(); save(); }
 /* Historia y meta del juego */
 const STORY = { title: 'La Bóveda del Archimago', lines: [
-  'Los Fluffies son espíritus de color',
-  'atrapados entre las runas de la bóveda.',
-  'Tú eres el alquimista: ábreles camino',
-  'hasta CALDO, tu caldero vivo.',
-  'Cada 3 del mismo color se funden en un',
-  'hechizo. Libéralos a todos y Caldo',
-  'destilará la poción de la sala.',
-  'Reúne 40 pociones para romper',
-  'el sello de la Torre.'] };
+  'Cada Fluffy es un espíritu de color',
+  'sin salida de la bóveda.',
+  'Ábreles camino hasta CALDO, tu caldero:',
+  'cada 3 iguales se funden en un hechizo.',
+  'Libera a cada Fluffy y Caldo',
+  'destilará la poción de la sala.'] };
 const POTIONS = [
   'Elixir de Chispa', 'Tónico de Brasa', 'Savia Espinosa', 'Caldo Menguante', 'Doble Infusión',
-  'Polvo de Roca', 'Eco Destilado', 'Bálsamo del Aprendiz', 'Esencia de Granito', 'Elixir del Guardián',
+  'Polvo de Roca', 'Eco Destilado', 'Bálsamo de Iniciación', 'Esencia de Granito', 'Elixir del Guardián',
   'Rocío Helado', 'Escarcha Ígnea', 'Raíz Glacial', 'Filtro Errante', 'Hervor Arcano',
   'Arena Congelada', 'Cuarteto Elemental', 'Agua de Pozo', 'Gota Exacta', 'Lágrima de la Cripta',
   'Pólvora Dulce', 'Néctar Resonante', 'Sello Líquido', 'Hielo Explosivo', 'Coro Destilado',
@@ -1133,33 +1180,65 @@ const COLOR_NAME = { R: 'rojo', G: 'verde', B: 'azul', Y: 'amarillo', P: 'morado
 function say(text, dur = 2.8) { V.say = { text, t: dur }; }                  // frase de Caldo en su placa
 /* texto de tragamonedas: cada letra cae con rebote elástico, un brillo dorado la recorre,
    las letras se mecen y al salir suben una a una. Devuelve cuántas letras ya han aterrizado. */
+/* TEXTO DE TRAGAPERRAS MÁGICA: cada letra gira como un rodillo (letras al azar con estela) antes de caer
+   en su sitio con rebote elástico; luego brilla con neón aditivo, la recorre un destello y se mece.
+   Al salir, las letras suben una a una. Devuelve { landed, xs } para lanzar chispas al caer cada letra. */
+const REEL = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 function drawSlotText(o, cx, cy, size, color, a0 = 1) {
-  const L = [...o.text], n = L.length, stag = 0.045; ctx.save(); ctx.font = '900 ' + size + 'px "Trebuchet MS","Segoe UI",system-ui,sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
-  const ws = L.map(ch => ctx.measureText(ch).width), tw = ws.reduce((p, q) => p + q, 0); let x = cx - tw / 2, landed = 0;
-  const shine = (G.time * 16) % (n + 8) - 4, out = o.dur - o.t;
+  const L = [...o.text], n = L.length, stag = 0.05, roll = 0.2; ctx.save(); ctx.font = '900 ' + size + 'px "Trebuchet MS","Segoe UI",system-ui,sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
+  const ws = L.map(ch => ctx.measureText(ch).width), tw = ws.reduce((p, q) => p + q, 0); let x = cx - tw / 2, landed = 0; const xs = [];
+  const shine = (G.time * 16) % (n + 8) - 4, out = o.dur - o.t, puls = 0.7 + 0.3 * Math.sin(G.time * 9);
   for (let i = 0; i < n; i++) {
-    const lt = o.t - i * stag, w = ws[i], lx = x + w / 2; x += w; if (lt <= 0) continue;
-    const k = Math.min(1, lt / 0.32), c1 = 1.70158 * 1.4, back = 1 + (c1 + 1) * Math.pow(k - 1, 3) + c1 * Math.pow(k - 1, 2);   // rebote elástico
-    if (lt >= 0.26) landed++;
-    let sc = lerp(2.6, 1, back), yo = -46 * (1 - back) + Math.sin(G.time * 8 + i * 0.7) * 2.2, al = Math.min(1, lt / 0.08) * a0, rot = (1 - k) * (i % 2 ? 0.5 : -0.5);
-    const ex = out - (n - i) * 0.02; if (ex < 0.28) { const q = clamp(1 - ex / 0.28, 0, 1); yo -= q * 40; al *= 1 - q; sc *= 1 + q * 0.3; }
-    ctx.save(); ctx.globalAlpha = clamp(al, 0, 1); ctx.translate(lx, cy + yo); ctx.rotate(rot); ctx.scale(sc, sc);
-    ctx.lineWidth = size * 0.22; ctx.strokeStyle = '#1a0f33'; ctx.strokeText(L[i], 0, 0);
-    const g = ctx.createLinearGradient(0, -size / 2, 0, size / 2); g.addColorStop(0, '#ffffff'); g.addColorStop(0.45, '#ffe27a'); g.addColorStop(1, color);
-    ctx.fillStyle = g; ctx.shadowColor = color; ctx.shadowBlur = size * 0.4; ctx.fillText(L[i], 0, 0); ctx.shadowBlur = 0;
-    const sh = Math.max(0, 1 - Math.abs(i - shine) / 1.6); if (sh > 0) { ctx.globalAlpha = clamp(al, 0, 1) * sh * 0.75; ctx.fillStyle = '#ffffff'; ctx.fillText(L[i], 0, 0); }   // brillo que recorre
+    const lt = o.t - i * stag, w = ws[i], lx = x + w / 2; x += w; xs.push(lx); if (lt <= 0) continue;
+    const ex = out - (n - i) * 0.02, q = ex < 0.3 ? clamp(1 - ex / 0.3, 0, 1) : 0;
+    if (lt < roll && L[i] !== ' ') {                 // rodillo girando: letras al azar con estela vertical
+      const ph = lt * 34 + i * 7, k = Math.floor(ph), f = ph - k;
+      ctx.save(); ctx.globalAlpha = a0 * 0.85; ctx.translate(lx, cy);
+      for (let j = -1; j <= 1; j++) { const ch = REEL[((k + j * 3 + i * 5) % REEL.length + REEL.length) % REEL.length]; ctx.globalAlpha = a0 * (j === 0 ? 0.9 : 0.3); ctx.fillStyle = j === 0 ? '#ffffff' : color; ctx.fillText(ch, 0, (j - f) * size * 0.9); }
+      ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = a0 * 0.5; ctx.fillStyle = color; ctx.fillRect(-w / 2, -size * 0.7, w, size * 1.4);
+      ctx.restore(); continue;
+    }
+    const lt2 = lt - roll, k = Math.min(1, lt2 / 0.3), c1 = 1.70158 * 1.5, back = 1 + (c1 + 1) * Math.pow(k - 1, 3) + c1 * Math.pow(k - 1, 2);   // caída con rebote
+    if (lt2 >= 0.05) landed++;
+    let sc = lerp(1.9, 1, back), yo = -24 * (1 - back) + Math.sin(G.time * 8 + i * 0.7) * 2.4, al = a0;
+    if (q > 0) { yo -= q * 46; al *= 1 - q; sc *= 1 + q * 0.4; }
+    ctx.save(); ctx.globalAlpha = clamp(al, 0, 1); ctx.translate(lx, cy + yo); ctx.rotate(Math.sin(G.time * 5 + i) * 0.04); ctx.scale(sc, sc);
+    ctx.lineWidth = size * 0.22; ctx.strokeStyle = '#140a2a'; ctx.strokeText(L[i], 0, 0);
+    const g = ctx.createLinearGradient(0, -size / 2, 0, size / 2); g.addColorStop(0, '#ffffff'); g.addColorStop(0.4, '#ffe9a0'); g.addColorStop(0.7, color); g.addColorStop(1, '#ffffff');
+    ctx.fillStyle = g; ctx.shadowColor = color; ctx.shadowBlur = size * 0.45; ctx.fillText(L[i], 0, 0); ctx.shadowBlur = 0;
+    ctx.globalCompositeOperation = 'lighter';           // neón aditivo que late
+    ctx.globalAlpha = clamp(al, 0, 1) * 0.35 * puls; ctx.fillStyle = color; ctx.shadowColor = color; ctx.shadowBlur = size * 0.9; ctx.fillText(L[i], 0, 0); ctx.shadowBlur = 0;
+    const sh = Math.max(0, 1 - Math.abs(i - shine) / 1.6); if (sh > 0) { ctx.globalAlpha = clamp(al, 0, 1) * sh * 0.85; ctx.fillStyle = '#ffffff'; ctx.fillText(L[i], 0, 0); }   // destello que recorre
+    if (k < 1) { ctx.globalAlpha = clamp(al, 0, 1) * (1 - k) * 0.8; ctx.fillStyle = '#ffffff'; ctx.fillText(L[i], 0, 0); }   // fogonazo al encajar
     ctx.restore();
   }
-  ctx.restore(); return landed;
+  ctx.restore(); return { landed, xs };
 }
-function praise(text, color, sub, tier) { let y = placeY(V.focusY); if (V.banner && V.banner.t < V.banner.dur * 0.78 && Math.abs(V.banner.y - y) < 100) y = V.banner.y > BY + BH * 0.5 ? BY + 90 : BB - 80;   // no encima del cartel del hechizo
-  V.praise = { text, color, sub, t: 0, dur: 1.6, y, landed: 0 }; V.zoom = Math.max(V.zoom, 0.05); Snd.praiseFx(tier === undefined ? 2 : tier); }   // elogio gigante
+/* círculo mágico y chispas que orbitan detrás de los elogios */
+function drawPraiseMagic(cx, cy, wdt, color, t, a) {
+  ctx.save(); ctx.translate(cx, cy); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = a; const R = wdt / 2 + 34, gr = Math.min(1, t / 0.35);
+  ctx.save(); ctx.scale(1, 0.42); ctx.strokeStyle = color; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(0, 0, R * gr, 0, TAU); ctx.stroke(); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(0, 0, R * 0.86 * gr, 0, TAU); ctx.stroke();
+  ctx.rotate(t * 1.6); for (let k = 0; k < 28; k++) { ctx.rotate(TAU / 28); ctx.lineWidth = k % 4 ? 1.5 : 3.5; ctx.beginPath(); ctx.moveTo(R * 0.88 * gr, 0); ctx.lineTo(R * (k % 4 ? 0.94 : 1) * gr, 0); ctx.stroke(); } ctx.restore();
+  for (let k = 0; k < 10; k++) { const an = t * 2.2 + k * TAU / 10, px = Math.cos(an) * (R + 10) * gr, py = Math.sin(an) * (R + 10) * 0.42 * gr; ctx.fillStyle = k % 2 ? '#ffffff' : color; starPath(px, py, 4 + 2 * Math.sin(t * 9 + k), 4, 0.35, t * 4); ctx.fill(); }
+  ctx.restore();
+}
+/* estrellas: 3★ si sobran star3 movimientos (óptimo o casi), 2★ si sobra al menos uno, 1★ al ganar justo */
+function star3(L) { return L.par >= 4 ? L.par - 2 : L.par >= 3 ? L.par - 1 : L.par; }   // cap. I-II con par alto: 2 jugadas de margen; 2★ siempre posibles
+function praise(text, color, sub, tier) {
+  if (V.banner && V.banner.t < V.banner.dur * 0.6) { V.praiseNext = [text, color, sub, tier]; return; } let y = placeY(V.focusY); if (V.banner && V.banner.t < V.banner.dur * 0.78 && Math.abs(V.banner.y - y) < 100) y = V.banner.y > BY + BH * 0.5 ? BY + 90 : BB - 80;   // no encima del cartel del hechizo
+  V.praise = { text, color, sub, t: 0, dur: 1.9, y, landed: 0 }; V.zoom = Math.max(V.zoom, 0.05); Snd.reel(); Snd.praiseFx(tier === undefined ? 2 : tier); }   // elogio gigante
+
 const rankIdx = xp => { let i = 0; RANK_TIERS.forEach((t, k) => { if (xp >= t.xp) i = k; }); return i; };
 const busy = () => !!V.cur || V.q.length > 0;
 
-function addXp(n) {
-  n = Math.round(n); const before = rankIdx(G.xp); G.xp += n; V.levelXp += n;
-  const now = rankIdx(G.xp);
+function addXp(n, full) {
+  n = Math.round(n * (V.replay && !full ? 0.25 : 1));   // repetir un nivel ya superado da un 25 % de XP
+  V.levelXp += n;
+  if (G.state === 'play' && !full) { V.pendXp = (V.pendXp || 0) + n; return; }   // la XP de las jugadas se cobra al ganar
+  grantXp(n);
+}
+function grantXp(n) {
+  const before = rankIdx(G.xp); G.xp += n; const now = rankIdx(G.xp);
   if (now > before) {
     G.rankFlash = 2.5; Snd.rankUp();
     floater(W / 2, 176, '¡RANGO: ' + RANK_TIERS[now].name.toUpperCase() + '!', RANK_TIERS[now].color, 26, 2.4);
@@ -1181,22 +1260,62 @@ function buildView() {      // reconstruye sprites y caldero desde el estado ló
   }
   V.moves = S.moves; V.mana = S.mana;
 }
-function loadLevel(i) {
-  const L = LEVELS[i]; G.state = 'play'; G.levelIdx = i; G.res = null; V.L = L; S = parseLevel(L);
+/* RETO DIARIO: un nivel ya superado (en espejo), elegido por la fecha, con 2 movimientos de margen */
+/* el reto diario se juega en espejo (izquierda-derecha): el mismo puzle con otra cara. Verificado con el solver:
+   en todos los niveles salvo estos cinco el espejo tiene el mismo óptimo; en ellos se usa el original */
+const NO_MIRROR = [32, 33, 34, 35, 47];
+function mirrorLevel(L) {
+  const flip = t => t === '<<' ? '>>' : t === '>>' ? '<<' : t.length === 2 && (t[1] === '<' || t[1] === '>') && t[0] !== '<' && t[0] !== '>' ? t[0] + (t[1] === '<' ? '>' : '<') : t;
+  const M = Object.assign({}, L, { grid: L.grid.map(r => r.trim().split(/\s+/).map(flip).reverse().join(' ')) });
+  if (L.portals) M.portals = L.portals.map(p => Object.assign({}, p, { side: p.side === 'L' ? 'R' : p.side === 'R' ? 'L' : p.side }));
+  return M;
+}
+function dailyPick() { const dk = dayKey(new Date()); if (G.dPick && G.dPick.d === dk) return G.dPick.k; const k = dailyPick0(); if (k >= 0) { G.dPick = { d: dk, k }; save(); } return k; }
+function dailyPick0() { const c = []; for (let k = 1; k < Math.min(G.unlocked, LEVELS.length); k++) if ((G.stars[k] || 0) > 0) c.push(k); if (c.length < 2) return -1; let h = 7; for (const ch of dayKey(new Date())) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return c[h % c.length]; }
+/* Maestría: el menor límite de movimientos con el que cada nivel aún se puede ganar (scratchpad/master.js) */
+const MASTER_MOVES = [4, 9, 7, 5, 7, 9, 8, 9, 11, 9, 8, 8, 9, 6, 11, 8, 11, 12, 9, 12, 8, 11, 8, 10, 6, 11, 6, 11, 11, 11, 6, 9, 7, 9, 10, 8, 10, 9, 11, 11, 8, 9, 9, 10, 10, 12, 11, 8, 10, 14];
+function restartLevel() { if (!V.daily && !V.master && !V.failCounted && G.state === 'play' && (V.wasDead || V.hist.length > 0)) { G.fails = G.fails || {}; G.fails[G.levelIdx] = (G.fails[G.levelIdx] || 0) + 1; save(); } loadLevel(G.levelIdx, V.daily ? { daily: true } : V.master ? { master: true } : undefined); }
+function loadLevel(i, opt) {
+  const L0 = LEVELS[i], daily = !!(opt && opt.daily), master = !!(opt && opt.master);
+  const L = daily ? Object.assign({}, NO_MIRROR.includes(i) ? L0 : mirrorLevel(L0), { moves: L0.moves - L0.par + 2, par: 2, intro: { title: 'Reto diario', lines: ['Nivel ' + (i + 1) + (NO_MIRROR.includes(i) ? '' : ' en espejo') + ' · ' + L0.name, 'Sin pistas y con 1 solo DESHACER.', '2 movimientos de sobra.', G.dailyDone === dayKey(new Date()) ? 'Ya superado hoy: juega por diversión.' : 'Premio: +100 XP y 1 pista guardada.'] } })
+    : master ? Object.assign({}, L0, { moves: MASTER_MOVES[i] || L0.moves - L0.par, par: 0, intro: { title: 'Maestría', lines: ['Nivel ' + (i + 1) + ' · ' + L0.name, 'Movimientos justos: solo vale', 'la solución perfecta. Premio: corona y +40 XP.'] } }) : L0;
+  V.praiseNext = null; V.hintQ = false; V.daily = daily; V.master = master; V.dead = false; V.deadHide = false; V.wasDead = false; V.goodLen = 0; V.hintBusy = false; V.deadKey = ''; V.undoQ = false; G.state = 'play'; G.levelIdx = i; G.res = null; V.L = L; S = parseLevel(L);
   V.parts = []; V.floaters = []; V.fx = []; V.scorch = []; V.zoom = 0; V.waves = []; V.ca = 0; V.bloom = 0; V.rays = { x: 270, y: 480, k: 0 }; V.hist = []; V.shake = 0; V.slow = 0; V.flash = null; V.banner = null;
-  V.levelXp = 0; V.maxCombo = 0; V.streak = 0; V.chainEv = 0; V.score = 0; V.fireStage = 0; V.chainT = 0; V.intro = L.intro || null; V.praise = null; V.slosh = 0; V.liq = 826; V.tint = 'G';
-  if (!G.story && i === 0) { V.intro = Object.assign({}, STORY, { next: L.intro }); G.story = 1; save(); }
-  say('Libera ' + S.total + ' Fluffies y destilo la poción', 4);
+  V.levelXp = 0; V.scoreShown = 0; V.maxCombo = 0; V.maxStreak = 0; V.maxChain = 0; G.attM = G.attM || {}; const ak = (daily ? 'd' : master ? 'm' : 'n') + i, att = G.att = G.attM[ak] || (G.attM[ak] = { h: daily ? 0 : i < 10 ? 2 : 1 }); att.u = daily ? 1 : master ? 2 : i < 10 ? 5 : 3; V.hintsLeft = att.h; V.undos = att.u; G.fails = G.fails || {}; const fl = daily || master ? 0 : G.fails[i] || 0; V.moveBonus = fl >= 3 ? 2 : fl >= 1 ? 1 : 0; V.failCounted = false; V.struggle = fl >= 2; V.pendXp = 0; V.newRec = false; V.hint = null; V.idle = 0; V.hintGlow = false; V.pause = false; V.confirmR = false; V.replay = (G.stars[i] || 0) > 0; V.callouts = daily ? null : newKinds(i); V.calloutT = 0; Snd.prog = Math.floor(i / 10); V.streak = 0; V.chainEv = 0; V.score = 0; V.fireStage = 0; V.chainT = 0; V.intro = L.intro ? Object.assign({}, L.intro, { cards: daily || master || L.intro.icons ? null : newKinds(i) }) : (!daily && newKinds(i) ? { title: 'Nuevo en este nivel', lines: [], cards: newKinds(i) } : null); V.praise = null; V.slosh = 0; V.liq = 826; V.tint = 'G';
+  G.seen = G.seen || {}; const sk = (daily ? 'd' : master ? 'm' : '') + i; if (G.seen[sk] && V.intro) V.intro = null; G.seen[sk] = 1;   // al reintentar no se repite la intro
+  if (!G.story && i === 0) { V.intro = Object.assign({}, STORY, { next: V.intro }); G.story = 1; save(); }
+  S.moves += V.moveBonus; if (V.moveBonus) floater(W / 2, BY + 60, 'Ayuda por tus intentos: +' + V.moveBonus + (V.moveBonus > 1 ? ' movimientos' : ' movimiento'), '#7ff0ff', 17, 3.5);
+  say('Objetivo: libera ' + S.total + ' Fluffies', 4);
   V.floor = []; for (let r = 0; r < ROWS; r++) V.floor.push(new Array(COLS).fill(null));
   V.colors = COLOR_KEYS.filter(k => S.grid.some(row => row.some(e => e && e.k === 'fluffy' && e.col === k)));
   buildView();
   V.q.push({ t: 'wait', d: 0.35 }); const ev = []; resolve(S, ev); V.q.push(...ev);
 }
-function snapshot() { V.hist.push({ S: JSON.stringify(S), floor: JSON.stringify(V.floor), xp: G.xp, lxp: V.levelXp, sc: V.score, st: V.streak }); if (V.hist.length > 60) V.hist.shift(); }
+function snapshot() { V.hist.push({ S: JSON.stringify(S), floor: JSON.stringify(V.floor), pxp: V.pendXp || 0, lxp: V.levelXp, sc: V.score, st: V.streak }); if (V.hist.length > 60) V.hist.shift(); }
+/* DESHACER: unos cuantos gratis por nivel; luego cada uno cuesta 1 pista guardada */
+function canUndo() { return V.hist.length > 0 && (V.undos > 0 || (!V.daily && G.hintBank > 0)); }
+function payUndo() {        // gasta un deshacer gratis o, si no quedan, una pista guardada
+  if (V.undos > 0) { V.undos--; if (G.att) G.att.u = V.undos; return ''; }
+  if (G.hintBank > 0 && !V.daily) { if (!V.payAsk || G.time - V.payAsk > 3) { V.payAsk = G.time; floater(W / 2, BY + 30, 'Toca otra vez: cuesta 1 pista guardada', '#ffe27a', 17, 2); Snd.click(); return null; } V.payAsk = 0; G.hintBank--; return ' (−1 pista)'; }
+  return null;
+}
+function restoreSnap(h) {
+  S = JSON.parse(h.S); V.floor = JSON.parse(h.floor); V.pendXp = h.pxp || 0; V.levelXp = h.lxp; V.score = h.sc || 0; V.streak = h.st || 0; V.chainEv = 0;
+  V.say = null; V.banner = null; V.dead = false; V.deadHide = false; V.hint = null; save(); buildView(); Snd.undo();
+}
 function undo() {
-  if (busy() && !V.aim) return; const h = V.hist.pop(); if (!h) return;
-  S = JSON.parse(h.S); V.floor = JSON.parse(h.floor); G.xp = h.xp; V.levelXp = h.lxp; V.score = h.sc || 0; V.streak = h.st || 0; V.chainEv = 0; save();
-  buildView(); Snd.undo(); floater(W / 2, BY + 30, 'Movimiento deshecho', '#cfc6ee', 16, 0.9);
+  if (busy() && !V.aim) { if (canUndo()) V.undoQ = true; return; }
+  if (!V.hist.length || !canUndo()) { if (V.daily && V.hist.length) { floater(W / 2, BY + 30, 'El reto diario solo da 1 DESHACER', '#ffd9d9', 16, 1.4); Snd.bump(); } return; }
+  const paid = payUndo(); if (paid === null) return;
+  restoreSnap(V.hist.pop()); floater(W / 2, BY + 30, 'Movimiento deshecho' + paid, '#cfc6ee', 16, 0.9);
+}
+/* ¿cuántas jugadas atrás estaba el último momento en que aún se podía ganar? */
+function stepsToGood() { return V.goodLen === undefined || V.goodLen >= V.hist.length ? 1 : V.hist.length - V.goodLen; }
+function rewind() {         // vuelve de un salto al último punto ganable por el precio de un deshacer
+  if (busy() && !V.aim) return; if (!V.hist.length || !canUndo()) return;
+  const n = stepsToGood(), paid = payUndo(); if (paid === null) return; let h = null;
+  for (let k = 0; k < n && V.hist.length; k++) h = V.hist.pop();
+  restoreSnap(h); V.wasDead = false; floater(W / 2, BY + BH / 2, (n > 1 ? 'Vuelves ' + n + ' jugadas atrás' : 'Movimiento deshecho') + paid, '#cfc6ee', 17, 1.4);
 }
 
 /* ---------- efectos ---------- */
@@ -1209,7 +1328,7 @@ function burst(x, y, color, n = 14, sp = 260, grav = 500, type = 'dot') {
 function floater(x, y, text, color = '#fff', size = 20, life = 1.2) { V.floaters.push({ x, y, text, color, size, life, max: life }); }
 /* los textos grandes se colocan en la mitad del tablero contraria al efecto, para no taparlo */
 function placeY(fy) { return fy === undefined ? 300 : (fy < BY + BH * 0.5 ? BB - 80 : BY + 90); }
-function banner(text, sub, color, fy) { V.banner = { text, sub, color, t: 0, dur: 1.5, y: placeY(fy) }; }
+function banner(text, sub, color, fy) { V.banner = { text, sub, color, t: 0, dur: 1.7, y: placeY(fy) }; Snd.reel(0.5); }
 function ring(x, y, color, r1 = 90, dur = 0.45, w = 8) { V.fx.push({ type: 'ring', x, y, color, r1, t: 0, dur, w }); }
 /* foto del bloque en un canvas aparte (se reutiliza drawBlock cambiando el contexto un momento) */
 function snapSprite(s) {
@@ -1252,12 +1371,12 @@ function popOne(id) {           // reventar burbuja: anillo iridiscente y gotas
 }
 function teleFx(x1, y1, x2, y2) {
   Snd.tele();
-  for (const [x, y, c] of [[x1, y1, '#5ce1ff'], [x2, y2, '#ff6ad5']]) { V.fx.push({ type: 'vortex', x, y, r: 54, color: c, t: 0, dur: 0.45, dark: true, el: 'P' }); burst(x, y, c, 12, 240, 0, 'star'); }
+  for (const [x, y, c] of [[x1, y1, '#be96ff'], [x2, y2, '#be96ff']]) { V.fx.push({ type: 'vortex', x, y, r: 54, color: c, t: 0, dur: 0.45, dark: true, el: 'P' }); burst(x, y, c, 12, 240, 0, 'star'); }
   V.fx.push({ type: 'bolt', x1, y1, x2, y2, color: '#bfa8ff', t: 0, dur: 0.3 }); shock(x1, y1, 0.006, 400, 0.4); shock(x2, y2, 0.006, 400, 0.4);
 }
 function gooFx(x, y) {
-  Snd.goo(); V.fx.push({ type: 'ripple', x, y: y + 18, color: '#b6ff7a', t: 0, dur: 0.5, rx: 46, ry: 14 });
-  for (let i = 0; i < 14; i++) { const a = rand(Math.PI, TAU); V.parts.push({ x, y: y + 10, vx: Math.cos(a) * rand(80, 220), vy: Math.sin(a) * rand(120, 300), life: rand(0.4, 0.7), max: 0.7, color: i % 2 ? '#b6ff7a' : '#7bd94a', size: rand(3, 6), grav: 900, type: 'dot', rot: 0 }); }
+  Snd.goo(); V.fx.push({ type: 'ripple', x, y: y + 18, color: '#ffd27a', t: 0, dur: 0.5, rx: 46, ry: 14 });
+  for (let i = 0; i < 14; i++) { const a = rand(Math.PI, TAU); V.parts.push({ x, y: y + 10, vx: Math.cos(a) * rand(80, 220), vy: Math.sin(a) * rand(120, 300), life: rand(0.4, 0.7), max: 0.7, color: i % 2 ? '#ffd27a' : '#c9862e', size: rand(3, 6), grav: 900, type: 'dot', rot: 0 }); }
 }
 /* Explosión por capas: destello, bola de fuego (bocanadas que se vuelven humo), onda de choque,
    chispas, astillas de madera, brasas y marca de quemado. n = eslabón de la reacción en cadena. */
@@ -1373,7 +1492,7 @@ const Post = {
         '  uv = clamp(uv + off, 0.001, 0.999);',
         '  vec3 c; if (ca > 0.0005) { vec2 dir = (uv - 0.5) * ca; c = vec3(texture2D(t, uv + dir).r, texture2D(t, uv).g, texture2D(t, uv - dir).b); } else { c = texture2D(t, uv).rgb; }',
         '  c += texture2D(b, uv).rgb * bk + texture2D(b2, uv).rgb * bk * 0.9;',
-        '  c += potion(uv);',
+        '  c += potion(uv) * 0.55;',
         '  if (rays.z > 0.01) { vec2 dl = (uv - rays.xy) * 0.045; vec2 p = uv; float dc = 1.0; vec3 acc = vec3(0.); for (int i = 0; i < 12; i++) { p -= dl; acc += texture2D(b2, p).rgb * dc; dc *= 0.87; } c += acc * rays.z * 0.32; }',
         '  for (int i = 0; i < 4; i++) { if (fire[i].z > 0.0) c += flame(uv, fire[i], float(i) * 7.3); }',
         '  vec3 g = c; float lum = dot(g, vec3(.299, .587, .114)); g = mix(vec3(lum), g, 1.12); g = g * (2.51 * g + 0.03) / (g * (2.43 * g + 0.59) + 0.14); c = mix(c, g, 0.3);',
@@ -1388,6 +1507,7 @@ const Post = {
     this.on = true;
   },
   off() { this.on = false; if (this.c) this.c.style.display = 'none'; if (cv) cv.style.opacity = '1'; },
+  enable() { if (!this.gl || this.gl.isContextLost()) return; this.on = true; this.ema = 0.016; this.slowSince = 0; this.c.style.display = ''; resize(); },
   tex(w, h) {
     const gl = this.gl, t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -1434,13 +1554,15 @@ const Post = {
 
 /* ---------- reproducción de eventos del núcleo ---------- */
 const ACTION = { fuse: 60, match: 45, boom: 30, break: 15, seal: 50, pop: 20, unchain: 10, drop: 20 };   // puntos base de cada acción
-const CHAIN_WORDS = [[3, '¡Bien!'], [5, '¡Genial!'], [7, '¡Increíble!'], [10, '¡Divino!'], [14, '¡Legendario!']];
+const CHAIN_WORDS = [[3, '¡Genial!'], [5, '¡Brillante!'], [7, '¡Increíble!'], [10, '¡Espectacular!'], [14, '¡Magia pura!']];
 function doMove(m) {
   const ev = []; if (m.t !== 'aim') snapshot();
   if (!applyMove(S, m, ev)) { if (m.t !== 'aim') V.hist.pop(); return false; }
   const acts = ev.some(e => e.t === 'fuse' || e.t === 'match' || e.t === 'boom' || e.t === 'seal');   // ¿la jugada provocó algo?
+  V.hint = null; V.idle = 0; V.hintGlow = false; if (m.t !== 'aim') V.callouts = null;
   const prevStreak = V.streak;
-  if (m.t !== 'aim') { V.chainEv = 0; if (acts) V.streak++; else V.streak = 0; } else if (acts) V.streak++;
+  if (m.t !== 'aim') { V.chainEv = 0; V.chainAct = 0; if (acts) V.streak++; else V.streak = 0; } else if (acts) V.streak++;
+  V.maxStreak = Math.max(V.maxStreak || 0, V.streak);
   if (prevStreak >= 3 && V.streak === 0) { floater(W / 2, BB - 30, 'Combo perdido (x' + prevStreak + ')', '#cfc6ee', 17, 1.4); Snd.comboBreak(); }
   if (acts && V.streak >= 2) { V.chainT = 2; if ([3, 5, 8, 12].includes(V.streak)) { V.focusY = BB; praise('COMBO x' + V.streak, '#ffd24a', 'Multiplicador x' + (1 + 0.5 * (V.streak - 1)).toFixed(1), V.streak >= 12 ? 4 : V.streak >= 8 ? 3 : V.streak >= 5 ? 2 : 1); } }
   V.q.push(...ev); V.q.push(S.pending.length ? { t: 'aim' } : { t: 'check' });
@@ -1546,7 +1668,7 @@ const HANDLERS = {
         floater(cx, cy - 34, '¡FUSIÓN!', C.l, 24, 1.2);
         if (ev.wild) { Snd.rainbow(); floater(cx, cy + 4, '¡Arcoíris!', '#fff', 20, 1.4); for (let i = 0; i < 30; i++) { const a = i / 30 * TAU; V.parts.push({ x: cx, y: cy, vx: Math.cos(a) * 330, vy: Math.sin(a) * 330, life: 0.8, max: 0.8, color: 'hsl(' + i * 12 + ',95%,65%)', size: 6, grav: 0, type: 'star', rot: a }); } }
         for (const q of V.sp.values()) if (q.k === 'fluffy') q.sq = 0.22;
-        if (ev.combo > 1) { praise(['', '', '¡DOBLE!', '¡TRIPLE!', '¡BRUTAL!', '¡LEGENDARIO!'][Math.min(ev.combo, 5)], C.m, 'Combo x' + ev.combo + ' · hechizo sobrecargado'); for (let i = 0; i < ev.combo; i++) ring(cx, cy, '#ffe27a', 200 + i * 60, 0.6 + i * 0.1, 5); }
+        if (ev.combo > 1) { praise(['', '', '¡DOBLE!', '¡TRIPLE!', '¡IMPARABLE!', '¡MAGIA PURA!'][Math.min(ev.combo, 5)], C.m, 'Combo x' + ev.combo + ' · hechizo sobrecargado'); for (let i = 0; i < ev.combo; i++) ring(cx, cy, '#ffe27a', 200 + i * 60, 0.6 + i * 0.1, 5); }
         addXp(CONFIG.xpFusion * ev.combo);
         phase = 2; t = 0; return false;
       }
@@ -1582,7 +1704,7 @@ const HANDLERS = {
         }
         done = true; V.sp.delete(ev.id); explodeFx(x, y, ev.n);
         ev.ids.forEach(id => killSprite(id, null, x, y)); (ev.pops || []).forEach(popOne); squashNear(ev.cells);
-        if (ev.n > 1) { praise(ev.n > 2 ? '¡DEVASTADOR!' : '¡EN CADENA!', '#ff8a3c', 'Reacción en cadena x' + ev.n); addXp(10 * ev.n); }
+        if (ev.n > 1) { praise(ev.n > 2 ? '¡DEVASTACIÓN!' : '¡EN CADENA!', '#ff8a3c', 'Reacción en cadena x' + ev.n); addXp(10 * ev.n); }
       }
       return t > pre + 0.16;
     };
@@ -1641,7 +1763,7 @@ const HANDLERS = {
     ev.ids.forEach(id => { const s = V.sp.get(id); if (s) burst(s.x, s.y, '#dfc0ff', 10, 260, 0, 'star'); killSprite(id); }); (ev.pops || []).forEach(popOne);
     return 0.35;
   },
-  aim() { V.aim = S.pending[0]; V.sel = null; if (!V.aim) return 0; Snd.aim(); return () => !V.aim; },
+  aim() { V.aim = S.pending[0]; V.sel = null; V.buf = null; if (!V.aim) return 0; Snd.aim(); return () => !V.aim; },
   check() {
     if (S.left === 0) { let t = 0; return dt => { t += dt; if ((V.bodies.every(b => b.inPot) && t > 0.9) || t > 3) { finish(true); return true; } return false; }; }
     if (!legalMoves(S).length) { let t = 0; return dt => { t += dt; if (t > 0.8) { finish(false); return true; } return false; }; }
@@ -1651,10 +1773,10 @@ const HANDLERS = {
 function squashNear(cells) { for (const [c, r] of cells) for (const s of V.sp.values()) if (s.k === 'fluffy' && s.c === c && s.r === r) s.sq = 0.28; }
 /* cada acción encadena: nota más aguda, puntos multiplicados (cadena × combo) y elogios crecientes */
 function chainTick(ev) {
-  V.chainEv++; V.chainT = 2;
+  V.chainEv++; V.chainT = 2; V.maxChain = Math.max(V.maxChain || 0, V.chainEv); if (ev.t !== 'drop' && ev.t !== 'unchain') V.chainAct = (V.chainAct || 0) + 1;
   const mult = V.chainEv * (1 + 0.5 * Math.max(0, V.streak - 1)), pts = Math.round(ACTION[ev.t] * mult); V.score += pts;
   if (ev.t !== 'drop' && ev.t !== 'unchain') Snd.chainNote(V.chainEv);
-  const w = CHAIN_WORDS.find(([n]) => n === V.chainEv); if (w) { const ti = CHAIN_WORDS.indexOf(w); praise(w[1], ['#5fd38d', '#4aa8ff', '#b76bff', '#ff8a3c', '#ffd24a'][ti], 'Cadena x' + V.chainEv, ti); }
+  const w = ev.t !== 'drop' && ev.t !== 'unchain' && CHAIN_WORDS.find(([n]) => n === V.chainAct); if (w) { const ti = CHAIN_WORDS.indexOf(w); praise(w[1], ['#5fd38d', '#4aa8ff', '#b76bff', '#ff8a3c', '#ffd24a'][ti], 'Cadena x' + V.chainEv, ti); }
   V.badgePop = 1;
   if (ev.t !== 'drop' && ev.t !== 'unchain') {     // popup de puntos donde ocurre la acción
     let px = W / 2, py = BY + BH / 2;
@@ -1676,14 +1798,20 @@ function pump(dt) {
 function finish(win) {
   const L = V.L, rem = S.moves; let stars = 0, bonus = 0;
   if (win) {
-    stars = rem >= L.par ? 3 : rem >= Math.ceil(L.par / 2) ? 2 : 1; G.streak = (G.streak || 0) + 1;
-    bonus = Math.round((20 + stars * 10 + rem * 2) * (1 + Math.min(5, G.streak - 1) * 0.1)); addXp(bonus); Snd.win(); Snd.cheer(); say('¡Poción destilada: ' + POTIONS[G.levelIdx % POTIONS.length] + '!', 30);
+    if (G.fails && !V.daily && !V.master) delete G.fails[G.levelIdx];
+    if (G.attM) delete G.attM[(V.daily ? 'd' : V.master ? 'm' : 'n') + G.levelIdx];   // al ganar, la próxima vez vuelve a tener sus pistas y deshacer
+    const remS = rem - (V.moveBonus || 0); stars = remS >= star3(L) ? 3 : remS >= 1 ? 2 : 1; G.streak = (G.streak || 0) + 1;   // 3★ = óptimo o uno menos · 2★ = sobra algo · 1★ = ganar
+    bonus = Math.round((20 + stars * 10 + rem * 2) * (1 + Math.min(5, G.streak - 1) * 0.1)); if (V.replay) bonus = Math.round(bonus * 0.25); V.levelXp += bonus; grantXp(bonus + (V.pendXp || 0)); V.pendXp = 0; Snd.win(); Snd.cheer(); say('¡Poción destilada: ' + POTIONS[G.levelIdx % POTIONS.length] + '!', 30);
     V.fx.push({ type: 'vortex', x: 270, y: 780, r: 170, color: COLORS[V.tint].m, t: 0, dur: 0.9, el: V.tint }); V.fx.push({ type: 'pillar', x: 270, y: 800, top: 140, color: COLORS[V.tint].m, t: 0, dur: 0.9, w: 110 }); V.slosh = 1;
     V.bodies.forEach(b => { b.vy = -rand(450, 850); });
+    if (V.master) { G.master = G.master || {}; const mch = Math.floor(G.levelIdx / 10); if (!G.master[G.levelIdx]) { G.master[G.levelIdx] = 1; addXp(40, true); say('¡Maestría conseguida! +40 XP', 6); if ([...Array(10)].every((_, j) => G.master[mch * 10 + j])) { G.hintBank = (G.hintBank | 0) + 2; addXp(300, true); floater(W / 2, 214, '¡10/10 coronas! +2 pistas y +300 XP', '#ffe27a', 19, 3); } } } else if (V.daily) { if (G.dailyDone !== dayKey(new Date())) { G.dailyDone = dayKey(new Date()); const yd = dayKey(new Date(Date.now() - 86400000)); G.dRun = G.dLast === yd ? (G.dRun | 0) + 1 : 1; G.dLast = G.dailyDone; const extra = G.dRun % 7 === 0 ? 2 : 0; G.hintBank = (G.hintBank | 0) + 1 + extra; addXp(100, true); say('¡Reto superado! Racha de ' + G.dRun + (extra ? ' días: ¡+2 pistas extra!' : (G.dRun > 1 ? ' días' : ' día')), 6); } } else {
     G.stars[G.levelIdx] = Math.max(G.stars[G.levelIdx] || 0, stars);
-    G.unlocked = Math.max(G.unlocked, Math.min(LEVELS.length, G.levelIdx + 2)); save();
+    if (!V.master) { G.best = G.best || {}; } if (!V.master && V.score > (G.best[G.levelIdx] || 0)) { V.newRec = !!G.best[G.levelIdx]; G.best[G.levelIdx] = V.score; }
+    { const ch = Math.floor(G.levelIdx / 10); G.shelfDone = G.shelfDone || [];      // estante del capítulo completo: premio único
+      if (!G.shelfDone[ch] && [...Array(10)].every((_, j) => (G.stars[ch * 10 + j] || 0) > 0)) { G.shelfDone[ch] = 1; addXp(200, true); say('¡Estante del capítulo completo! +200 XP', 6); } }
+    G.unlocked = Math.max(G.unlocked, Math.min(LEVELS.length, G.levelIdx + 2)); const chw = Math.floor(G.levelIdx / 10); G.menuCh = chestReady(chw) ? chw : undefined; } save();
     for (let i = 0; i < 7; i++) burst(rand(80, 460), rand(180, 520), Object.values(COLORS)[i % 5].m, 22, 400, 400, i % 2 ? 'star' : 'dot');
-  } else { Snd.lose(); G.streak = 0; save(); }
+  } else { Snd.lose(); if (!V.master && !V.daily) { G.streakBefore = G.streak; G.streak = 0; G.fails = G.fails || {}; G.fails[G.levelIdx] = (G.fails[G.levelIdx] || 0) + 1; V.failCounted = true; } save(); }
   G.state = win ? 'win' : 'lose'; G.res = { stars, bonus, t: 0, shown: 0, left: S.left, total: S.total, rem };
 }
 
@@ -1751,12 +1879,11 @@ function update(rdt) {
   V.zoom *= Math.max(0, 1 - rdt * 6); V.ca *= Math.max(0, 1 - rdt * 5); V.rays.k *= Math.max(0, 1 - rdt * 2.6); V.bloom *= Math.max(0, 1 - rdt * 2.5);
   for (const w of V.waves) w.t += rdt; V.waves = V.waves.filter(w => w.t < w.dur);
   V.parts = V.parts.filter(p => p.life > 0);
-  for (const f of V.floaters) { f.life -= rdt; f.y -= 34 * rdt; }
-  V.floaters = V.floaters.filter(f => f.life > 0);
   for (const f of V.fx) f.t += dt; V.fx = V.fx.filter(f => f.t < f.dur);
   if (G.res) { const t0 = G.res.t; G.res.t += rdt; if (G.res.t > 0.6 && t0 < 2.0 && V.score > 0 && Math.floor(G.res.t * 18) !== Math.floor(t0 * 18)) Snd.coin(Math.floor(G.res.t * 18)); const n = Math.min(G.res.stars, Math.floor((G.res.t - 0.4) / 0.35) + 1); if (n > G.res.shown) { Snd.star(G.res.shown); G.res.shown = n; } }
   if (G.state === 'win' && Math.random() < 0.55) V.parts.push({ x: rand(0, W), y: -10, vx: rand(-40, 40), vy: rand(80, 220), life: 2.4, max: 2.4, color: Object.values(COLORS)[Math.floor(rand(0, 5))].m, size: rand(4, 8), grav: 120, type: Math.random() < 0.5 ? 'star' : 'shard', rot: rand(0, 6) });
-  if (G.state === 'menu' || !S) return;
+  for (const f of V.floaters) { f.life -= rdt; f.y -= 34 * rdt; } V.floaters = V.floaters.filter(f => f.life > 0);
+  if (G.state === 'menu' || G.state === 'shelf' || !S) return;
   for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) { const f = V.floor[r][c]; if (f && f.t < 1) f.t = Math.min(1, f.t + dt * 4); }
   for (const s of V.sp.values()) {
     s.shake = Math.max(0, s.shake - dt * 4);
@@ -1788,18 +1915,29 @@ function update(rdt) {
     }
   }
   stepBodies(dt);
-  if (G.state !== 'play' || V.intro) return;
+  if (G.state !== 'play' || V.intro || V.pause) return;
+  if (!busy()) V.idle += rdt; if (V.callouts) V.calloutT += rdt;
+  if ((G.levelIdx < 2 || V.struggle) && !V.master && !V.daily && !V.dead && !V.hintBusy && V.idle > (V.struggle ? 10 : 6) && !V.hint && V.hintFail !== V.deadKey) { V.hintFail = V.deadKey; useHint(true); }       // primeros niveles: la mano guía sola
+  if (V.idle > 25) V.hintGlow = true;
   pump(dt);
   { const st = cookStage(); if (st > V.fireStage) {                     // el fuego sube de etapa
       V.fireStage = st; Snd.stageUp(st); const cl = 'rgb(' + fireCols(st)[1].map(v => Math.round(v * 255)).join(',') + ')';
       for (const sx of [W / 2 - 208, W / 2 + 208]) { ring(sx, 860, cl, 90, 0.6, 7); burst(sx, 850, cl, 22, 320, -100, 'star'); shock(sx, 860, 0.008, 420, 0.5); }
       V.flash = { color: cl, a: 0.12 }; floater(W / 2, 820, '¡' + FIRE_ST[st].n.toUpperCase() + '!', cl, 20, 1.6); say(st >= 5 ? '¡¡ESTOY QUE ARDO!!' : '¡El fuego sube de nivel!');
     } else if (st < V.fireStage) V.fireStage = st; }
-  if (!busy() && V.buf) {       // toque en cola: se ejecuta al terminar la animación en curso
-    const b = V.buf; V.buf = null;
+  if (!busy() && V.undoQ) { V.undoQ = false; undo(); }
+  if (!busy() && V.hintQ) { V.hintQ = false; useHint(false); }
+  if (V.praiseNext && (!V.banner || V.banner.t >= V.banner.dur * 0.6)) { const p = V.praiseNext; V.praiseNext = null; praise(...p); }
+  if (G.state === 'play' && !busy() && !V.aim && !V.intro && S.left > 0 && S.moves > 0) {     // ¿queda alguna forma de ganar? se comprueba una vez tras cada jugada
+    const dk = V.hist.length + ':' + S.moves + ':' + S.left;
+    if (V.deadKey !== dk) { V.deadKey = dk; V.dead = false; const S0 = S, hl = V.hist.length; findHintAsync(S, 12000).then(m => { if (S !== S0 || V.deadKey !== dk || G.state !== 'play') return; if (m === null) { V.dead = true; V.wasDead = true; Snd.bump(); } else if (m !== 'cap') V.goodLen = hl; }); }
+  }
+  if (!busy() && V.buf && V.buf.length && !V.aim) {       // toques en cola: se ejecutan al terminar la animación en curso
+    const b = V.buf.shift();
     for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) { const e = S.grid[r][c]; if (e && e.id === b.id) tryMove(c, r, b.d); }
   }
 }
+function pushBuf(b) { if (!V.buf) V.buf = []; if (V.buf.length < 3) V.buf.push(b); }
 function tryMove(c, r, d) {
   if (doMove({ t: 'slide', c, r, d })) return true;
   const e = S.grid[r][c], s = e && V.sp.get(e.id); if (!s) return false;
@@ -1900,7 +2038,7 @@ const LUT = {
 function hsl2rgb(h, sa, l) { const k = n => (n + h / 30) % 12, A = sa * Math.min(l, 1 - l), f = n => l - A * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1)); return [f(0) * 255, f(8) * 255, f(4) * 255]; }
 const TEX = {};
 function texFor(el) {
-  const N = 40, fr = Math.floor(G.time * 30); let T = TEX[el];
+  const N = 40, fr = Math.floor(G.time * 15); let T = TEX[el];   // texturas a 15 Hz
   if (!T) { const c = document.createElement('canvas'); c.width = c.height = N; const x = c.getContext('2d'); T = TEX[el] = { c, x, img: x.createImageData(N, N), f: -1 }; }
   if (T.f === fr) return T.c; T.f = fr;
   const d = T.img.data, t = G.time;
@@ -2079,6 +2217,7 @@ function drawFluffy(x, y, r, color, sq, mood, ph) {
     fl(0.82, 0.55); const cg = ctx.createLinearGradient(0, -r * 0.6, 0, -r * hh * 0.82); cg.addColorStop(0, 'rgba(255,200,80,.9)'); cg.addColorStop(1, 'rgba(255,250,215,.95)'); ctx.fillStyle = cg; ctx.fill();
     ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.beginPath(); ctx.ellipse(-r * 0.1 + w * 0.5, -r * 1.02, r * 0.05, r * 0.12, -0.3, 0, TAU); ctx.fill();
   }
+  if (color === 'W') { ctx.save(); ctx.lineWidth = r * 0.13; ctx.lineCap = 'round'; for (let k = 0; k < 12; k++) { const a0 = t * 1.5 + k * TAU / 12; ctx.strokeStyle = 'hsl(' + (k * 30 + t * 90) % 360 + ',100%,62%)'; ctx.beginPath(); ctx.arc(0, r * 0.1, r * 1.15, a0, a0 + TAU / 12 - 0.08); ctx.stroke(); } ctx.restore(); }   // halo multicolor del comodín
   if (color === 'P') drawRunes(r, t, true);
   if (mood === 'hype' || color === 'W') { ctx.shadowColor = D.hi; ctx.shadowBlur = color === 'W' ? 12 : 14 + 8 * Math.sin(G.time * 8 + ph); }
   bodyPath(color, r, t);
@@ -2430,6 +2569,98 @@ function drawBlockEmblem(col, s, ph, round) {
   else if (col === 'P') { ctx.strokeStyle = 'rgba(240,225,255,.38)'; ctx.lineWidth = 1.5; ctx.rotate(t * 0.5); ctx.beginPath(); ctx.arc(0, 0, s * 0.38, 0, TAU); ctx.stroke(); for (let k = 0; k < 6; k++) { ctx.save(); ctx.rotate(k * TAU / 6); ctx.beginPath(); ctx.moveTo(-2.5, -s * 0.38 + 3); ctx.lineTo(0, -s * 0.38 - 3); ctx.lineTo(2.5, -s * 0.38 + 3); ctx.stroke(); ctx.restore(); } }   // runas
   ctx.restore();
 }
+/* PISTA: búsqueda de la mejor solución desde el estado actual (la misma que verifica los niveles) */
+function hintKey(S) { let s = ''; for (const row of S.grid) for (const e of row) s += e ? e.k.slice(0, 3) + (e.col || '') + (e.dir || '') + (e.ch ? 'c' : '') + (e.bub ? 'b' : '') + (e.hp || '') + ',' : '.'; return s + '|' + S.paint.map(r => r.join('')).join('') + '|' + Object.values(S.pot).join('') + '|' + S.mana + '|' + S.pending.map(p => p.color + (p.amp ? 1 : 0)).join('') + '|' + (S.pending.length ? S.combo : 0) + '|' + S.heat % 3; }
+function hintClone(S) { const pi = {}; for (const k in S.potIds) pi[k] = S.potIds[k].slice(); return { grid: S.grid.map(r => r.map(e => e ? Object.assign({}, e) : null)), curse: S.curse, turn: S.turn, goo: S.goo, tele: S.tele, pads: S.pads, paint: S.paint.map(r => r.slice()), portals: S.portals, pot: Object.assign({}, S.pot), potIds: pi, moves: S.moves, mana: S.mana, mpc: S.mpc, total: S.total, left: S.left, combo: S.combo, heat: S.heat, pending: S.pending.map(p => Object.assign({}, p)), cap: S.cap, over: S.over }; }
+function findHint(S0, cap = 40000) {
+  const best = new Map(), buckets = []; let top = S0.moves, n = 0, win = null;
+  const push = (S, first) => { (buckets[S.moves] || (buckets[S.moves] = [])).push({ S, first }); if (S.moves > top) top = S.moves; };
+  push(hintClone(S0), null); best.set(hintKey(S0), S0.moves);
+  while (top >= 0 && n < cap) {
+    const b = buckets[top]; if (!b || !b.length) { top--; continue; } if (win && win.rem >= top) break;
+    const { S, first } = b.pop(); n++;
+    for (const m of legalMoves(S)) { const T = hintClone(S); if (!applyMove(T, m, [])) continue; const f = first || m;
+      if (T.left === 0) { if (!win || T.moves > win.rem) win = { rem: T.moves, m: f }; continue; }
+      const k = hintKey(T), bb = best.get(k); if (bb !== undefined && bb >= T.moves) continue; best.set(k, T.moves); push(T, f); }
+  }
+  return win ? win.m : (n >= cap ? 'cap' : null);
+}
+/* el buscador corre en un hilo aparte con el mismo núcleo; si el navegador no deja, se usa aquí mismo */
+let HW = null, HWid = 0; const HWcb = {};
+function hintWorker() {
+  if (HW !== null) return HW;
+  try {
+    const src = document.querySelector('script:not([src])').textContent, a = src.indexOf('/*CORE-' + 'BEGIN*/'), b = src.indexOf('/*CORE-' + 'END*/');
+    const code = src.slice(a, b) + '\n' + hintKey.toString() + '\n' + hintClone.toString() + '\n' + findHint.toString() + '\nonmessage = e => postMessage({ id: e.data.id, r: findHint(e.data.S, e.data.cap) });';
+    HW = new Worker(URL.createObjectURL(new Blob([code], { type: 'text/javascript' })));
+    HW.onmessage = e => { const f = HWcb[e.data.id]; delete HWcb[e.data.id]; if (f) f(e.data.r); };
+    HW.onerror = () => { HW = false; for (const k in HWcb) { const f = HWcb[k]; delete HWcb[k]; f('cap'); } };
+  } catch (e) { HW = false; }
+  return HW;
+}
+function findHintAsync(S0, cap) {
+  return new Promise(res => { const w = hintWorker(); if (!w) { res(findHint(S0, cap)); return; } const id = ++HWid; HWcb[id] = res; w.postMessage({ id, S: hintClone(S0), cap }); });
+}
+function useHint(auto) {
+  if (!auto && G.state === 'play' && !V.intro && !V.pause && !V.hint && busy() && !V.aim) { V.hintQ = true; return; }   // se atiende al acabar la animación
+  if (G.state !== 'play' || V.intro || V.pause || V.hint || V.hintBusy || (busy() && !V.aim)) return;
+  if (V.daily || V.master) { if (!auto) { floater(W / 2, BB - 40, V.master ? 'La Maestría se juega sin pistas' : 'El reto diario se juega sin pistas', '#ffd9d9', 16, 1.6); Snd.bump(); } return; }
+  if (!auto && V.hintsLeft <= 0 && !(G.hintBank > 0)) { floater(W / 2, BB - 40, 'Sin pistas: gana más con el regalo diario y los cofres', '#ffd9d9', 15, 2); Snd.bump(); return; }
+  const S0 = S; V.hintBusy = true;
+  findHintAsync(S, 40000).then(m => {
+    V.hintBusy = false; if (S !== S0 || G.state !== 'play') return;
+    if (!m || m === 'cap') { if (!auto) { floater(W / 2, BY + BH / 2, m === 'cap' ? 'Piensa un poco más…' : 'Desde aquí no se puede ganar: usa DESHACER', '#ffd9d9', 17, 2.4); Snd.bump(); } return; }
+    if (!auto && !(G.levelIdx < 3 && !V.master)) { if (V.hintsLeft > 0) { V.hintsLeft--; if (G.att) G.att.h = V.hintsLeft; save(); } else { G.hintBank--; save(); } } V.hint = { m }; Snd.aim();
+  });
+}
+function drawHand(x, y, press) {     // dedo que toca
+  ctx.save(); ctx.translate(x, y + press * 4); ctx.fillStyle = 'rgba(255,255,255,.95)'; ctx.strokeStyle = '#231433'; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.ellipse(0, 0, 11, 13, -0.3, 0, TAU); ctx.fill(); ctx.stroke(); ctx.beginPath(); rr(-6, 8, 16, 26, 7); ctx.fill(); ctx.stroke();
+  ctx.restore(); if (press > 0.6) { ctx.strokeStyle = 'rgba(255,255,255,' + (1 - press) * 2 + ')'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y, 14 + press * 18, 0, TAU); ctx.stroke(); }
+}
+function drawHint() {
+  const h = V.hint; if (!h || G.state !== 'play') return; const m = h.m, k = (G.time * 1.1) % 1;
+  ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.strokeStyle = 'rgba(255,226,122,' + (0.6 + 0.4 * Math.sin(G.time * 8)) + ')'; ctx.lineWidth = 4;
+  if (m.t === 'slide') {
+    const x = cellX(m.c), y = cellY(m.r), [dx, dy] = DIRS[m.d], e = S.grid[m.r][m.c]; rr(x - 34, y - 34, 68, 68, 14); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,226,122,.85)'; for (let j = 1; j <= 3; j++) { const q = (k + j / 3) % 1; ctx.globalAlpha = Math.sin(q * Math.PI); ctx.beginPath(); ctx.arc(x + dx * (30 + q * 60), y + dy * (30 + q * 60), 5, 0, TAU); ctx.fill(); }
+    ctx.restore(); if (e && e.k === 'free') drawHand(x + dx * 50 * k, y + dy * 50 * k + 10, 0.3); else drawHand(x + 8, y + 14, Math.abs(Math.sin(G.time * 4)));
+    return;
+  }
+  if (m.t === 'aim') { const cells = aimCells(S.pending[0] || { kind: 'bomb' }, m.c, m.r); for (const [c, r] of cells) { ctx.globalAlpha = 0.6; rr(BX + c * CELL + 4, BY + r * CELL + 4, CELL - 8, CELL - 8, 10); ctx.stroke(); } ctx.restore(); drawHand(cellX(m.c) + 8, cellY(m.r) + 14, Math.abs(Math.sin(G.time * 4))); return; }
+  rr(BX - 4, BY + m.r * CELL + 3, BW + 8, CELL - 6, 10); ctx.stroke(); ctx.restore(); drawHand(W / 2, cellY(m.r) + 14, Math.abs(Math.sin(G.time * 4)));
+}
+/* mecánicas que aparecen por primera vez en un nivel: se señalan sobre el tablero hasta el primer movimiento */
+const MECH_INFO = { frost: 'Hielo · 2 golpes, 1 golpe rojo o Deshielo', stone: 'Piedra · hechizos o 2 golpes verdes', tnt: 'Barril · golpéalo y explota en 3×3', seal: 'Sello · se abre al fusionar su color',
+  chain: 'Cadena · rómpela golpeándola', free: 'Bloque libre · arrástralo a su portal', bubble: 'Burbuja · reviéntala con un golpe', rainbow: 'Arcoíris · completa cualquier color',
+  boil: 'Hervor · cada 3.ª fusión del nivel potencia el hechizo', cap: 'Caldero · si se llena sin fusionar, se desborda',
+  reso: 'Resonancia · 3 bloques iguales en línea liberan su elemento', portal: 'Portal · con el maná lleno, borra la fila que elijas',
+  spR: 'Bola de Fuego (rojo) · 3 rojos: estalla un área 3×3', spG: 'Lanza de Espinas (verde) · 3 verdes: arrasa una columna',
+  spB: 'Deshielo (azul) · 3 azules: rompen hielo y cadenas', spY: 'Reloj de Arena (amarillo) · 3 amarillos: +2 movimientos', spP: 'Maná Pleno (morado) · 3 morados: Portal al 100%',
+  curse: 'Runa maldita · cuesta 1 movimiento y maná', turn: 'Runa de giro · desvía el bloque', goo: 'Lodo · frena el bloque', tele: 'Portal gemelo · el bloque sale por el otro' };
+function levelKinds(L) {
+  const P = parseLevel(L), out = {};
+  for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+    const e = P.grid[r][c], add = k => { if (!out[k]) out[k] = [c, r]; };
+    if (e) { if (e.k === 'frost' || e.k === 'stone' || e.k === 'tnt' || e.k === 'seal') add(e.k); if (e.ch) add('chain'); if (e.k === 'free') add('free'); if (e.k === 'fluffy' && e.bub) add('bubble'); if (e.k === 'fluffy' && e.col === 'W') add('rainbow'); if (e.k === 'fluffy' && e.col !== 'W') add('sp' + e.col); }
+    if (P.curse[r][c]) add('curse'); if (P.turn[r][c]) add('turn'); if (P.goo[r][c]) add('goo'); if (P.tele[r][c] >= 0) add('tele');
+  }
+  return out;
+}
+let KIND_NEW = null;
+function newKinds(i) {
+  if (!KIND_NEW) { KIND_NEW = []; const seen = {}; LEVELS.forEach((L, j) => { const k = levelKinds(L), list = []; for (const n in k) if (!seen[n]) { seen[n] = 1; list.push({ k: n, c: k[n][0], r: k[n][1] }); } KIND_NEW[j] = list; }); }
+  return KIND_NEW[i] && KIND_NEW[i].length ? KIND_NEW[i] : null;
+}
+function drawCallouts() {
+  const L = V.callouts; if (!L || V.intro || G.state !== 'play' || V.aim || V.hint || V.dead || V.portalMode) return;
+  const o = L[Math.floor(V.calloutT / 3.2) % L.length], x = cellX(o.c), y = cellY(o.r), [nm, rule] = (MECH_INFO[o.k] || '').split(' · ');
+  ctx.save(); ctx.strokeStyle = 'rgba(127,240,255,' + (0.6 + 0.4 * Math.sin(G.time * 7)) + ')'; ctx.lineWidth = 4; rr(x - 35, y - 35, 70, 70, 14); ctx.stroke();
+  ctx.fillStyle = 'rgba(10,20,40,.96)'; rr(8, 80, 282, 42, 14); ctx.fill(); ctx.strokeStyle = '#7ff0ff'; ctx.lineWidth = 2; ctx.stroke();
+  text('NUEVO' + (L.length > 1 ? ' ' + (L.indexOf(o) + 1) + '/' + L.length : '') + ' · ' + (nm || ''), 18, 92, 15, '#7ff0ff', 'left', 900);
+  text(rule ? rule[0].toUpperCase() + rule.slice(1) : '', 18, 112, 15, '#e8fbff', 'left', 700);
+  ctx.restore();
+}
 const potCount = k => V.bodies.reduce((n, b) => n + (b.color === k && b.inPot ? 1 : 0), 0);
 const nearFuse = col => { const w = potCount('W'); return col === 'W' ? COLOR_KEYS.some(k => potCount(k) >= 1 && potCount(k) + w >= 2) : potCount(col) + w === 2; };
 function rainbowC() { return { m: '#efe6ff', l: '#ffffff', d: '#b9a8e6' }; }   // cuerpo blanco; el pelaje lleva el arcoíris
@@ -2440,7 +2671,7 @@ function drawBackground() {
   ctx.strokeStyle = 'rgba(255,255,255,.04)'; ctx.lineWidth = 2;
   for (let y = 0, k = 0; y < H; y += 48, k++) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
     for (let x = (k % 2) * 45; x < W; x += 90) { ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y + 48); ctx.stroke(); } }
-  for (const x of [22, W - 22]) {    // gemas mágicas que flotan y cambian de color
+  for (const x of G.state === 'play' ? [22, W - 22] : []) {    // gemas mágicas que flotan y cambian de color
     const t = G.time + x * 0.01, y = 396 + Math.sin(t * 1.6) * 5, h = (t * 40 + (x > W / 2 ? 180 : 0)) % 360, [r, g, b] = hsl2rgb(h, 0.9, 0.62).map(Math.round), cl = r + ',' + g + ',' + b;
     const tg = ctx.createRadialGradient(x, y, 4, x, y, 170); tg.addColorStop(0, 'rgba(' + cl + ',.28)'); tg.addColorStop(1, 'rgba(' + cl + ',0)'); ctx.fillStyle = tg; ctx.fillRect(x - 180, y - 180, 360, 360);
     ctx.fillStyle = '#3a3048'; ctx.beginPath(); ctx.moveTo(x - 9, 430); ctx.lineTo(x + 9, 430); ctx.lineTo(x + 5, 440); ctx.lineTo(x - 5, 440); ctx.closePath(); ctx.fill();   // pedestal
@@ -2470,27 +2701,36 @@ function drawHUD() {
   ctx.fillStyle = 'rgba(8,6,16,.76)'; ctx.fillRect(0, 0, W, 122);
   ctx.fillStyle = '#7b4dff55'; ctx.fillRect(0, 122, W, 2);
   const i = rankIdx(G.xp);
-  drawBadge(44, 50, 30, i);
-  text(RANK_TIERS[i].name, 86, 30, 20, RANK_TIERS[i].color, 'left');
-  const lbl = drawRankBar(86, 46, 200, 14);
-  text(lbl, 86, 74, 12, '#b9b2d6', 'left', 600);
-  if (V.chainT > 0 && (V.streak >= 2 || V.chainEv >= 2)) {            // insignia de cadena / combo (sustituye al nombre del nivel un momento)
-    const k = Math.min(1, V.chainT), pop = 1 + 0.35 * (V.badgePop || 0); ctx.save(); ctx.globalAlpha = k; ctx.translate(14, 104); ctx.scale(pop, pop);
-    const lbl = (V.chainEv >= 2 ? 'CADENA x' + V.chainEv : '') + (V.chainEv >= 2 && V.streak >= 2 ? '  ·  ' : '') + (V.streak >= 2 ? 'COMBO x' + V.streak + ' (×' + (1 + 0.5 * (V.streak - 1)).toFixed(1) + ')' : '');
-    ctx.font = '900 15px "Trebuchet MS","Segoe UI",system-ui,sans-serif'; const tw = ctx.measureText(lbl).width; const gg = ctx.createLinearGradient(0, 0, tw + 20, 0); gg.addColorStop(0, '#ff8a3c'); gg.addColorStop(1, '#ffd24a');
-    ctx.fillStyle = gg; rr(-4, -12, tw + 18, 24, 12); ctx.fill(); text(lbl, 5, 1, 15, '#2a1405', 'left', 900); ctx.restore();
-  } else text('Nv.' + (G.levelIdx + 1) + ' · ' + V.L.name, 14, 104, 14, '#e8e2ff', 'left', 700);
-  for (let k = 0; k < 3; k++) { starPath(292 + k * 17, 103, 7); ctx.fillStyle = k < (G.stars[G.levelIdx] || 0) ? '#ffd24a' : '#3a3357'; ctx.fill(); }
-  ctx.fillStyle = '#0c0a17'; rr(344, 12, 98, 96, 14); ctx.fill(); ctx.strokeStyle = '#fff2'; ctx.lineWidth = 1.5; ctx.stroke();
-  text('MOVIMIENTOS', 393, 28, 10.5, '#a79fc9', 'center', 700);
-  const low = V.moves <= 2; text(String(V.moves), 393, 62 + (low ? Math.sin(G.time * 10) * 2 : 0), 44, low ? '#ff5d7a' : '#fff');
-  text('★★★ con ' + V.L.par + '+', 393, 95, 10.5, '#ffd24a', 'center', 700);
-  btn(452, 12, 76, 28, 'REINICIAR', () => loadLevel(G.levelIdx), { size: 11, color: '#c2415f' });
-  btn(452, 46, 76, 28, 'DESHACER', undo, { size: 11, color: '#3f7a5a', disabled: !V.hist.length });
-  btn(452, 80, 76, 28, 'MENÚ', () => { G.state = 'menu'; G.res = null; V.aim = null; V.portalMode = false; V.intro = null; }, { size: 12, color: '#6a4ab8' });
-  btn(292, 38, 46, 28, ['♪ SÍ', '♪ FX', '♪ NO'][Snd.mode], () => { Snd.mode = (Snd.mode + 1) % 3; }, { size: 11, color: '#3b4a7a' });
+  drawBadge(40, 46, 27, i);
+  text(RANK_TIERS[i].name, 76, 24, 17, RANK_TIERS[i].color, 'left');
+  const lbl = drawRankBar(76, 40, 200, 12);
+  text(lbl, 76, 64, 14, '#b9b2d6', 'left', 600);
+  if (G.levelIdx >= 10 && V.chainT > 0 && (V.streak >= 2 || V.chainEv >= 2)) {            // insignia de cadena / combo (sustituye al nombre del nivel un momento)
+    const k = Math.min(1, V.chainT), pop = 1 + 0.35 * (V.badgePop || 0); ctx.save(); ctx.globalAlpha = k; ctx.translate(14, 100); ctx.scale(pop, pop);
+    const lbl2 = (V.chainEv >= 2 ? 'CADENA x' + V.chainEv : '') + (V.chainEv >= 2 && V.streak >= 2 ? '  ·  ' : '') + (V.streak >= 2 ? 'COMBO x' + V.streak + ' (×' + (1 + 0.5 * (V.streak - 1)).toFixed(1) + ')' : '');
+    ctx.font = '900 15px "Trebuchet MS","Segoe UI",system-ui,sans-serif'; const tw = ctx.measureText(lbl2).width; if (tw * pop > 250) ctx.scale(250 / (tw * pop), 250 / (tw * pop)); const gg = ctx.createLinearGradient(0, 0, tw + 20, 0); gg.addColorStop(0, '#ff8a3c'); gg.addColorStop(1, '#ffd24a');
+    ctx.fillStyle = gg; rr(-4, -12, tw + 18, 24, 12); ctx.fill(); text(lbl2, 5, 1, 15, '#2a1405', 'left', 900); ctx.restore();
+  } else text('Nv.' + (G.levelIdx + 1) + ' · ' + V.L.name, 14, 100, 16, '#e8e2ff', 'left', 700);
+  ctx.fillStyle = '#0c0a17'; rr(296, 8, 98, 104, 14); ctx.fill(); ctx.strokeStyle = '#fff2'; ctx.lineWidth = 1.5; ctx.stroke();
+  text('MOVIMIENTOS', 345, 24, 13, '#a79fc9', 'center', 800);
+  const low = V.moves <= 2; text(String(V.moves), 345, 58 + (low ? Math.sin(G.time * 10) * 2 : 0), 42, low ? '#ff5d7a' : '#fff');
+  if (V.daily || V.master) text(V.daily ? 'RETO DIARIO' : 'MAESTRÍA', 345, 96, 13, '#e3ccff', 'center', 900); else for (let k = 0; k < 3; k++) { starPath(327 + k * 18, 88, 7); ctx.fillStyle = k < (V.daily ? 0 : G.stars[G.levelIdx] || 0) ? '#ffd24a' : '#3a3357'; ctx.fill(); }
+  if (!V.daily && !V.master) text('3★ si sobran ' + (star3(V.L) + (V.moveBonus || 0)), 345, 104, 14, '#ffd24a', 'center', 800);
+  btn(402, 8, 128, 50, V.daily && V.undos <= 0 ? 'SIN DESHACER' : V.undos > 0 ? 'DESHACER · ' + V.undos : 'DESHACER (1 pista)', undo, { size: V.undos > 0 && !V.daily ? 16 : 13, color: '#3f7a5a', disabled: !canUndo() });
+  btn(402, 62, 128, 50, 'PAUSA', () => { V.pause = true; V.confirmR = false; Snd.click(); }, { size: 17, color: '#6a4ab8' });
 }
-
+function drawPause() {
+  G.btns.push({ x: 0, y: 0, w: W, h: H, fn: () => {} });
+  ctx.fillStyle = 'rgba(5,3,12,.8)'; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#1c1634'; rr(70, 196, 400, 494, 24); ctx.fill(); ctx.strokeStyle = '#8f6bff'; ctx.lineWidth = 3; ctx.stroke();
+  text('PAUSA', W / 2, 236, 30, '#ffe27a'); text('Nv.' + (G.levelIdx + 1) + ' · ' + V.L.name, W / 2, 268, 15, '#cfc6ee', 'center', 600);
+  btn(110, 292, 320, 56, 'CONTINUAR', () => { V.pause = false; }, { color: '#2fae6a', size: 21, glow: true });
+  btn(110, 356, 320, 56, 'CÓMO JUGAR', () => { V.pause = false; V.intro = rulesPages(); }, { color: '#2a8f86', size: 20 });
+  btn(110, 420, 320, 56, V.confirmR ? '¿REINICIAR? TOCA OTRA VEZ' : 'REINICIAR NIVEL', () => { if (V.confirmR) { V.pause = false; restartLevel(); } else V.confirmR = true; }, { color: '#c2415f', size: V.confirmR ? 17 : 20 });
+  btn(110, 484, 320, 56, 'SONIDO: ' + ['TODO', 'SOLO EFECTOS', 'SIN SONIDO'][Snd.mode], () => { Snd.mode = (Snd.mode + 1) % 3; save(); }, { color: '#3b4a7a', size: 18 });
+  btn(110, 548, 320, 56, 'EFECTOS: ' + (Post.on ? 'ALTOS' : 'BAJOS (MÁS FLUIDO)'), () => { if (Post.on) { Post.off(); G.fxLow = true; } else { Post.enable(); G.fxLow = false; } save(); }, { color: '#3b4a7a', size: 17 });
+  btn(110, 612, 320, 56, 'MAPA DE NIVELES', () => { V.pause = false; G.state = 'menu'; G.res = null; V.aim = null; V.portalMode = false; V.intro = null; }, { color: '#6a4ab8', size: 19 });
+}
 function drawBoard() {
   ctx.fillStyle = '#0b0915'; rr(BX - 9, BY - 9, BW + 18, BH + 18, 16); ctx.fill();
   ctx.strokeStyle = '#8f6bff66'; ctx.lineWidth = 2; ctx.stroke();
@@ -2499,26 +2739,26 @@ function drawBoard() {
     ctx.fillStyle = (r + c) % 2 ? '#1d1830' : '#241e3c'; rr(x + 2, y + 2, CELL - 4, CELL - 4, 8); ctx.fill();
     const f = V.floor[r][c];
     if (f && f.t > 0) {
-      const C = COLORS[f.color];
-      ctx.globalAlpha = 0.4 * f.t; ctx.fillStyle = C.m; rr(x + 3, y + 3, CELL - 6, CELL - 6, 8); ctx.fill();
-      ctx.globalAlpha = 0.55 * f.t; ctx.strokeStyle = C.l; ctx.lineWidth = 2;
+      const C = COLORS[f.color], tk = G.levelIdx >= 30 ? 1 : 0;
+      ctx.globalAlpha = 0.4 * f.t * tk; ctx.fillStyle = C.m; rr(x + 3, y + 3, CELL - 6, CELL - 6, 8); ctx.fill();
+      ctx.globalAlpha = 0.55 * f.t * tk; ctx.strokeStyle = C.l; ctx.lineWidth = 2;
       ctx.save(); ctx.translate(x + CELL / 2, y + CELL / 2); ctx.rotate(G.time * 0.5 + c + r); starPath(0, 0, 10 + 2 * Math.sin(G.time * 3 + c + r), 4, 0.35); ctx.stroke(); ctx.restore();
       ctx.globalAlpha = 1;
     }
     if (S.goo[r][c]) {                       // LODO: charco brillante que burbujea y revienta
       ctx.save(); ctx.translate(x + CELL / 2, y + CELL / 2);
       const pud = () => { ctx.beginPath(); for (let k = 0; k <= 14; k++) { const a = k / 14 * TAU, rad = 27 + 3.5 * Math.sin(G.time * 2 + k * 1.7 + c * 3) + 2 * Math.sin(G.time * 3.3 + k * 2.9); ctx.lineTo(Math.cos(a) * rad, Math.sin(a) * rad * 0.88); } ctx.closePath(); };
-      const gg = ctx.createRadialGradient(-6, -6, 3, 0, 0, 32); gg.addColorStop(0, 'rgba(196,255,140,.85)'); gg.addColorStop(0.55, 'rgba(96,190,56,.75)'); gg.addColorStop(1, 'rgba(40,110,30,.7)'); pud(); ctx.fillStyle = gg; ctx.fill();
-      ctx.strokeStyle = 'rgba(20,70,15,.6)'; ctx.lineWidth = 2; ctx.stroke();
+      const gg = ctx.createRadialGradient(-6, -6, 3, 0, 0, 32); gg.addColorStop(0, 'rgba(255,214,130,.9)'); gg.addColorStop(0.55, 'rgba(196,130,48,.82)'); gg.addColorStop(1, 'rgba(110,62,18,.78)'); pud(); ctx.fillStyle = gg; ctx.fill();
+      ctx.strokeStyle = 'rgba(70,36,8,.7)'; ctx.lineWidth = 2; ctx.stroke();
       ctx.fillStyle = 'rgba(255,255,255,.45)'; ctx.beginPath(); ctx.ellipse(-9, -10, 9, 3.5, -0.3, 0, TAU); ctx.fill();
       for (let k = 0; k < 4; k++) { const ph = (G.time * 0.6 + k * 0.27 + c * 0.17 + r * 0.29) % 1, bx = Math.sin(k * 3.7 + c) * 14, by = Math.cos(k * 2.3 + r) * 9;
-        if (ph < 0.8) { const br = 2 + ph * 6; ctx.fillStyle = 'rgba(200,255,160,.5)'; ctx.beginPath(); ctx.arc(bx, by, br, 0, TAU); ctx.fill(); ctx.strokeStyle = 'rgba(240,255,220,.8)'; ctx.lineWidth = 1.2; ctx.stroke(); ctx.fillStyle = 'rgba(255,255,255,.8)'; ctx.beginPath(); ctx.arc(bx - br * 0.35, by - br * 0.35, br * 0.25, 0, TAU); ctx.fill(); }
-        else { const q = (ph - 0.8) / 0.2; ctx.strokeStyle = 'rgba(230,255,200,' + (1 - q) + ')'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(bx, by, 7 + q * 7, 0, TAU); ctx.stroke(); } }   // la burbuja crece y revienta
+        if (ph < 0.8) { const br = 2 + ph * 6; ctx.fillStyle = 'rgba(255,220,150,.5)'; ctx.beginPath(); ctx.arc(bx, by, br, 0, TAU); ctx.fill(); ctx.strokeStyle = 'rgba(255,240,210,.8)'; ctx.lineWidth = 1.2; ctx.stroke(); ctx.fillStyle = 'rgba(255,255,255,.8)'; ctx.beginPath(); ctx.arc(bx - br * 0.35, by - br * 0.35, br * 0.25, 0, TAU); ctx.fill(); }
+        else { const q = (ph - 0.8) / 0.2; ctx.strokeStyle = 'rgba(255,235,200,' + (1 - q) + ')'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(bx, by, 7 + q * 7, 0, TAU); ctx.stroke(); } }   // la burbuja crece y revienta
       ctx.restore();
     }
     const tpad = S.tele[r][c];
     if (tpad >= 0) {                         // PORTAL GEMELO: vórtice en espiral con núcleo oscuro que absorbe partículas
-      const pc = tpad ? [255, 106, 213] : [92, 225, 255], dir = tpad ? -1 : 1, P2 = a => 'rgba(' + pc.join(',') + ',' + a + ')';
+      const pc = [190, 150, 255], dir = tpad ? -1 : 1, P2 = a => 'rgba(' + pc.join(',') + ',' + a + ')';
       ctx.save(); ctx.translate(x + CELL / 2, y + CELL / 2);
       const dk = ctx.createRadialGradient(0, 0, 0, 0, 0, 26); dk.addColorStop(0, '#05030c'); dk.addColorStop(0.6, 'rgba(10,6,24,.85)'); dk.addColorStop(1, 'rgba(10,6,24,0)'); ctx.fillStyle = dk; ctx.beginPath(); ctx.arc(0, 0, 26, 0, TAU); ctx.fill();
       ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round';
@@ -2587,12 +2827,12 @@ function drawSpellBar() {
   const n = V.colors.length; if (!n) return; const w = BW / n;
   V.colors.forEach((k, i) => {
     const x = BX + i * w, C = COLORS[k], cnt = potCount(k), wl = potCount('W'), hot = cnt + wl >= 2;
-    ctx.fillStyle = 'rgba(12,10,23,.85)'; rr(x + 3, 639, w - 6, 24, 12); ctx.fill();
+    ctx.fillStyle = 'rgba(12,10,23,.85)'; rr(x + 3, 640, w - 6, 19, 9.5); ctx.fill();
     ctx.strokeStyle = hot ? C.l : '#ffffff22'; ctx.lineWidth = hot ? 2 : 1; ctx.stroke();
     ctx.save(); if (hot) { ctx.shadowColor = C.m; ctx.shadowBlur = 10 + 6 * Math.sin(G.time * 8); }
-    ctx.fillStyle = C.m; ctx.beginPath(); ctx.arc(x + 17, 651, 9, 0, TAU); ctx.fill(); ctx.restore();
-    spellIcon(k, x + 17, 651, 5.5);
-    for (let j = 0; j < 3; j++) { ctx.fillStyle = j < cnt ? C.l : j < cnt + wl ? '#ffffff' : '#3a3357'; ctx.beginPath(); ctx.arc(x + 36 + j * 11, 651, 4, 0, TAU); ctx.fill(); }
+    ctx.fillStyle = C.m; ctx.beginPath(); ctx.arc(x + 17, 649.5, 8, 0, TAU); ctx.fill(); ctx.restore();
+    spellIcon(k, x + 17, 649.5, 5);
+    for (let j = 0; j < 3; j++) { ctx.fillStyle = j < cnt ? C.l : j < cnt + wl ? '#ffffff' : '#3a3357'; ctx.beginPath(); ctx.arc(x + 36 + j * 11, 649.5, 3.8, 0, TAU); ctx.fill(); }
     G.btns.push({ x: x + 3, y: 636, w: w - 6, h: 30, fn: () => floater(clamp(x + w / 2, 130, W - 130), 626, SPELLS[k].name + ': ' + SPELLS[k].desc, C.l, 15, 2.2) });
   });
 }
@@ -2650,10 +2890,10 @@ function drawCauldronFront() {  // parte delantera: brillo, borde, brasero con c
   ctx.fillStyle = rg; rr(54, POT.rim - 9, 432, 18, 9); ctx.fill(); ctx.strokeStyle = '#c5b6ff'; ctx.lineWidth = 1.5; ctx.stroke();
   for (let i = 0; i < S.cap; i++) {
     const x = W / 2 + (i - (S.cap - 1) / 2) * 22, on = i < used;
-    ctx.fillStyle = on ? (full ? (Math.sin(G.time * 10) > 0 ? '#ff5d7a' : '#ffb3c0') : '#ffe27a') : '#1a1530'; ctx.beginPath(); ctx.arc(x, POT.rim, 5.5, 0, TAU); ctx.fill();
+    const pb = on ? V.bodies.filter(b => b.inPot)[i] : null; ctx.fillStyle = on ? (full ? (Math.sin(G.time * 10) > 0 ? '#ff5d7a' : '#ffb3c0') : pb ? (pb.color === 'W' ? '#ffffff' : COLORS[pb.color].m) : '#ffe27a') : '#1a1530'; ctx.beginPath(); ctx.arc(x, POT.rim, 5.5, 0, TAU); ctx.fill();
     ctx.strokeStyle = '#0c0a17'; ctx.lineWidth = 1.5; ctx.stroke();
   }
-  text('CAPACIDAD', 96, POT.rim + 1, 9.5, '#e6deff', 'left', 700); text(used + '/' + S.cap, 444, POT.rim + 1, 10.5, full ? '#ff9db0' : '#e6deff', 'right', 800);
+  text('CAPACIDAD', 96, POT.rim + 1, 14, '#e6deff', 'left', 800); text(used + '/' + S.cap, 444, POT.rim + 1, 14, full ? '#ff9db0' : '#e6deff', 'right', 800);
   // fuego del brasero: crece con las fusiones; azul cuando está a punto de hervir
   for (const side of [-1, 1]) {
     const stg = cookStage(), fx = W / 2 + side * 208, pal = firePal(stg), jx = Math.sin(G.time * 55 + side) * (0.5 + stg * 1.6), fcl = fireCols(stg)[1].map(v => Math.round(v * 255)).join(',');
@@ -2683,11 +2923,11 @@ function drawCauldronFront() {  // parte delantera: brillo, borde, brasero con c
   else if (mood === 'worry' || mood === 'sick') { ctx.arc(147, 889, 6, Math.PI * 1.15, Math.PI * 1.85); ctx.stroke(); }
   else { ctx.arc(147, 880, 6, Math.PI * 0.15, Math.PI * 0.85); ctx.stroke(); }
   // placa: lo que dice Caldo, o el objetivo
-  ctx.fillStyle = '#0c0a17'; rr(186, 857, 242, 32, 9); ctx.fill(); ctx.strokeStyle = V.say ? T.l : '#ffffff22'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.fillStyle = '#0c0a17'; rr(186, 846, 242, 39, 9); ctx.fill(); ctx.strokeStyle = V.say ? T.l : '#ffffff22'; ctx.lineWidth = 1.5; ctx.stroke();
   const msg = V.say ? V.say.text : onBoard ? 'Objetivo: libera ' + onBoard + (onBoard === 1 ? ' Fluffy más' : ' Fluffies más') : '¡Poción lista!';
-  let l1 = msg, l2 = ''; if (msg.length > 26) { let k = msg.lastIndexOf(' ', 26); if (k < 8) k = msg.indexOf(' ', 20); if (k > 0) { l1 = msg.slice(0, k); l2 = msg.slice(k + 1); } }
+  let l1 = msg, l2 = ''; if (msg.length > 24) { const mid = msg.length / 2; let k = -1; for (let j = 0; j < msg.length; j++) if (msg[j] === ' ' && (k < 0 || Math.abs(j - mid) < Math.abs(k - mid))) k = j; if (k > 0) { l1 = msg.slice(0, k); l2 = msg.slice(k + 1); } }
   const tc = V.say ? '#fff' : '#cfc6ee';
-  if (l2) { text(l1, 194, 866, 11.5, tc, 'left', 700); text(l2, 194, 880, 11.5, tc, 'left', 700); } else text(l1, 194, 873, 12.5, tc, 'left', 700);
+  if (l2) { text(l1, 194, 859, 14, tc, 'left', 700); text(l2, 194, 877, 14, tc, 'left', 700); } else text(l1, 194, 868, 15, tc, 'left', 700);
   // termómetro de hervor: 3 llamas
   for (let i = 0; i < 3; i++) {
     const fx2 = 392 + i * 13, on = i < heat; ctx.fillStyle = on ? (hot ? '#7fd0ff' : '#ff9a3c') : '#3a3357';
@@ -2866,15 +3106,25 @@ function drawAim() {
     for (let i = 0; i < 4; i++) { const a = i * Math.PI / 2 + G.time * 2; ctx.moveTo(x + Math.cos(a) * (rad - 8), y + Math.sin(a) * (rad - 8)); ctx.lineTo(x + Math.cos(a) * (rad + 10), y + Math.sin(a) * (rad + 10)); }
     ctx.stroke();
   }
-  ctx.fillStyle = 'rgba(8,6,16,.92)'; rr(40, BY - 4, 460, 40, 20); ctx.fill(); ctx.strokeStyle = C.m; ctx.lineWidth = 2; ctx.stroke();
-  ctx.fillStyle = C.m; ctx.beginPath(); ctx.arc(64, BY + 16, 12, 0, TAU); ctx.fill(); spellIcon(p.color, 64, BY + 16, 7);
-  text(SPELLS[p.color].name + (p.amp ? ' ¡SOBRECARGA!' : '') + ' · ' + (V.sel ? 'toca otra vez para lanzar' : (p.kind === 'col' ? 'toca una columna' : 'toca dónde apuntar')), 84, BY + 17, 14, '#fff', 'left', 700);
+  ctx.restore(); ctx.save();             // aviso de apuntar sobre la franja del nombre del nivel (no tapa la primera fila)
+  ctx.fillStyle = 'rgba(8,6,16,.95)'; rr(8, 84, 282, 36, 18); ctx.fill(); ctx.strokeStyle = C.m; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = C.m; ctx.beginPath(); ctx.arc(30, 102, 12, 0, TAU); ctx.fill(); spellIcon(p.color, 30, 102, 7);
+  text(SPELLS[p.color].name + ' · ' + (V.sel ? '¡toca otra vez!' : 'toca 2 veces'), 50, 103, 15, '#fff', 'left', 800);
+  ctx.restore();
 }
 
 function drawBottomBar() {
-  text('MANÁ CROMÁTICO', 24, 902, 11, '#a79fc9', 'left', 700);
-  { const sp = 1 + 0.25 * Math.max(0, V.score - (V.scoreShown || 0) > 1 ? 1 : 0); ctx.save(); ctx.translate(350, 902); ctx.scale(sp, sp); text(Math.round(V.scoreShown || 0).toLocaleString('es') + ' pts', 0, 0, 12, '#ffe27a', 'right', 800); ctx.restore(); }
-  const x = 24, y = 912, w = 326, h = 26, p = V.mana / 100;
+  const portalOn = G.levelIdx >= 30;
+  const hn = V.daily || V.master ? 0 : V.hintsLeft + (G.hintBank | 0); btn(20, 896, 132, 52, 'PISTA · ' + hn, () => useHint(false), { color: '#2a8f86', size: 17, disabled: hn <= 0, glow: V.hintGlow && hn > 0 });
+  const sp = 1 + 0.25 * (V.score - (V.scoreShown || 0) > 1 ? 1 : 0);
+  if (!portalOn) {
+    text(!V.daily && !V.master && (G.best || {})[G.levelIdx] ? 'RÉCORD ' + G.best[G.levelIdx].toLocaleString('es') : 'PUNTOS', 345, 904, 13, '#a79fc9', 'center', 800);
+    ctx.save(); ctx.translate(345, 928); ctx.scale(sp, sp); text(Math.round(V.scoreShown || 0).toLocaleString('es'), 0, 0, 24, '#ffe27a', 'center', 900); ctx.restore();
+    return;
+  }
+  text('MANÁ', 162, 903, 15, '#a79fc9', 'left', 800);
+  ctx.save(); ctx.translate(352, 903); ctx.scale(sp, sp); text(Math.round(V.scoreShown || 0).toLocaleString('es') + ' pts', 0, 0, 15, '#ffe27a', 'right', 800); ctx.restore();
+  const x = 162, y = 912, w = 190, h = 26, p = V.mana / 100;
   ctx.fillStyle = '#0c0a17'; rr(x, y, w, h, 13); ctx.fill();
   if (p > 0.03) {
     const g = ctx.createLinearGradient(x, 0, x + w, 0);
@@ -2885,13 +3135,12 @@ function drawBottomBar() {
   ctx.strokeStyle = '#fff3'; ctx.lineWidth = 1.5; rr(x, y, w, h, 13); ctx.stroke();
   text(Math.round(V.mana) + '%', x + w / 2, y + h / 2 + 1, 14, '#fff');
   const ready = V.mana >= 100 && S.mana >= 100;
-  btn(364, 898, 160, 48, V.portalMode ? 'CANCELAR' : 'PORTAL', () => { if (busy()) return; V.portalMode = !V.portalMode; Snd.aim(); },
+  btn(364, 896, 160, 52, V.portalMode ? 'CANCELAR' : 'PORTAL', () => { if (busy()) return; V.portalMode = !V.portalMode; Snd.aim(); },
     { color: ready ? '#b76bff' : '#4a4466', disabled: !ready, glow: ready && !V.portalMode, size: 19 });
 }
-
 function drawIntro() {
   const I = V.intro; ctx.fillStyle = 'rgba(5,3,12,.8)'; ctx.fillRect(0, 0, W, H);
-  const n = (I.lines || []).length, x = 34, w = 472, h = I.icons ? 380 : 150 + n * 32, y = (H - h) / 2 - 20;
+  const n = (I.lines || []).length, nc = I.cards ? I.cards.length : 0, x = 34, w = 472, h = (I.icons ? 404 : 150 + n * 32) + nc * 78 + (nc ? 12 : 0), y = (H - h) / 2 - 20;
   ctx.fillStyle = '#1c1634'; rr(x, y, w, h, 22); ctx.fill(); ctx.strokeStyle = '#8f6bff'; ctx.lineWidth = 3; ctx.stroke();
   text(I.title, W / 2, y + 44, 27, '#ffe27a');
   if (I.icons) {
@@ -2905,78 +3154,175 @@ function drawIntro() {
     ['Toca las runas', 'Deja caer a los', 'Reúne 3 iguales'].forEach((s, k) => text(s, xs[k], cy + 82, 15, '#fff', 'center', 700));
     ['con flecha', 'Fluffies al caldero', 'y lanza su hechizo'].forEach((s, k) => text(s, xs[k], cy + 102, 14, '#cfc6ee', 'center', 600));
     text('Rojo = Bola de Fuego: tú eliges dónde explota.', W / 2, cy + 150, 15, '#ffa3b4', 'center', 700);
-    text('La piedra solo cae con hechizos.', W / 2, cy + 174, 15, '#cfc6ee', 'center', 600);
+    text('La piedra se rompe con hechizos o 2 golpes verdes.', W / 2, cy + 174, 15, '#cfc6ee', 'center', 600);
+    text('Azul = Deshielo: rompe el hielo y las cadenas.', W / 2, cy + 198, 15, '#9fd2ff', 'center', 600);
   } else I.lines.forEach((s, k) => text(s, W / 2, y + 96 + k * 32, 17.5, '#e8e2ff', 'center', 600));
-  text('Toca para empezar', W / 2, y + h - 34, 18, 'rgba(255,255,255,' + (0.6 + 0.4 * Math.sin(G.time * 5)) + ')');
+  if (nc) {                                  // una tarjeta por mecánica nueva: dibujo + nombre + regla
+    const P = I.P || (I.P = parseLevel(V.L)), y0 = y + (I.icons ? 316 : 84 + n * 32);
+    I.cards.forEach((o, k) => {
+      const cy = y0 + k * 78, [nm, rule] = (MECH_INFO[o.k] || '').split(' · ');
+      ctx.fillStyle = '#120e24'; rr(x + 22, cy, w - 44, 68, 14); ctx.fill(); ctx.strokeStyle = '#7ff0ff88'; ctx.lineWidth = 2; ctx.stroke();
+      drawMechIcon(o, o.lv !== undefined ? lvParse(o.lv) : P, x + 62, cy + 34);
+      if (o.lv === undefined) text('NUEVO', x + 108, cy + 13, 13, '#7ff0ff', 'left', 900); text(nm || '', x + 108, cy + 32, 18, '#ffe27a', 'left', 900); text(rule ? rule[0].toUpperCase() + rule.slice(1) : '', x + 108, cy + 53, 15, '#e8e2ff', 'left', 600);
+    });
+  }
+  text(I.next ? 'Toca para seguir' : I.back ? 'Toca para volver' : 'Toca para empezar', W / 2, y + h - 34, 18, 'rgba(255,255,255,' + (0.6 + 0.4 * Math.sin(G.time * 5)) + ')');
 }
 
+/* icono de una mecánica: los bloques se dibujan tal cual; las casillas del suelo con un símbolo propio */
+const LVP = {}; function lvParse(j) { return LVP[j] || (LVP[j] = parseLevel(LEVELS[j])); }
+/* glosario: la página del tutorial y luego, de 5 en 5, todas las mecánicas y hechizos vistos hasta ahora */
+function rulesPages() {
+  newKinds(0); const lim = G.state === 'play' ? G.levelIdx : Math.min(G.unlocked, LEVELS.length) - 1, seen = [];
+  for (let j = 0; j <= lim; j++) for (const o of (KIND_NEW[j] || [])) seen.push(Object.assign({ lv: j }, o));
+  for (const [lv, k] of [[4, 'boil'], [5, 'cap'], [20, 'reso'], [30, 'portal']]) if (lv <= lim) seen.push({ lv, k, c: -1, r: -1 });
+  seen.sort((a, b) => a.lv - b.lv);
+  const pages = [{ icons: true, title: 'Cómo jugar' }], np = Math.ceil(seen.length / 5);
+  for (let p = 0; p < np; p++) pages.push({ title: 'Reglas ' + (p + 1) + '/' + np, lines: [], cards: seen.slice(p * 5, p * 5 + 5) });
+  for (let k = 0; k < pages.length - 1; k++) pages[k].next = pages[k + 1];
+  pages.push({ title: 'Ayudas', lines: ['DESHACER: vuelve atrás (unos gratis por intento).', 'PISTA: enseña la mejor jugada.', '3★: termina con movimientos de sobra.', 'Cofres: se abren con estrellas del capítulo.', 'Si pierdes, el nivel te da +1 movimiento.'] }); pages[pages.length - 2].next = pages[pages.length - 1];
+  pages[pages.length - 1].back = true;
+  return pages[0];
+}
+function drawMechIcon(o, P, x, y) {
+  const e = P.grid[o.r] && P.grid[o.r][o.c], t = G.time; ctx.save();
+  if (e && o.k !== 'curse' && o.k !== 'turn' && o.k !== 'goo' && o.k !== 'tele') {
+    if (e.k === 'fluffy') { drawFluffy(x, y, 20, e.col, 0, 'idle', 0); if (e.bub) drawBubble(x, y, 0); }
+    else { const sp = makeSprite(e, o.c, o.r); sp.x = x; sp.y = y; sp.scale = 0.72; drawBlock(sp); }
+  } else if (o.k === 'curse') { ctx.fillStyle = 'rgba(120,30,160,.55)'; ctx.beginPath(); ctx.arc(x, y, 24, 0, TAU); ctx.fill(); ctx.strokeStyle = '#d07bff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y, 18 + Math.sin(t * 4), 0, TAU); ctx.moveTo(x - 9, y - 9); ctx.lineTo(x + 9, y + 9); ctx.moveTo(x + 9, y - 9); ctx.lineTo(x - 9, y + 9); ctx.stroke(); }
+  else if (o.k === 'turn') { ctx.strokeStyle = '#7ff0ff'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(x, y, 16, -Math.PI * 0.9 + t, Math.PI * 0.4 + t); ctx.stroke(); const a = Math.PI * 0.4 + t; ctx.fillStyle = '#7ff0ff'; ctx.beginPath(); ctx.arc(x + Math.cos(a) * 16, y + Math.sin(a) * 16, 6, 0, TAU); ctx.fill(); }
+  else if (o.k === 'goo') { ctx.fillStyle = '#c98a1e'; ctx.beginPath(); ctx.ellipse(x, y + 6, 24, 12, 0, 0, TAU); ctx.fill(); ctx.fillStyle = '#ffcf5a'; for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.arc(x - 10 + k * 10, y + 2 - Math.abs(Math.sin(t * 3 + k)) * 6, 4, 0, TAU); ctx.fill(); } }
+  else if (o.k === 'boil') { ctx.fillStyle = '#ff8a3c'; ctx.beginPath(); ctx.ellipse(x, y + 8, 24, 12, 0, 0, TAU); ctx.fill(); ctx.fillStyle = '#ffe27a'; for (let k = 0; k < 4; k++) { ctx.beginPath(); ctx.arc(x - 12 + k * 8, y + 2 - ((t * 30 + k * 9) % 22), 3.5, 0, TAU); ctx.fill(); } }
+  else if (o.k === 'cap') { ctx.strokeStyle = '#c5b6ff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y - 4, 22, 0.1, Math.PI - 0.1); ctx.stroke(); for (let k = 0; k < 3; k++) { ctx.fillStyle = k < 2 ? '#ffe27a' : '#1a1530'; ctx.beginPath(); ctx.arc(x - 12 + k * 12, y - 4, 5, 0, TAU); ctx.fill(); ctx.strokeStyle = '#c5b6ff'; ctx.lineWidth = 1.5; ctx.stroke(); } }
+  else if (o.k === 'reso') { for (let k = 0; k < 3; k++) { ctx.fillStyle = '#ff4d6d'; rr(x - 26 + k * 18, y - 7, 14, 14, 4); ctx.fill(); } ctx.strokeStyle = 'rgba(255,220,120,' + (0.5 + 0.5 * Math.sin(t * 6)) + ')'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x - 1, y, 24, 0, TAU); ctx.stroke(); }
+  else if (o.k === 'portal') { ctx.strokeStyle = '#b76bff'; ctx.lineWidth = 4; ctx.beginPath(); ctx.ellipse(x - 14, y, 8, 18, 0, 0, TAU); ctx.stroke(); ctx.fillStyle = 'rgba(183,107,255,.5)'; ctx.fillRect(x - 6, y - 6, 30, 12); }
+  else if (o.k === 'tele') { ctx.strokeStyle = 'rgb(190,150,255)'; ctx.lineWidth = 4; ctx.beginPath(); ctx.ellipse(x, y, 22, 22, 0, 0, TAU); ctx.stroke(); ctx.lineWidth = 2; for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.arc(x, y, 6 + k * 5, t * 3 + k, t * 3 + k + 2.4); ctx.stroke(); } }
+  ctx.restore();
+}
 function drawResult() {
+  G.btns.push({ x: 0, y: 0, w: W, h: H, fn: () => {} });
   ctx.fillStyle = 'rgba(5,3,12,.82)'; ctx.fillRect(0, 0, W, H);
   const R = G.res, win = G.state === 'win', x = 40, y = 190, w = 460, h = 560, i = rankIdx(G.xp), last = G.levelIdx === LEVELS.length - 1;
   ctx.fillStyle = '#1c1634'; rr(x, y, w, h, 24); ctx.fill(); ctx.strokeStyle = win ? '#ffd24a' : '#c2415f'; ctx.lineWidth = 3; ctx.stroke();
-  text(win ? (last ? '¡CAMPAÑA COMPLETADA!' : G.levelIdx === 39 ? '¡SELLO DE LA TORRE ROTO!' : (G.levelIdx + 1) % 5 === 0 ? '¡CAPÍTULO SUPERADO!' : '¡BÓVEDA DESPEJADA!') : S.over ? '¡CALDERO DESBORDADO!' : 'SIN JUGADAS', W / 2, y + 48, 28, win ? '#ffe27a' : '#ff7a93');
-  if (!win && !S.over && R.left <= 2) text('¡Casi! Solo ' + (R.left === 1 ? 'faltaba 1 Fluffy' : 'faltaban 2 Fluffies'), W / 2, y + 82, 17, '#ffe27a', 'center', 700);
-  else if (win) { const pn = POTIONS[G.levelIdx % POTIONS.length]; drawBottle(W / 2 - ctx.measureText(pn).width / 2 - 34, y + 82, 13, COLORS[V.tint].m); text('Has destilado: ' + pn, W / 2 + 10, y + 82, 16, '#e8e2ff', 'center', 700); }
-  else text('Nivel ' + (G.levelIdx + 1) + ' · ' + V.L.name, W / 2, y + 82, 16, '#cfc6ee', 'center', 600);
-  for (let k = 0; k < 3; k++) {
+  text(win ? (V.master ? '¡MAESTRÍA!' : V.daily ? '¡RETO DIARIO SUPERADO!' : last ? '¡CAMPAÑA COMPLETADA!' : G.levelIdx === 39 ? '¡SELLO DE LA TORRE ROTO!' : (G.levelIdx + 1) % 10 === 0 ? '¡CAPÍTULO SUPERADO!' : '¡BÓVEDA DESPEJADA!') : S.over ? '¡CALDERO DESBORDADO!' : 'SIN JUGADAS', W / 2, y + 48, 28, win ? '#ffe27a' : '#ff7a93');
+  if (!win) {
+    const almost = R.left <= 2 && !V.wasDead; text(almost ? '¡Casi! Solo ' + (R.left === 1 ? 'faltaba 1 Fluffy' : 'faltaban 2 Fluffies') : V.wasDead ? (stepsToGood() > 1 ? 'El atasco empezó hace ' + stepsToGood() + ' jugadas: pulsa VOLVER ' + stepsToGood() : 'Tu última jugada dejó el tablero sin salida') : 'Nivel ' + (G.levelIdx + 1) + ' · ' + V.L.name, W / 2, y + 84, 16, almost ? '#ffe27a' : '#cfc6ee', 'center', 700);
+    ctx.fillStyle = '#120e24'; rr(x + 28, y + 118, w - 56, 176, 16); ctx.fill(); ctx.strokeStyle = '#ff7a9355'; ctx.lineWidth = 2; ctx.stroke();
+    text(S.over ? 'El caldero se llenó sin fusionar' : S.moves > 0 ? 'No quedan jugadas posibles' : 'Te quedaste sin movimientos', W / 2, y + 152, 19, '#ffd9d9', 'center', 800);
+    text('CONSEJO', W / 2, y + 190, 13, '#7ff0ff', 'center', 900);
+    const tip = S.over ? ['Suelta los colores de 3 en 3:', 'el caldero solo tiene ' + S.cap + ' huecos.'] : ['Mira qué bloque abre más camino', 'y qué color cae primero.'];
+    tip.forEach((t, k) => text(t, W / 2, y + 220 + k * 26, 16, '#e8e2ff', 'center', 600));
+    text('Fluffies liberados', x + 60, y + 330, 16, '#e8e2ff', 'left', 600); text((R.total - R.left) + ' / ' + R.total, x + w - 60, y + 330, 16, '#fff', 'right');
+    text(V.daily && V.undos <= 0 ? 'El reto diario solo da 1 DESHACER' : V.undos > 0 ? 'Puedes deshacer ' + V.undos + (V.undos > 1 ? ' veces más' : ' vez más') : G.hintBank > 0 ? 'Deshacer cuesta 1 pista guardada (tienes ' + G.hintBank + ')' : 'Sin deshacer: reintenta el nivel', W / 2, y + 380, 15, '#cdb8ff', 'center', 700);
+    btn(x + 30, y + h - 76, 120, 54, 'MENÚ', () => { G.state = 'menu'; }, { color: '#3b4a7a', size: 17 });
+    btn(x + 160, y + h - 76, 130, 54, stepsToGood() > 1 ? 'VOLVER ' + stepsToGood() : 'DESHACER', () => { G.state = 'play'; G.res = null; if (G.streakBefore) { G.streak = G.streakBefore; G.streakBefore = 0; } rewind(); }, { color: '#3f7a5a', size: 16, disabled: !canUndo() });
+    btn(x + 300, y + h - 76, 130, 54, 'REINTENTAR', restartLevel, { color: '#c2415f', size: 15, glow: true });
+    return;
+  }
+  if (V.daily) text('Racha de retos: ' + (G.dRun | 0) + (G.dRun > 1 ? ' días' : ' día') + ' · ¡a los 7, premio extra!', W / 2, y + 84, 15, '#e8e2ff', 'center', 700);
+  else { const pn = POTIONS[G.levelIdx % POTIONS.length], tl = 'Has destilado: ' + pn; ctx.font = '700 16px "Trebuchet MS","Segoe UI",system-ui,sans-serif'; const tw = ctx.measureText(tl).width; drawBottle(W / 2 + 10 - tw / 2 - 22, y + 82, 13, COLORS[V.tint].m); text(tl, W / 2 + 10, y + 82, 16, '#e8e2ff', 'center', 700); }
+  if (V.daily || V.master) { ctx.save(); ctx.shadowColor = '#ffd24a'; ctx.shadowBlur = 20; if (V.master) { ctx.fillStyle = '#ffd24a'; ctx.beginPath(); ctx.moveTo(W / 2 - 34, y + 150); ctx.lineTo(W / 2 - 40, y + 106); ctx.lineTo(W / 2 - 16, y + 128); ctx.lineTo(W / 2, y + 98); ctx.lineTo(W / 2 + 16, y + 128); ctx.lineTo(W / 2 + 40, y + 106); ctx.lineTo(W / 2 + 34, y + 150); ctx.closePath(); ctx.fill(); } else drawBottle(W / 2, y + 128, 22, '#b76bff'); ctx.restore(); }
+  for (let k = 0; k < (V.daily || V.master ? 0 : 3); k++) {
     const on = k < R.shown, sx = W / 2 + (k - 1) * 74, sy = y + 136 - (k === 1 ? 10 : 0);
     ctx.save(); if (on) { ctx.shadowColor = '#ffd24a'; ctx.shadowBlur = 18; }
     starPath(sx, sy, on ? 30 : 26); ctx.fillStyle = on ? '#ffd24a' : '#2e2848'; ctx.fill(); ctx.strokeStyle = on ? '#fff6c2' : '#463e6a'; ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
   }
   drawBadge(W / 2 - 120, y + 232, 34, i);
-  text('Rango alcanzado', W / 2 - 74, y + 212, 13, '#a79fc9', 'left', 600);
+  text('Rango alcanzado', W / 2 - 74, y + 212, 14, '#a79fc9', 'left', 600);
   text(RANK_TIERS[i].name, W / 2 - 74, y + 236, 23, RANK_TIERS[i].color, 'left');
-  const lbl = drawRankBar(x + 60, y + 284, w - 120, 16); text(lbl, W / 2, y + 314, 13, '#b9b2d6', 'center', 600);
-  const rows = [['Fluffies liberados', (R.total - R.left) + ' / ' + R.total], ['Movimientos sobrantes', String(R.rem)], ['Combo máximo', 'x' + V.maxCombo], ['Puntos', Math.round(V.score * clamp((R.t - 0.6) / 1.4, 0, 1)).toLocaleString('es')], ['Racha de victorias', 'x' + G.streak], ['XP ganada', '+' + V.levelXp + (win ? '  (bono ' + R.bonus + ')' : '')]];
-  rows.forEach(([a, b], k) => { text(a, x + 60, y + 338 + k * 24, 15, '#e8e2ff', 'left', 600); text(b, x + w - 60, y + 338 + k * 24, 15, '#fff', 'right'); });
-  if (win) {
-    btn(x + 30, y + h - 76, 180, 54, 'REPETIR', () => loadLevel(G.levelIdx), { color: '#3b4a7a', size: 18 });
-    btn(x + w - 230, y + h - 76, 200, 54, last ? 'MENÚ' : 'SIGUIENTE', () => { if (last) G.state = 'menu'; else loadLevel(G.levelIdx + 1); }, { color: '#2fae6a', size: 20, glow: true });
+  const lbl = drawRankBar(x + 60, y + 284, w - 120, 16); text(lbl, W / 2, y + 314, 14, '#b9b2d6', 'center', 600);
+  const pts = Math.round(V.score * clamp((R.t - 0.6) / 1.4, 0, 1)).toLocaleString('es');
+  const rows = [['Movimientos sobrantes', String(R.rem)], ['Mejor combo', 'x' + (V.maxStreak || 0)], ['Puntos', pts + (V.newRec && R.t > 2 ? '  ¡RÉCORD!' : '')], ['XP ganada', '+' + V.levelXp]];
+  if (last && !V.daily && !V.master) text('Caldo es libre y la bóveda brilla de nuevo. ¡Gracias por jugar!', W / 2, y + 462, 14, '#ffe27a', 'center', 800);
+  else if (!V.daily && !V.master && chestReady(Math.floor(G.levelIdx / 10))) text('¡Tienes un cofre listo en el mapa!', W / 2, y + 462, 15, '#ffe27a', 'center', 800);
+  rows.forEach(([a, b], k) => { text(a, x + 60, y + 338 + k * 24, 16, '#e8e2ff', 'left', 600); text(b, x + w - 60, y + 338 + k * 24, 16, a === 'Puntos' && V.newRec ? '#ffe27a' : '#fff', 'right'); });
+  if (last || V.daily || (V.master && !(G.stars[G.levelIdx + 1] > 0))) {
+    btn(x + 100, y + h - 76, 120, 54, 'MENÚ', () => { G.state = 'menu'; }, { color: '#2fae6a', size: 18, glow: true });
+    btn(x + 240, y + h - 76, 120, 54, 'REPETIR', restartLevel, { color: '#3b4a7a', size: 17 });
   } else {
     btn(x + 30, y + h - 76, 120, 54, 'MENÚ', () => { G.state = 'menu'; }, { color: '#3b4a7a', size: 17 });
-    btn(x + 160, y + h - 76, 130, 54, 'DESHACER', () => { G.state = 'play'; G.res = null; undo(); }, { color: '#3f7a5a', size: 16, disabled: !V.hist.length });
-    btn(x + 300, y + h - 76, 130, 54, 'REINTENTAR', () => loadLevel(G.levelIdx), { color: '#c2415f', size: 15, glow: true });
+    btn(x + 160, y + h - 76, 120, 54, 'REPETIR', restartLevel, { color: '#3b4a7a', size: 17 });
+    btn(x + 290, y + h - 76, 140, 54, 'SIGUIENTE', () => loadLevel(G.levelIdx + 1, V.master ? { master: true } : undefined), { color: '#2fae6a', size: 20, glow: true });
   }
 }
 
-const CHAPTERS = ['I · Bóveda del Aprendiz', 'II · Cripta de Escarcha', 'III · Forja de Pólvora', 'IV · Torre Rúnica', 'V · Laboratorio Prohibido'];
+const CHAPTERS = ['I · Bóveda de Iniciación', 'II · Cripta de Escarcha', 'III · Forja de Pólvora', 'IV · Torre Rúnica', 'V · Laboratorio Prohibido'];
+/* COFRES DE CAPÍTULO: a las 10, 20 y 30 estrellas de cada capítulo (pistas guardadas y XP) */
+function chestTaken(ch, n) { const C = G.chests || {}; return !!(C[ch + '-' + n] || (n <= 20 && C[ch + '-15'])); }   // '-15' es de partidas antiguas
+function chestReady(ch) { return [10, 20, 30].some(n => chStars(ch) >= n && !chestTaken(ch, n)); }
+function chStars(ch) { let n = 0; for (let j = 0; j < 10; j++) n += G.stars[ch * 10 + j] || 0; return n; }
+function drawChest(x, y, state) {          // state: 0 cerrado, 1 listo para abrir, 2 abierto
+  ctx.save(); ctx.translate(x, y); if (state === 1) { ctx.rotate(Math.sin(G.time * 9) * 0.06); ctx.shadowColor = '#ffd24a'; ctx.shadowBlur = 22 + 8 * Math.sin(G.time * 5); }
+  const g = ctx.createLinearGradient(0, -20, 0, 22); g.addColorStop(0, state ? '#c9803e' : '#5a4a66'); g.addColorStop(1, state ? '#6b3a16' : '#2c2338'); ctx.fillStyle = g; rr(-30, -6, 60, 30, 6); ctx.fill(); ctx.shadowBlur = 0;
+  ctx.save(); if (state === 2) { ctx.translate(0, -8); ctx.rotate(-0.5); } ctx.fillStyle = state ? '#a8642a' : '#463a52'; rr(-32, -22, 64, 18, 8); ctx.fill(); ctx.restore();
+  ctx.fillStyle = state ? '#ffd24a' : '#7a6e8e'; ctx.fillRect(-32, -6, 64, 4); rr(-6, -10, 12, 14, 3); ctx.fill();
+  if (state === 2) { ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,220,120,.35)'; ctx.beginPath(); ctx.moveTo(-24, -8); ctx.lineTo(24, -8); ctx.lineTo(30, -34); ctx.lineTo(-30, -34); ctx.closePath(); ctx.fill(); }
+  ctx.restore();
+}
+const CHAPTERS_SHORT = ['Bóveda de Iniciación', 'Cripta de Escarcha', 'Forja de Pólvora', 'Torre Rúnica', 'Laboratorio Prohibido'];
 function drawMenu() {
   drawBackground();
   ctx.save(); ctx.shadowColor = '#b76bff'; ctx.shadowBlur = 26;
-  text('CHROMA', W / 2 - 92, 74, 54, '#fff'); text('DROP', W / 2 + 126, 74, 54, '#ffd24a'); ctx.restore();
-  text('ARCANE ALCHEMIST', W / 2, 112, 17, '#cdb8ff', 'center', 700);
-  const pot = G.stars.filter(x => x > 0).length;
-  text(pot >= LEVELS.length ? '¡Has dominado el Laboratorio Prohibido!' : pot >= 40 ? '¡Sello roto! Explora el Laboratorio Prohibido' : 'Destila 40 pociones y rompe el sello de la Torre', W / 2, 138, 13, '#ffe27a', 'center', 700);
-  [...COLOR_KEYS, 'W'].forEach((k, i) => { const t = G.time * 2.4 + i * 1.1, b = Math.abs(Math.sin(t)); drawFluffy(85 + i * 74, 222 - b * 54, 25, k, b < 0.15 ? 0.3 * (1 - b / 0.15) : -0.08, b > 0.5 ? 'fall' : 'idle', i); });
-  const i = rankIdx(G.xp); drawBadge(52, 296, 26, i);
-  text(RANK_TIERS[i].name, 88, 283, 17, RANK_TIERS[i].color, 'left');
-  const lbl = drawRankBar(88, 297, 160, 11); text(lbl, 88, 320, 11, '#b9b2d6', 'left', 600);
+  text('CHROMA', W / 2 - 92, 70, 54, '#fff'); text('DROP', W / 2 + 126, 70, 54, '#ffd24a'); ctx.restore();
+  text('ARCANE ALCHEMIST', W / 2, 106, 17, '#cdb8ff', 'center', 700);
+  const pot = G.stars.filter(x => x > 0).length, chU = Math.min(4, Math.floor((G.unlocked - 1) / 10));
+  text(pot >= LEVELS.length ? '¡Has dominado los 5 capítulos!' : 'Objetivo: vence al guardián del nivel ' + (chU * 10 + 10), W / 2, 132, 14.5, '#ffe27a', 'center', 800);
+  const MK = G.unlocked > 30 ? [...COLOR_KEYS, 'W'] : ['R', 'G', 'B', 'Y']; MK.forEach((k, i) => { const t = G.time * 2.4 + i * 1.1, b = Math.abs(Math.sin(t)); drawFluffy(W / 2 + (i - (MK.length - 1) / 2) * 74, 214 - b * 34, 23, k, b < 0.15 ? 0.3 * (1 - b / 0.15) : -0.08, b > 0.5 ? 'fall' : 'idle', i); });
+  const i = rankIdx(G.xp); drawBadge(48, 278, 26, i);
+  text(RANK_TIERS[i].name, 84, 265, 17, RANK_TIERS[i].color, 'left');
+  const lbl = drawRankBar(84, 279, 170, 11); text(lbl, 84, 302, 14, '#b9b2d6', 'left', 600);
   const ts = G.stars.reduce((a, b) => a + (b || 0), 0);
-  starPath(280, 289, 11); ctx.fillStyle = '#ffd24a'; ctx.fill(); text(ts + ' / ' + LEVELS.length * 3, 298, 290, 16, '#ffe27a', 'left');
-  drawBottle(280, 316, 9, '#b76bff'); text('Pociones ' + pot + '/' + LEVELS.length, 296, 317, 12, '#cdb8ff', 'left', 700);
-  btn(404, 266, 120, 60, 'JUGAR', () => loadLevel(Math.min(G.unlocked, LEVELS.length) - 1), { color: '#7b4dff', size: 24, glow: true });
-  const per = 10;
-  for (let ch = 0; ch * per < LEVELS.length; ch++) {
-    const y0 = 346 + ch * 120, open = ch * per + 1 <= G.unlocked;
-    ctx.fillStyle = 'rgba(12,10,23,.62)'; rr(16, y0, W - 32, 112, 16); ctx.fill(); ctx.strokeStyle = open ? '#8f6bff77' : '#ffffff14'; ctx.lineWidth = 1.5; ctx.stroke();
-    text('CAPÍTULO ' + (CHAPTERS[ch] || ch + 1), 32, y0 + 17, 13, open ? '#e3d8ff' : '#6d668a', 'left', 800);
-    for (let j = 0; j < per && ch * per + j < LEVELS.length; j++) {
-      const k = ch * per + j, cx = 54 + j * 48, lock = k + 1 > G.unlocked, cur = k + 1 === G.unlocked;
-      btn(cx - 21, y0 + 30, 42, 46, lock ? '···' : String(k + 1), () => loadLevel(k), { color: j === per - 1 ? '#a8562a' : '#3b4a7a', size: 16, disabled: lock, glow: cur });
-      for (let q = 0; q < 3; q++) { starPath(cx + (q - 1) * 11, y0 + 94, 4.6); ctx.fillStyle = q < (G.stars[k] || 0) ? '#ffd24a' : '#3a3357'; ctx.fill(); }
-    }
+  starPath(282, 270, 10); ctx.fillStyle = '#ffd24a'; ctx.fill(); text(ts + ' / ' + LEVELS.length * 3, 298, 271, 15, '#ffe27a', 'left');
+  if (G.time - (G.dcT || 0) > 20) { G.dcT = G.time; dailyCheck(); }   // por si se pasa la medianoche con el juego abierto
+  drawBottle(282, 297, 8, '#b76bff'); text('Pociones ' + pot + '/' + LEVELS.length, 296, 298, 14, '#cdb8ff', 'left', 700);
+  text(G.hintBank > 0 ? 'Pistas guardadas: ' + G.hintBank : 'Gana pistas con el regalo diario, el reto y los cofres', W / 2, 330, 15, '#7ff0ff', 'center', 700);
+  btn(424, 10, 106, 38, 'POCIONES', () => { G.state = 'shelf'; }, { color: '#8a4ab8', size: 14 });
+  btn(408, 254, 116, 58, 'JUGAR', () => { let k = Math.min(G.unlocked, LEVELS.length) - 1; if (G.stars[k] > 0) { const f = LEVELS.findIndex((_, j) => (G.stars[j] || 0) < 3); if (f >= 0) k = f; } loadLevel(k); }, { color: '#7b4dff', size: 24, glow: true });
+  if (G.menuCh === undefined) G.menuCh = chU;
+  const ch = G.menuCh, open = ch * 10 + 1 <= G.unlocked, cs = chStars(ch);
+  ctx.fillStyle = 'rgba(12,10,23,.66)'; rr(16, 348, W - 32, 506, 18); ctx.fill(); ctx.strokeStyle = open ? '#8f6bff88' : '#ffffff18'; ctx.lineWidth = 2; ctx.stroke();
+  btn(26, 358, 58, 56, '◀', () => { G.menuCh = (ch + 4) % 5; G.menuMaster = false; Snd.click(); }, { color: '#3b4a7a', size: 22 });
+  btn(456, 358, 58, 56, '▶', () => { G.menuCh = (ch + 1) % 5; G.menuMaster = false; Snd.click(); }, { color: '#3b4a7a', size: 22 });
+  for (const [ax, dir] of [[78, -1], [508, 1]]) { let any = false; for (let c = 0; c < 5; c++) if (c !== ch && (dir < 0 ? c < ch : c > ch) && chestReady(c)) any = true;   // punto dorado: hay un cofre listo en esa dirección
+    if (any) { ctx.fillStyle = '#ffd24a'; ctx.shadowColor = '#ffd24a'; ctx.shadowBlur = 10; ctx.beginPath(); ctx.arc(ax, 362, 6 + Math.sin(G.time * 6), 0, TAU); ctx.fill(); ctx.shadowBlur = 0; } }
+  text('CAPÍTULO ' + ['I', 'II', 'III', 'IV', 'V'][ch], W / 2, 376, 15, open ? '#cdb8ff' : '#6d668a', 'center', 800);
+  text(CHAPTERS_SHORT[ch], W / 2, 400, 21, open ? '#ffe27a' : '#6d668a', 'center', 900);
+  for (let k = 0; k < 5; k++) { ctx.fillStyle = k === ch ? '#ffe27a' : '#4a4466'; ctx.beginPath(); ctx.arc(W / 2 - 32 + k * 16, 422, k === ch ? 4.5 : 3.5, 0, TAU); ctx.fill(); }
+  for (let j = 0; j < 10; j++) {
+    const k = ch * 10 + j, col = j % 5, row = Math.floor(j / 5), bx = 36 + col * 96, by = 446 + row * 128, lock = k + 1 > G.unlocked, cur = k + 1 === G.unlocked && !(G.stars[k] > 0), boss = j === 9;
+    const mm = G.menuMaster;
+    btn(bx, by, 84, 84, lock ? '···' : String(k + 1), () => { if (lock) { V.floaters = []; floater(W / 2, 236, 'Supera el nivel ' + G.unlocked + ' para abrirlo', '#ffd9d9', 16, 1.5); Snd.bump(); } else loadLevel(k, mm ? { master: true } : undefined); }, { color: mm ? '#6a3aa8' : boss ? (lock ? '#4a2c1e' : '#a8562a') : lock ? '#2a2640' : '#3b4a7a', size: 30, glow: cur && !mm });
+    if ((G.master || {})[k]) { ctx.fillStyle = '#ffd24a'; ctx.beginPath(); ctx.moveTo(bx + 62, by + 14); ctx.lineTo(bx + 66, by + 4); ctx.lineTo(bx + 71, by + 11); ctx.lineTo(bx + 76, by + 4); ctx.lineTo(bx + 80, by + 14); ctx.closePath(); ctx.fill(); }   // corona de maestría
+    if (boss) text('GUARDIÁN', bx + 42, by + 72, 12, '#ffd0a8', 'center', 900);
+    for (let q = 0; q < 3; q++) { starPath(bx + 42 + (q - 1) * 20, by + 100, 8); ctx.fillStyle = q < (G.stars[k] || 0) ? '#ffd24a' : '#3a3357'; ctx.fill(); }
   }
+  G.chests = G.chests || {};
+  const nx = [10, 20, 30].find(n => cs < n);
+  text('Capítulo: ' + cs + '/30★' + (nx ? '  ·  faltan ' + (nx - cs) + '★ para el próximo cofre' : ''), W / 2, 700, 15, '#ffe27a', 'center', 800);
+  [[10, 1, 60], [20, 1, 120], [30, 2, 250]].forEach(([need, hn, gx], q) => {
+    const id = ch + '-' + need, st = chestTaken(ch, need) ? 2 : cs >= need ? 1 : 0, x = 130 + q * 140, y = 762;
+    drawChest(x, y, st); text(need + '★', x, y + 42, 15, st ? '#ffe27a' : '#8a82a8', 'center', 900);
+    if (st === 1) text('¡ÁBRELO!', x, y - 38, 13, '#ffe27a', 'center', 900);
+    G.btns.push({ x: x - 50, y: y - 50, w: 100, h: 106, fn: () => {
+      if (st === 1) { G.chests[id] = 1; G.hintBank = (G.hintBank | 0) + hn; addXp(gx, true); burst(x, y, '#ffd24a', 30, 320, 300, 'star'); Snd.win(); V.floaters = []; floater(W / 2, 236, '+' + hn + (hn > 1 ? ' pistas guardadas' : ' pista guardada') + ' y +' + gx + ' XP', '#ffe27a', 18, 2); save(); }
+      else if (!st) { V.floaters = []; floater(W / 2, 236, 'Consigue ' + need + '★ en este capítulo', '#cfc6ee', 16, 1.5); Snd.click(); } } });
+  });
+  const allDone = [...Array(10)].every((_, j) => (G.stars[ch * 10 + j] || 0) > 0), mc = [...Array(10)].filter((_, j) => (G.master || {})[ch * 10 + j]).length;
+  if (allDone) btn(150, 814, 240, 34, (G.menuMaster ? '✓ MODO MAESTRÍA' : 'MODO MAESTRÍA') + ' · ' + mc + '/10', () => { G.menuMaster = !G.menuMaster; Snd.click(); if (G.menuMaster) { V.floaters = []; floater(W / 2, 330, 'Movimientos justos: gana coronas', '#e3ccff', 16, 1.8); } }, { color: G.menuMaster ? '#8a4ab8' : '#3b2f5e', size: 14, glow: G.menuMaster });
+  const dk = dayKey(new Date()), dp = dailyPick(), dDone = G.dailyDone === dk, dRun = G.dLast === dk || G.dLast === dayKey(new Date(Date.now() - 86400000)) ? G.dRun | 0 : 0;
+  btn(20, 872, 500, 64, dDone ? 'RETO DE HOY SUPERADO ✓' + (dRun > 1 ? ' · racha de ' + dRun + ' días' : '') : dp < 0 ? 'RETO DIARIO: supera el nivel 3' : 'RETO DIARIO · +100 XP y 1 pista' + (dRun ? ' · racha ' + dRun : ''), () => { if (dp >= 0) loadLevel(dp, { daily: true }); }, { color: dDone ? '#3f7a5a' : '#c2415f', size: dp < 0 || dDone ? 17 : 19, disabled: dp < 0, glow: dp >= 0 && !dDone });
   drawParticles();
 }
-
 function draw() {
   G.btns = [];
   ctx.setTransform(scale, 0, 0, scale, 0, 0);
-  if (G.state === 'menu') { drawMenu(); return; }
+  if (G.state !== G.prevSt) { if (G.state === 'menu' || G.state === 'shelf') { V.parts = []; V.floaters = V.floaters.filter(f => f.life > 1.5 && G.prevSt !== 'shelf' && G.prevSt !== 'menu'); } G.prevSt = G.state; }
+  if (G.state === 'menu') { drawMenu(); if (G.story) drawDaily(); drawFloaters(); return; }
+  if (G.state === 'shelf') { drawShelf(); drawFloaters(); return; }
   drawBackground(); drawHUD();
   ctx.save();
   V.cam = { x: 0, y: 0, z: 1 };
-  if (V.shake > 0.3) { V.cam.x = rand(-1, 1) * V.shake * 0.6; V.cam.y = rand(-1, 1) * V.shake * 0.6; ctx.translate(V.cam.x, V.cam.y); }
+  if (V.shake > 0.3) { const sk = G.fxLow ? 0.25 : 0.6; V.cam.x = rand(-1, 1) * V.shake * sk; V.cam.y = rand(-1, 1) * V.shake * sk; ctx.translate(V.cam.x, V.cam.y); }
   if (V.zoom > 0.002) { V.cam.z = 1 + V.zoom; ctx.translate(W / 2, 480); ctx.scale(1 + V.zoom, 1 + V.zoom); ctx.translate(-W / 2, -480); }
   drawBoard(); drawCauldron(); drawSpellBar();
   for (const s of V.sp.values()) if (s.k !== 'fluffy') drawBlock(s);
@@ -3006,20 +3352,21 @@ function draw() {
   }
   drawParticles();
   if (V.aim && G.state === 'play') drawAim();
+  drawCallouts(); drawHint();
   ctx.restore();
   drawBottomBar();
   if (V.portalMode && G.state === 'play') {
     for (let r = 0; r < ROWS; r++) { ctx.strokeStyle = 'rgba(200,150,255,' + (0.45 + 0.35 * Math.sin(G.time * 6 + r)) + ')'; ctx.lineWidth = 3; rr(BX - 4, BY + r * CELL + 3, BW + 8, CELL - 6, 10); ctx.stroke(); }
-    ctx.fillStyle = 'rgba(8,6,16,.92)'; rr(90, BY - 4, 360, 40, 20); ctx.fill(); ctx.strokeStyle = '#b76bff'; ctx.lineWidth = 2; ctx.stroke();
-    text('Portal Dimensional: toca una fila', W / 2, BY + 17, 15, '#e3ccff');
+    ctx.fillStyle = 'rgba(8,6,16,.95)'; rr(8, 84, 282, 36, 18); ctx.fill(); ctx.strokeStyle = '#b76bff'; ctx.lineWidth = 2; ctx.stroke();
+    text('Portal: toca una fila', 149, 103, 15, '#e3ccff');
   }
-  if (V.flash) { ctx.globalAlpha = clamp(V.flash.a, 0, 1); ctx.fillStyle = V.flash.color; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
+  if (V.flash) { ctx.globalAlpha = clamp(V.flash.a, 0, 1) * (G.fxLow ? 0.3 : 1); ctx.fillStyle = V.flash.color; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
   if (V.banner) {                            // cartel del hechizo: placa que entra y nombre letra a letra
     const b = V.banner, p = b.t / b.dur, s = p < 0.1 ? 0.6 + p / 0.1 * 0.45 : p < 0.18 ? 1.05 - (p - 0.1) / 0.08 * 0.05 : 1, a = p > 0.75 ? (1 - p) / 0.25 : 1;
     ctx.save(); ctx.globalAlpha = a; ctx.translate(W / 2, b.y || 330); ctx.scale(s, s);
-    ctx.fillStyle = 'rgba(8,6,16,.6)'; rr(-230, -44, 460, 88, 20); ctx.fill(); ctx.strokeStyle = b.color; ctx.lineWidth = 3; ctx.stroke();
+    ctx.fillStyle = 'rgba(8,6,16,.9)'; rr(-230, -44, 460, 88, 20); ctx.fill(); ctx.strokeStyle = b.color; ctx.lineWidth = 3; ctx.stroke();
     const sw = ((b.t * 1.3) % 1.4) * 600 - 300; ctx.save(); rr(-230, -44, 460, 88, 20); ctx.clip(); const lg = ctx.createLinearGradient(sw - 40, 0, sw + 40, 0); lg.addColorStop(0, 'rgba(255,255,255,0)'); lg.addColorStop(0.5, 'rgba(255,255,255,.18)'); lg.addColorStop(1, 'rgba(255,255,255,0)'); ctx.fillStyle = lg; ctx.fillRect(-240, -50, 480, 100); ctx.restore();
-    const bo = { text: b.text.toUpperCase(), t: b.t, dur: b.dur }; const ld = drawSlotText(bo, 0, -12, 30, b.color, 1); if (ld > (b.landed || 0)) { b.landed = ld; Snd.letter(ld, 0.5); }
+    const bo = { text: b.text.toUpperCase(), t: b.t, dur: b.dur }; const r1 = drawSlotText(bo, 0, -12, 30, b.color, 1); if (r1.landed > (b.landed || 0)) { b.landed = r1.landed; Snd.letter(r1.landed, 0.5); }
     const nch = Math.max(0, Math.floor((b.t - 0.25) * 45)); text(b.sub.slice(0, nch), 0, 22, 16, b.color, 'center', 700); ctx.restore();   // subtítulo que se escribe
   }
   if (V.praise) {                            // elogio gigante con rayos y letras de tragamonedas
@@ -3028,9 +3375,40 @@ function draw() {
     const rgd = ctx.createRadialGradient(0, 0, 20, 0, 0, 230 * ray); rgd.addColorStop(0, p.color); rgd.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = rgd;
     for (let i = 0; i < 14; i++) { ctx.rotate(TAU / 14); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-12, -230 * ray); ctx.lineTo(12, -230 * ray); ctx.closePath(); ctx.fill(); }
     ctx.restore();
-    const ld = drawSlotText(p, W / 2, p.y || 250, size, p.color, 1); if (ld > p.landed) { p.landed = ld; Snd.letter(ld, 1); }
+    ctx.save(); ctx.font = '900 ' + size + 'px "Trebuchet MS","Segoe UI",system-ui,sans-serif'; const tw0 = ctx.measureText(p.text).width; ctx.restore();
+    drawPraiseMagic(W / 2, (p.y || 250) + 4, tw0, p.color, p.t, a);
+    const r0 = drawSlotText(p, W / 2, p.y || 250, size, p.color, 1);
+    if (r0.landed > p.landed) { for (let i = p.landed; i < r0.landed; i++) { const lx = r0.xs[i]; if (lx === undefined) continue; burst(lx, p.y || 250, p.color, 5, 170, 120, 'star'); burst(lx, p.y || 250, '#ffffff', 3, 120, 0, 'dot'); } p.landed = r0.landed; Snd.letter(p.landed, 1); }
     if (p.sub) { const nch = Math.max(0, Math.floor((p.t - 0.35) * 40)); ctx.save(); ctx.globalAlpha = a; ctx.lineWidth = 5; ctx.lineJoin = 'round'; ctx.font = '800 16px "Trebuchet MS","Segoe UI",system-ui,sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.strokeStyle = '#1a0f33'; const st = p.sub.slice(0, nch); ctx.strokeText(st, W / 2, (p.y || 250) + size / 2 + 20); ctx.fillStyle = '#fff'; ctx.fillText(st, W / 2, (p.y || 250) + size / 2 + 20); ctx.restore(); }
   }
+  drawDead();
+  if (G.state === 'play' && V.intro) drawIntro();
+  if (V.pause && G.state === 'play') drawPause();
+  if (G.state === 'win' || G.state === 'lose') {
+    drawResult();
+    if (G.state === 'win') { ctx.save(); ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.rect(36, 186, 468, 568); ctx.clip('evenodd'); drawParticles(); ctx.restore(); }   // la celebración no tapa el panel ni sus botones
+  }
+  drawFloaters();       // encima de todo: así se ve el aviso de rango nuevo sobre los resultados
+}
+
+function drawDead() {         // el tablero ya no tiene solución: se dice en el momento, con salidas claras
+  if (!V.dead || G.state !== 'play' || V.intro || V.pause) return;
+  const n = stepsToGood();
+  if (V.deadHide) {          // apartado: queda una pastilla para volver a abrirlo
+    if (V.aim || V.portalMode) return;
+    ctx.fillStyle = 'rgba(40,8,20,.95)'; rr(8, 84, 282, 36, 18); ctx.fill(); ctx.strokeStyle = '#ff7a93'; ctx.lineWidth = 2; ctx.stroke();
+    text('SIN SALIDA · toca aquí', 149, 103, 15, '#ffb3c2', 'center', 800); G.btns.push({ x: 8, y: 84, w: 282, h: 36, fn: () => { V.deadHide = false; } }); return;
+  }
+  G.btns.push({ x: 0, y: 124, w: W, h: H - 124, fn: () => {} });   // el tablero de debajo no recibe toques (PAUSA sigue accesible)
+  const y = 300; ctx.fillStyle = 'rgba(12,6,20,.95)'; rr(40, y, 460, 236, 20); ctx.fill(); ctx.strokeStyle = '#ff7a93'; ctx.lineWidth = 3; ctx.stroke();
+  text('SIN SALIDA', W / 2, y + 34, 25, '#ff9db0');
+  text('Ningún orden de jugadas libera ya', W / 2, y + 66, 16, '#e8e2ff', 'center', 700); text('a todos los Fluffies.', W / 2, y + 88, 16, '#e8e2ff', 'center', 700);
+  btn(64, y + 110, 200, 56, n > 1 ? 'VOLVER ' + n + ' JUGADAS' : 'DESHACER', rewind, { color: '#3f7a5a', size: n > 1 ? 16 : 18, disabled: !canUndo(), glow: canUndo() });
+  btn(276, y + 110, 200, 56, 'REINTENTAR', restartLevel, { color: '#c2415f', size: 18, glow: !canUndo() });
+  btn(170, y + 176, 200, 44, 'VER TABLERO', () => { V.deadHide = true; }, { color: '#3b4a7a', size: 15 });
+}
+function drawFloaters() {
+  ctx.save();
   for (const f of V.floaters) {
     const age = f.max - f.life, pop = f.pts ? 1 + 0.6 * Math.max(0, 1 - age * 5) * Math.cos(age * 18) : 1 + 0.25 * clamp(1 - age * 6, 0, 1), a = clamp(f.life / f.max * 2, 0, 1), s = f.size * pop;
     ctx.globalAlpha = a; ctx.lineWidth = 5; ctx.strokeStyle = '#0b0915'; ctx.lineJoin = 'round';
@@ -3038,22 +3416,16 @@ function draw() {
     const hw = ctx.measureText(f.text).width / 2 + 8, fx = clamp(f.x, hw, W - hw);
     ctx.strokeText(f.text, fx, f.y); ctx.fillStyle = f.color; ctx.fillText(f.text, fx, f.y);
   }
-  ctx.globalAlpha = 1;
-  if (G.state === 'play' && V.intro) drawIntro();
-  if (G.state === 'win' || G.state === 'lose') {
-    drawResult();
-    if (G.state === 'win') { ctx.save(); ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.rect(36, 186, 468, 568); ctx.clip('evenodd'); drawParticles(); ctx.restore(); }   // la celebración no tapa el panel ni sus botones
-  }
+  ctx.restore();
 }
-
 /* ---------- ENTRADA (táctil + ratón) ---------- */
 let drag = null;
 function toLocal(cx, cy) { const b = cv.getBoundingClientRect(); return [(cx - b.left) / b.width * W, (cy - b.top) / b.height * H]; }
 function onDown(x, y) {
   Snd.init(); V.look = { x, y, t: G.time };
-  if (G.state === 'play' && V.intro) { V.intro = V.intro.next || null; Snd.click(); return; }
+  if (G.state === 'play' && V.intro) { const back = V.intro.back && !V.intro.next; V.intro = V.intro.next || null; if (back) V.pause = true; Snd.click(); return; }
   for (let i = G.btns.length - 1; i >= 0; i--) { const b = G.btns[i]; if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) { Snd.click(); b.fn(); return; } }
-  if (G.state !== 'play') return;
+  if (G.state !== 'play' || V.pause) return;
   const c = Math.floor((x - BX) / CELL), r = Math.floor((y - BY) / CELL), inside = c >= 0 && c < COLS && r >= 0 && r < ROWS;
   if (V.aim) {                         // apuntar hechizo: 1er toque selecciona, 2º confirma
     if (!inside) { V.sel = null; return; }
@@ -3068,17 +3440,17 @@ function onDown(x, y) {
 }
 function onMove(x, y) {
   V.look = { x, y, t: G.time };
-  if (!drag || drag.done || drag.e.k !== 'free' || busy()) return;
+  if (!drag || drag.done || drag.e.k !== 'free') return;
   const dx = x - drag.x, dy = y - drag.y;
-  if (Math.hypot(dx, dy) > 20) { drag.done = true; tryMove(drag.c, drag.r, Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? '>' : '<') : (dy > 0 ? 'v' : '^')); }
+  if (Math.hypot(dx, dy) > 20) { drag.done = true; const d = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? '>' : '<') : (dy > 0 ? 'v' : '^'); if (busy()) pushBuf({ id: drag.e.id, d }); else tryMove(drag.c, drag.r, d); }   // si hay animación, se guarda el arrastre
 }
 function onUp() {
   if (!drag) return; const { e, c, r } = drag, s = V.sp.get(e.id);
   if (!drag.done && s) {
-    if (e.k === 'arrow') { if (busy()) V.buf = { id: e.id, d: e.dir }; else tryMove(c, r, e.dir); }
+    if (e.k === 'arrow') { if (busy()) pushBuf({ id: e.id, d: e.dir }); else tryMove(c, r, e.dir); }
     else if (e.k === 'free') { s.shake = 1; floater(s.x, s.y - 40, e.ch ? '¡Encadenado!' : 'Arrástrame', '#ffd9d9', 16, 0.9); Snd.bump(); }
     else if (e.k === 'fluffy') { s.sq = 0.25; Snd.boing(0.6); if (e.bub) floater(s.x, s.y - 44, 'Burbuja: golpéala con un bloque', '#dff6ff', 15, 1.2); }
-    else { s.shake = 1; Snd.bump(); floater(s.x, s.y - 40, e.k === 'frost' ? 'Hielo: 2 impactos o hechizo' : e.k === 'stone' ? 'Piedra: solo hechizos' : e.k === 'tnt' ? 'Barril: golpéalo con un bloque' : 'Sello: fusiona su color', '#ffd9d9', 15, 1.2); }
+    else { s.shake = 1; Snd.bump(); floater(s.x, s.y - 40, e.k === 'frost' ? 'Hielo: 2 golpes, 1 golpe rojo o hechizo' : e.k === 'stone' ? 'Piedra: hechizos o 2 golpes verdes' : e.k === 'tnt' ? 'Barril: golpéalo con un bloque' : 'Sello: fusiona su color', '#ffd9d9', 15, 1.2); }
   }
   drag = null;
 }
@@ -3088,6 +3460,7 @@ function bindInput() {
   cv.addEventListener('touchmove', t(onMove), { passive: false });
   cv.addEventListener('touchend', ev => { ev.preventDefault(); onUp(); }, { passive: false });
   cv.addEventListener('touchcancel', () => { drag = null; });
+  window.addEventListener('touchend', () => Snd.init(), { passive: true }); window.addEventListener('click', () => Snd.init());   // desbloqueo de audio en iOS
   cv.addEventListener('mousedown', ev => onDown(...toLocal(ev.clientX, ev.clientY)));
   window.addEventListener('mousemove', ev => onMove(...toLocal(ev.clientX, ev.clientY)));
   window.addEventListener('mouseup', onUp);
@@ -3096,22 +3469,22 @@ function bindInput() {
 
 /* ---------- BUCLE PRINCIPAL ---------- */
 function resize() {
-  const s = Math.min(innerWidth / W, innerHeight / H), dpr = Math.min(window.devicePixelRatio || 1, 2), cw = Math.floor(W * s), ch = Math.floor(H * s);
+  const s = Math.min(innerWidth / W, innerHeight / H), dpr = Math.min(window.devicePixelRatio || 1, 1.5), cw = Math.floor(W * s), ch = Math.floor(H * s);
   cv.style.width = cw + 'px'; cv.style.height = ch + 'px';
   cv.width = Math.round(W * s * dpr); cv.height = Math.round(H * s * dpr); scale = cv.width / W;
   Post.resize(cv.width, cv.height, cw, ch, Math.floor((innerWidth - cw) / 2), Math.floor((innerHeight - ch) / 2));
 }
 let lastT = 0;
 function frame(t) {
-  const raw = (t - lastT) / 1000 || 0.016, dt = Math.min(0.033, raw); lastT = t;
+  const raw = (t - lastT) / 1000 || 0.016, dt = Math.min(0.05, raw); lastT = t;
   if (!(window.CHROMA && window.CHROMA.paused)) update(dt);   // paused: solo para depurar
   draw(); Post.render(cv);
-  if (Post.on && raw < 0.2) { Post.ema = Post.ema * 0.97 + raw * 0.03; if (G.time > 5 && Post.ema > 0.03) Post.off(); }   // móvil lento: sin posprocesado
+  if (Post.on && !document.hidden && raw < 0.5) { Post.ema = Post.ema * 0.97 + Math.min(raw, 0.2) * 0.03; if (G.time > 5 && Post.ema > 0.03) Post.off(); }   // solo esta sesión: no se guarda   // móvil lento: sin posprocesado
   requestAnimationFrame(frame);
 }
 window.addEventListener('load', () => {
   cv = document.getElementById('game'); ctx = cv.getContext('2d');
-  load(); Post.init(); resize(); bindInput(); window.addEventListener('resize', resize);
+  load(); Post.init(); if (G.fxLow) Post.off(); resize(); bindInput(); window.addEventListener('resize', resize);
   window.CHROMA = { G, V, LEVELS, loadLevel, doMove, busy, Post, get S() { return S; }, step(n) { for (let i = 0; i < n; i++) update(1 / 60); } };   // depuración
   requestAnimationFrame(frame);
 });
