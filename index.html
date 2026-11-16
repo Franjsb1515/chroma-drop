@@ -4428,8 +4428,8 @@ function drawMenu() {
   ctx.fillStyle = 'rgba(12,10,23,.66)'; rr(16, 348, W - 32, 506, 18); ctx.fill();
   ctx.save(); ctx.globalAlpha = open ? 0.1 : 0.04; drawChapterEmblem(ch, W / 2, 600, CHC); ctx.restore();
   ctx.save(); ctx.shadowColor = CHC; ctx.shadowBlur = open ? 16 + 6 * Math.sin(G.time * 2) : 0; ctx.strokeStyle = open ? CHC : '#ffffff18'; ctx.lineWidth = 2.5; rr(16, 348, W - 32, 506, 18); ctx.stroke(); ctx.restore();
-  btn(26, 358, 58, 56, '◀', () => { G.menuCh = (ch + 4) % 5; G.menuMaster = false; Snd.click(); }, { color: '#3b4a7a', size: 22 });
-  btn(456, 358, 58, 56, '▶', () => { G.menuCh = (ch + 1) % 5; G.menuMaster = false; Snd.click(); }, { color: '#3b4a7a', size: 22 });
+  btn(26, 358, 58, 56, '◀', () => { G.menuCh = (ch + CHAPTERS.length - 1) % CHAPTERS.length; G.menuMaster = false; Snd.click(); }, { color: '#3b4a7a', size: 22 });
+  btn(456, 358, 58, 56, '▶', () => { G.menuCh = (ch + 1) % CHAPTERS.length; G.menuMaster = false; Snd.click(); }, { color: '#3b4a7a', size: 22 });
   for (const [ax, dir] of [[78, -1], [508, 1]]) { let any = false; for (let c = 0; c < CHAPTERS.length; c++) if (c !== ch && (dir < 0 ? c < ch : c > ch) && chestReady(c)) any = true;   // punto dorado: hay un cofre listo en esa dirección
     if (any) { ctx.fillStyle = '#ffd24a'; ctx.shadowColor = '#ffd24a'; ctx.shadowBlur = 10; ctx.beginPath(); ctx.arc(ax, 362, 6 + Math.sin(G.time * 6), 0, TAU); ctx.fill(); ctx.shadowBlur = 0; } }
   text('CAPÍTULO ' + ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'][ch], W / 2, 376, 15, open ? '#cdb8ff' : '#6d668a', 'center', 800);
