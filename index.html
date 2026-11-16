@@ -69,10 +69,10 @@ const LEVELS = [
   },
   {   // 2 · óptimo 5 · azar 68.4% · 3★ azar 11.9% · hechizos útiles 2 en 1 jugadas · cadena 2
     name: 'Primera Chispa', moves: 10, par: 5, cap: 5, manaPerCell: 2,
-    intro: { title: 'Dos hechizos', lines: ['Rojos y verdes en el mismo tablero:', 'cada color lanza su propio hechizo.'] },
+    intro: { title: 'Lanza de Espinas', lines: ['3 verdes = Lanza de Espinas:', 'arrasa la columna que elijas.', 'Esta vez hacen falta los dos hechizos.'] },
     grid: [
       '.. .. .. R@ %% ..',
-      'Gv .. .. Gv .. R@',
+      'Gv .. .. G^ .. R@',
       '.. R@ G@ .. .. G>',
       '.. G< G> .. G^ ..',
       'Gv .. .. .. .. ..',
@@ -96,7 +96,7 @@ const LEVELS = [
     sol: '1,5^ 2,2v 0,5> 2,5> A1,4 A4,0',
   },
   {   // 4 · óptimo 6 · azar 34.1% · 3★ azar 1.7% · hechizos útiles 2 en 1 jugadas · cadena 3
-    name: 'Revuelto de Colores', moves: 9, par: 3, cap: 6, manaPerCell: 2,
+    name: 'Revuelto de Colores', moves: 10, par: 4, cap: 6, manaPerCell: 2,
     intro: { title: 'Mezcla de colores', lines: ['Rojos y verdes revueltos:', 'decide cuál dejas caer primero.'] },
     grid: [
       '.. .. R@ .. .. G>',
@@ -110,7 +110,7 @@ const LEVELS = [
     sol: '3,5^ 4,5< 3,5< 3,5< 5,4> 2,5< A2,0 A1,3',
   },
   {   // 5 · óptimo 7 · azar 37.7% · 3★ azar 8.5% · hechizos útiles 2 en 2 jugadas · cadena 2
-    name: 'Doble Hornada', moves: 10, par: 3, cap: 5, manaPerCell: 2,
+    name: 'Doble Hornada', moves: 11, par: 4, cap: 5, manaPerCell: 2,
     intro: { title: 'Dos fusiones', lines: ['Seis Elementis rojos: dos hechizos.', 'Cada fusión calienta a Caldo: cada 3.ª', 'HIERVE y su hechizo sale potenciado.'] },
     grid: [
       '.. .. .. R@ .. ..',
@@ -125,7 +125,7 @@ const LEVELS = [
   },
   {   // 6 · óptimo 5 · azar 30.6% · 3★ azar 0.1% · hechizos útiles 3 en 2 jugadas · cadena 3
     name: 'Muro de Piedra', moves: 12, par: 7, cap: 5, manaPerCell: 2,
-    intro: { title: 'Piedra y caldero', lines: ['La piedra frena tus bloques.', 'Ojo: este caldero solo tiene 3 huecos;', 'si se llena sin fusionar, ¡se desborda!'] },
+    intro: { title: 'Muro de piedra', lines: ['La piedra frena tus bloques:', 'úsala de tope para dejarlos', 'justo donde te convienen.'] },
     grid: [
       'R> .. .. .. .. .. ..',
       '.. R@ %% .. G@ R< ..',
@@ -153,8 +153,8 @@ const LEVELS = [
     sol: '6,7v 6,5v 5,5> 4,4v A3,0 5,1< 5,1< 5,1< A2,0 A0,5',
   },
   {   // 8 · óptimo 5 · azar 29.4% · 3★ azar 0% · hechizos útiles 3 en 2 jugadas · cadena 2
-    name: 'Sala de Prácticas', moves: 13, par: 8, cap: 5, manaPerCell: 2,
-    intro: { title: 'Caldero estrecho', lines: ['Solo 4 huecos en el caldero:', 'planifica antes de tocar.'] },
+    name: 'Sala de Prácticas', moves: 13, par: 8, cap: 3, manaPerCell: 2,
+    intro: { title: 'Caldero estrecho', lines: ['Solo 3 huecos en el caldero:', 'si juntas 2 rojos y 2 verdes, ¡se desborda!', 'Planifica qué color cae primero.'] },
     grid: [
       'G< .. Gv .. .. R@ ..',
       'G< G@ G^ .. .. G> ..',
@@ -273,7 +273,7 @@ const LEVELS = [
     sol: '3,7< 2,6< 4,6< 4,3v 4,6v 4,6v 6,3> 6,2< A1,6 A6,0 1,3v',
   },
   {   // 16 · óptimo 5 · azar 15.8% · 3★ azar 0.9% · hechizos útiles 3 en 2 jugadas · cadena 2
-    name: 'Reloj Congelado', moves: 13, par: 8, cap: 5, manaPerCell: 2,
+    name: 'Reloj Congelado', moves: 11, par: 6, cap: 5, manaPerCell: 2,
     grid: [
       '## .. ## .. .. Y< ..',
       'Y@ R^ .. Y@ .. .. Y@',
@@ -346,7 +346,7 @@ const LEVELS = [
     sol: '3,3< 4,1^ 3,5v 3,1> 5,7v 4,2< 6,7< A1,6 5,6< 5,6< A1,0 5,6< 5,5>',
   },
   {   // 21 · óptimo 8 · azar 22% · 3★ azar 0% · hechizos útiles 4 en 2 jugadas · cadena 3
-    name: 'Barriles de Pólvora', moves: 11, par: 3, cap: 5, manaPerCell: 2,
+    name: 'Barriles de Pólvora', moves: 13, par: 5, cap: 5, manaPerCell: 2,
     intro: { title: 'Forja de Pólvora', lines: ['Golpea un barril: estalla en 3×3.', '3 bloques iguales en línea RESUENAN.'] },
     grid: [
       '.. TT .. .. R@ G@ R@ ..',
@@ -378,7 +378,7 @@ const LEVELS = [
     sol: '2,8> 7,5> 5,8v 3,8> 5,7v 6,6< A2,7 A4,0 A0,0',
   },
   {   // 23 · óptimo 7 · azar 15.8% · 3★ azar 0% · hechizos útiles 4 en 3 jugadas · cadena 2
-    name: 'Sala de los Sellos', moves: 15, par: 8, cap: 5, manaPerCell: 2,
+    name: 'Sala de los Sellos', moves: 13, par: 6, cap: 5, manaPerCell: 2,
     intro: { title: 'Sellos', lines: ['Piensa qué color abre cada sello.'] },
     grid: [
       '.. B@ .. G@ B@ .. G@ ..',
@@ -410,7 +410,7 @@ const LEVELS = [
     sol: '4,5> 5,5v 6,6< 6,5< A1,8 A2,0 7,7> 7,6< A5,3 A0,0',
   },
   {   // 25 · óptimo 5 · azar 20.2% · 3★ azar 0.1% · hechizos útiles 4 en 3 jugadas · cadena 2
-    name: 'Coro de Runas', moves: 14, par: 9, cap: 6, manaPerCell: 2,
+    name: 'Coro de Runas', moves: 12, par: 7, cap: 6, manaPerCell: 2,
     grid: [
       'R< Y@ .. .. Gv G> .. Y@',
       'Rv ## B@ R@ %% .. G@ G<',
@@ -471,7 +471,7 @@ const LEVELS = [
     sol: '1,7v 0,7> 1,5< A4,4 6,4< 6,1< 0,4< A6,0 A5,5 A0,0',
   },
   {   // 29 · óptimo 6 · azar 17.6% · 3★ azar 0% · hechizos útiles 4 en 2 jugadas · cadena 4
-    name: 'Chispas en la Oscuridad', moves: 15, par: 9, cap: 5, manaPerCell: 2,
+    name: 'Chispas en la Oscuridad', moves: 12, par: 6, cap: 5, manaPerCell: 2,
     grid: [
       '.. .. .. R@ G@ .. R@ G<',
       '.. TT ## R< R= %% R> %%',
@@ -580,7 +580,7 @@ const LEVELS = [
     sol: '0,8> 0,3< 7,8> 0,7v 6,7> A3,7 A4,1 P6 1,8> 0,1<',
   },
   {   // 36 · óptimo 6 · azar 8.9% · 3★ azar 1.5% · hechizos útiles 4 en 2 jugadas · cadena 3
-    name: 'Escalera Maldita', moves: 14, par: 8, cap: 6, manaPerCell: 3,
+    name: 'Escalera Maldita', moves: 11, par: 5, cap: 6, manaPerCell: 3,
     grid: [
       '.. P@ Y> .. G@ .. .. xx',
       'G@ Y> Y^ .. G@ P> ^^ ..',
@@ -626,7 +626,7 @@ const LEVELS = [
     sol: '5,8v 5,6v 0,8> 7,7< 3,7< A5,6 A3,0 0,4< 5,4< 1,6< 1,3<',
   },
   {   // 39 · óptimo 7 · azar 11.7% · 3★ azar 0.1% · hechizos útiles 4 en 2 jugadas · cadena 3
-    name: 'Antesala del Archimago', moves: 11, par: 4, cap: 6, manaPerCell: 3,
+    name: 'Antesala del Archimago', moves: 13, par: 6, cap: 6, manaPerCell: 3,
     grid: [
       'TT .. P@ %% R@ .. R< P@',
       'W@ .. bv R@ g> .. G@ G=',
@@ -658,7 +658,7 @@ const LEVELS = [
   },
   {   // 41 · óptimo 6 · azar 10.4% · 3★ azar 0% · hechizos útiles 4 en 3 jugadas · cadena 2
     name: 'Burbujas Errantes', moves: 16, par: 10, cap: 5, manaPerCell: 3,
-    intro: { title: 'Laboratorio Prohibido', lines: ['El laboratorio guarda sus secretos', 'dentro de burbujas.'] },
+    intro: { title: 'Laboratorio Prohibido', lines: ['Un Elementi en burbuja flota y no cae.', 'Reviéntala golpeándola con un bloque', 'o con un hechizo, y caerá al caldero.'] },
     grid: [
       'B< .. .. .. .. B@ .. ..',
       '.. R< B@ G@ .. B> B^ ..',
@@ -919,7 +919,7 @@ const LEVELS = [
     sol: '4,8> 3,8v 2,8> 1,4^ 3,7< P5 6,6< 7,6< 2,4< A4,4 7,2v P8 1,2< 0,2^ 7,4> 1,2<',
   },
   {   // 58 · óptimo 11 · azar 10.9% · 3★ azar 0.1% · hechizos útiles 5 en 3 jugadas · cadena 4
-    name: 'Mapa de Brasas', moves: 15, par: 4, cap: 5, manaPerCell: 3, trail: true,
+    name: 'Mapa de Brasas', moves: 17, par: 6, cap: 5, manaPerCell: 3, trail: true,
     grid: [
       'G@ .. R@ .. G^ Gv .. R@',
       'Rv %% B^ R@ G@ R@ .. Gv',
@@ -1793,7 +1793,8 @@ function snapshot() { V.hist.push({ sn: V.solN, so: V.solOk, S: JSON.stringify(S
 function canUndo() { return V.hist.length > 0 && (V.undos > 0 || (elixOk() && G.pots && G.pots.u > 0) || (!V.daily && G.hintBank > 0)); }
 function elixOk() { return !V.daily && !V.master; }
 function drinkTime() {      // Elixir del Tiempo: +3 movimientos y se sigue jugando (cuentan como ayuda para las estrellas)
-  if (!G.pots || G.pots.t <= 0) return; G.pots.t--; S.moves += 3; V.moves = S.moves; for (const h of V.hist) { const o = JSON.parse(h.S); o.moves += 3; h.S = JSON.stringify(o); }   // deshacer no quita los movimientos del elixir V.moveBonus = (V.moveBonus || 0) + 3;
+  if (!G.pots || G.pots.t <= 0) return; G.pots.t--; S.moves += 3; V.moves = S.moves; for (const h of V.hist) { const o = JSON.parse(h.S); o.moves += 3; h.S = JSON.stringify(o); }   // deshacer no quita los movimientos del elixir
+  V.moveBonus = (V.moveBonus || 0) + 3;
   G.state = 'play'; G.res = null; if (G.streakBefore) { G.streak = G.streakBefore; G.streakBefore = 0; } if (V.failCounted && G.fails && G.fails[G.levelIdx]) { G.fails[G.levelIdx]--; V.failCounted = false; }
   V.deadKey = null; V.dead = false; save(); floater(W / 2, BY + 60, '¡Elixir del Tiempo! +3 movimientos', '#7fd0ff', 20, 2.2); burst(W / 2, BY + 80, '#3fa7ff', 26, 300, 100, 'star'); Snd.chainNote(5);
 }
@@ -1816,13 +1817,17 @@ function undo() {
 /* ¿cuántas jugadas atrás estaba el último momento en que aún se podía ganar? */
 function stepsToGood() { return V.goodLen === undefined || V.goodLen >= V.hist.length ? 1 : V.hist.length - V.goodLen; }
 function rewind() {         // vuelve de un salto al último punto ganable por el precio de un deshacer
-  if (busy() && !V.aim) return; if (!V.hist.length || !canUndo()) return;
-  const n = stepsToGood(), paid = payUndo(); if (paid === null) return; let h = null;
+  if (busy() && !V.aim) return false; if (!V.hist.length || !canUndo()) return false;
+  const n = stepsToGood(), paid = payUndo(); if (paid === null) return false; let h = null;
   for (let k = 0; k < n && V.hist.length; k++) h = V.hist.pop();
-  restoreSnap(h); V.wasDead = false; floater(W / 2, BY + BH / 2, (n > 1 ? 'Vuelves ' + n + ' jugadas atrás' : 'Movimiento deshecho') + paid, '#cfc6ee', 17, 1.4);
+  restoreSnap(h); V.wasDead = false; floater(W / 2, BY + BH / 2, (n > 1 ? 'Vuelves ' + n + ' jugadas atrás' : 'Movimiento deshecho') + paid, '#cfc6ee', 17, 1.4); return true;
 }
 
 /* ---------- efectos ---------- */
+/* calidad de efectos: ajuste "bajos", móvil lento (sin posprocesado) o "reducir movimiento" del sistema */
+const RM = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+function lowFx() { return G.fxLow || RM || !Post.on; }
+function jit(i, s) { const v = Math.sin(i * 127.1 + s * 311.7) * 43758.5453; return (v - Math.floor(v)) * 2 - 1; }   // ruido estable en [-1,1] (sin parpadeo aleatorio a 60 fps)
 function burst(x, y, color, n = 14, sp = 260, grav = 500, type = 'dot') {
   for (let i = 0; i < n; i++) {
     const a = Math.random() * TAU, v = rand(0.25, 1) * sp;
@@ -2138,14 +2143,15 @@ function doMove(m) {
   return true;
 }
 function orbTo(color, tx, ty, onHit, star) {
-  const o = { x0: V.fuseX, y0: V.fuseY, x: V.fuseX, y: V.fuseY, tx, ty, t: 0, dur: 0.48, color, star }; V.orbs.push(o);
+  const o = { x0: V.fuseX, y0: V.fuseY, x: V.fuseX, y: V.fuseY, tx, ty, t: 0, dur: 0.48, color, star, tr: new Float32Array(28), tn: 0 }; V.orbs.push(o);
   let hit = false, t2 = 0;
   return dt => {
     if (!hit) {
       o.t += dt; const t = clamp(o.t / o.dur, 0, 1), k = t * t * (3 - 2 * t);
       o.px = o.x; o.py = o.y; o.x = lerp(o.x0, tx, k) + Math.sin(t * Math.PI) * 60 * (o.x0 < W / 2 ? -1 : 1); o.y = lerp(o.y0, ty, k);
-      elemBurst(o.x, o.y, color, 2, 70); V.parts.push({ x: o.x, y: o.y, vx: 0, vy: 0, life: 0.25, max: 0.25, color: COLORS[color].l, size: 12, grav: 0, type: 'dot' });
-      if (t >= 1) { hit = true; V.orbs.splice(V.orbs.indexOf(o), 1); if (V.banner) V.banner.t = Math.max(V.banner.t, V.banner.dur * 0.78); onHit(); }   // el cartel se va al impactar
+      o.tr.copyWithin(2, 0, 26); o.tr[0] = o.x; o.tr[1] = o.y; if (o.tn < 14) o.tn++;   // estela: últimas posiciones (sin crear objetos)
+      elemBurst(o.x, o.y, color, lowFx() ? 1 : 2, 70);
+      if (t >= 1) { hit = true; V.orbs.splice(V.orbs.indexOf(o), 1); V.fx.push({ type: 'glint', x: tx, y: ty, el: color, r: 130, t: 0, dur: 0.34 }); if (V.banner) V.banner.t = Math.max(V.banner.t, V.banner.dur * 0.78); onHit(); }   // el cartel se va al impactar
       return false;
     }
     t2 += dt; return t2 > 0.4;
@@ -2357,7 +2363,7 @@ const HANDLERS = {
   aim() { V.aim = S.pending[0]; V.sel = null; V.buf = null; if (!V.aim) return 0; Snd.aim(); return () => !V.aim; },
   check() {
     if (S.left === 0) { let t = 0; return dt => { t += dt; if ((V.bodies.every(b => b.inPot) && t > 0.9) || t > 3) { finish(true); return true; } return false; }; }
-    if (!legalMoves(S).length) { let t = 0; return dt => { t += dt; if (t > 0.8) { finish(false); return true; } return false; }; }
+    if (!legalMoves(S).length) { let t = 0; return dt => { t += dt; if (t > 0.8) { if (V.undoQ) { V.undoQ = false; V.cur = null; const h = V.hist.length; undo(); if (V.hist.length < h) return true; } finish(false); return true; } return false; }; }   // un DESHACER pedido durante la animación se atiende antes de perder
     return 0;
   },
 };
@@ -2387,6 +2393,7 @@ function pump(dt) {
   }
 }
 function finish(win) {
+  V.undoQ = false; V.hintQ = false; V.buf = null;   // lo que quedó en cola no se ejecuta sobre la pantalla final
   const L = V.L, rem = S.moves; let stars = 0, bonus = 0;
   if (win) {
     if (G.fails && !V.daily && !V.master) delete G.fails[G.levelIdx];
@@ -2469,8 +2476,9 @@ function update(rdt) {
   for (const sc of V.scorch) sc.t += rdt; V.scorch = V.scorch.filter(sc => sc.t < sc.dur);
   V.zoom *= Math.max(0, 1 - rdt * 6); V.ca *= Math.max(0, 1 - rdt * 5); V.rays.k *= Math.max(0, 1 - rdt * 2.6); V.bloom *= Math.max(0, 1 - rdt * 2.5);
   for (const w of V.waves) w.t += rdt; V.waves = V.waves.filter(w => w.t < w.dur);
-  V.parts = V.parts.filter(p => p.life > 0);
-  for (const f of V.fx) f.t += dt; V.fx = V.fx.filter(f => f.t < f.dur);
+  { let n = 0; for (const p of V.parts) if (p.life > 0) V.parts[n++] = p; V.parts.length = n;          // se compacta en el sitio (sin arrays nuevos cada fotograma)
+    const cap = lowFx() ? 240 : 560; if (n > cap) V.parts.splice(0, n - cap); }                        // tope: en cadenas largas se van primero las más viejas
+  { let n = 0; for (const f of V.fx) { f.t += dt; if (f.t < f.dur) V.fx[n++] = f; } V.fx.length = n; }
   if (G.res) { const t0 = G.res.t; G.res.t += rdt; if (G.res.t > 0.6 && t0 < 2.0 && V.score > 0 && Math.floor(G.res.t * 18) !== Math.floor(t0 * 18)) Snd.coin(Math.floor(G.res.t * 18)); const n = Math.min(G.res.stars, Math.floor((G.res.t - 0.4) / 0.35) + 1); if (n > G.res.shown) { Snd.star(G.res.shown); G.res.shown = n; } }
   if (G.state === 'win' && Math.random() < 0.55) V.parts.push({ x: rand(0, W), y: -10, vx: rand(-40, 40), vy: rand(80, 220), life: 2.4, max: 2.4, color: Object.values(COLORS)[Math.floor(rand(0, 5))].m, size: rand(4, 8), grav: 120, type: Math.random() < 0.5 ? 'star' : 'shard', rot: rand(0, 6) });
   for (const f of V.floaters) { f.life -= rdt; f.y -= 34 * rdt; } V.floaters = V.floaters.filter(f => f.life > 0);
@@ -2535,6 +2543,7 @@ function tryMove(c, r, d) {
   s.shake = 1; Snd.bump();
   if (e.ch) floater(s.x, s.y - 40, '¡Encadenado!', '#ffd9d9', 16, 0.9);
   else if (S.moves <= 0) floater(s.x, s.y - 40, 'Sin movimientos', '#ffd9d9', 16, 0.9);
+  else if (!S.pending.length && e.k === 'arrow') floater(s.x, s.y - 40, 'No tiene salida', '#ffd9d9', 15, 0.9);
   return false;
 }
 
@@ -2725,11 +2734,13 @@ function drawRunes(r, t, back) {               // runas arcanas que orbitan (det
   for (let k = 0; k < 3; k++) {
     const an = t * 1.3 + k * TAU / 3, dp = Math.sin(an); if (back ? dp >= 0 : dp < 0) continue;
     const rx = Math.cos(an) * r * 1.3, ry = r * 0.12 + dp * r * 0.42, sc = 0.75 + 0.25 * (dp + 1) / 2;
-    ctx.save(); ctx.translate(rx, ry); ctx.scale(sc, sc); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = back ? 0.45 : 0.95;
-    ctx.strokeStyle = '#e6c2ff'; ctx.shadowColor = '#b76bff'; ctx.shadowBlur = 8; ctx.lineWidth = 1.6; const z = r * 0.16;
-    ctx.beginPath(); ctx.arc(0, 0, z, 0, TAU); ctx.stroke(); ctx.beginPath();
+    const pu = 0.5 + 0.5 * Math.sin(t * 4 + k * 2.1);       // cada runa late a su ritmo
+    ctx.save(); ctx.translate(rx, ry); ctx.scale(sc, sc); ctx.rotate(Math.sin(t * 1.7 + k) * 0.25); ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; const z = r * 0.16;
+    ctx.beginPath(); ctx.arc(0, 0, z, 0, TAU);
     if (k === 0) { ctx.moveTo(-z * 0.5, z * 0.4); ctx.lineTo(0, -z * 0.55); ctx.lineTo(z * 0.5, z * 0.4); } else if (k === 1) { ctx.moveTo(0, -z * 0.6); ctx.lineTo(0, z * 0.6); ctx.moveTo(-z * 0.45, 0); ctx.lineTo(z * 0.45, 0); } else { ctx.moveTo(-z * 0.5, -z * 0.3); ctx.lineTo(z * 0.5, -z * 0.3); ctx.lineTo(-z * 0.5, z * 0.4); ctx.lineTo(z * 0.5, z * 0.4); }
-    ctx.stroke(); ctx.restore();
+    const A = back ? 0.45 : 0.95;                              // halo con trazo ancho translúcido (más barato que shadowBlur en móvil)
+    ctx.globalAlpha = A * (0.22 + 0.2 * pu); ctx.strokeStyle = '#b76bff'; ctx.lineWidth = 5.5; ctx.stroke();
+    ctx.globalAlpha = A; ctx.strokeStyle = '#ecd2ff'; ctx.lineWidth = 1.6 + 0.5 * pu; ctx.stroke(); ctx.restore();
   }
 }
 /* INTERIOR VIVO: lo que pasa dentro de cada criatura (se dibuja recortado a su silueta) */
@@ -3111,11 +3122,12 @@ function drawElemSwirl(f, p) {
       ctx.fillStyle = lg; leafPath(L); ctx.fill(); ctx.strokeStyle = 'rgba(' + c2 + ',' + a + ')'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(0, -L * 0.8); ctx.lineTo(0, L * 0.9); ctx.stroke(); ctx.restore();
     }
   } else if (f.el === 'Y') {                 // anillo eléctrico con arcos que chisporrotean
+    if (f.sd === undefined) f.sd = Math.random() * 997; const fr = Math.floor(f.t * 30);   // chisporroteo a 30 Hz con ruido estable
     ctx.strokeStyle = 'rgba(' + c1 + ',' + a + ')'; ctx.lineWidth = 3; ctx.beginPath();
-    for (let j = 0; j <= 40; j++) { const ang = j / 40 * TAU, rr2 = R * (0.95 + rand(-0.06, 0.06)); j ? ctx.lineTo(Math.cos(ang) * rr2, Math.sin(ang) * rr2) : ctx.moveTo(rr2, 0); } ctx.stroke();
+    for (let j = 0; j <= 40; j++) { const ang = j / 40 * TAU, rr2 = R * (0.95 + jit(fr * 41 + j % 40, f.sd) * 0.06); j ? ctx.lineTo(Math.cos(ang) * rr2, Math.sin(ang) * rr2) : ctx.moveTo(rr2, 0); } ctx.stroke();
     for (let k = 0; k < 6; k++) {
       const ang = rot + k * TAU / 6; ctx.beginPath(); ctx.moveTo(Math.cos(ang) * R * 0.2, Math.sin(ang) * R * 0.2);
-      for (let j = 1; j <= 5; j++) { const u = 0.2 + j / 5 * 0.8, ja = ang + rand(-0.25, 0.25); ctx.lineTo(Math.cos(ja) * R * u, Math.sin(ja) * R * u); }
+      for (let j = 1; j <= 5; j++) { const u = 0.2 + j / 5 * 0.8, ja = ang + jit(fr * 53 + k * 7 + j, f.sd + 3) * 0.25; ctx.lineTo(Math.cos(ja) * R * u, Math.sin(ja) * R * u); }
       ctx.strokeStyle = 'rgba(' + c1 + ',' + a + ')'; ctx.lineWidth = 5 * (1 - p * 0.6); ctx.stroke(); ctx.strokeStyle = 'rgba(' + c0 + ',' + a + ')'; ctx.lineWidth = 1.8; ctx.stroke();
     }
   } else {                                   // arcano: círculo rúnico doble, hexagrama y estrellas
@@ -3174,8 +3186,8 @@ function drawTuft(col, r, ph) {
   if (col === 'R') { ctx.translate(0, -r * 0.78); drawFlame(0, 0, r * 0.62, r * 0.95, FIRE, ph * 5); }
   else if (col === 'G') { for (const sd of [-1, 1]) { ctx.save(); ctx.translate(sd * r * 0.12, -r * 0.92); ctx.rotate(sd * 0.7 + Math.sin(G.time * 2 + ph) * 0.12); ctx.translate(0, -r * 0.22); ctx.fillStyle = sd < 0 ? '#2fbf6c' : '#5ff0a0'; leafPath(r * 0.26); ctx.fill(); ctx.strokeStyle = '#14803f'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(0, -r * 0.2); ctx.lineTo(0, r * 0.22); ctx.stroke(); ctx.restore(); } }
   else if (col === 'B') { ctx.translate(0, -r * 1.02 + Math.sin(G.time * 3 + ph) * 1.5); const g = ctx.createLinearGradient(0, -r * 0.4, 0, r * 0.2); g.addColorStop(0, '#d6eeff'); g.addColorStop(1, '#3fa7ff'); ctx.fillStyle = g; dropPath(r * 0.22); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.beginPath(); ctx.ellipse(-r * 0.07, -r * 0.05, r * 0.04, r * 0.08, 0.3, 0, TAU); ctx.fill(); }
-  else if (col === 'Y') { ctx.translate(r * 0.05, -r * 1.05); ctx.rotate(0.15); ctx.shadowColor = '#ffe27a'; ctx.shadowBlur = 10 + 6 * Math.sin(G.time * 18 + ph); ctx.fillStyle = '#fff3a0'; boltPath(r * 0.32); ctx.fill(); ctx.strokeStyle = '#b17a00'; ctx.lineWidth = 1.2; ctx.stroke(); }
-  else if (col === 'P') { ctx.translate(0, -r * 1.1 + Math.sin(G.time * 2.5 + ph) * 2); ctx.rotate(G.time * 1.5 + ph); ctx.shadowColor = '#dfc0ff'; ctx.shadowBlur = 12; ctx.fillStyle = '#f0e0ff'; starPath(0, 0, r * 0.2, 4, 0.38, 0); ctx.fill(); ctx.rotate(Math.PI / 4); ctx.globalAlpha = 0.6; starPath(0, 0, r * 0.13, 4, 0.38, 0); ctx.fill(); }
+  else if (col === 'Y') { ctx.translate(r * 0.05, -r * 1.05); ctx.rotate(0.15); if (!lowFx()) { ctx.shadowColor = '#ffe27a'; ctx.shadowBlur = 10 + 6 * Math.sin(G.time * 18 + ph); } ctx.fillStyle = '#fff3a0'; boltPath(r * 0.32); ctx.fill(); ctx.strokeStyle = '#b17a00'; ctx.lineWidth = 1.2; ctx.stroke(); }
+  else if (col === 'P') { ctx.translate(0, -r * 1.1 + Math.sin(G.time * 2.5 + ph) * 2); ctx.rotate(G.time * 1.5 + ph); if (!lowFx()) { ctx.shadowColor = '#dfc0ff'; ctx.shadowBlur = 12; } ctx.fillStyle = '#f0e0ff'; starPath(0, 0, r * 0.2, 4, 0.38, 0); ctx.fill(); ctx.rotate(Math.PI / 4); ctx.globalAlpha = 0.6; starPath(0, 0, r * 0.13, 4, 0.38, 0); ctx.fill(); }
   ctx.restore();
 }
 /* marca del elemento dentro de un bloque rúnico (tenue, detrás de la flecha) */
@@ -3242,13 +3254,33 @@ function drawHint() {
   const h = V.hint; if (!h || G.state !== 'play') return; const m = h.m, k = (G.time * 1.1) % 1;
   ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.strokeStyle = 'rgba(255,226,122,' + (0.6 + 0.4 * Math.sin(G.time * 8)) + ')'; ctx.lineWidth = 4;
   if (m.t === 'slide') {
-    const x = cellX(m.c), y = cellY(m.r), [dx, dy] = DIRS[m.d], e = S.grid[m.r][m.c]; rr(x - 34, y - 34, 68, 68, 14); ctx.stroke();
+    const x = cellX(m.c), y = cellY(m.r), [dx, dy] = DIRS[m.d], e = S.grid[m.r][m.c]; rr(x - CELL / 2 + 2, y - CELL / 2 + 2, CELL - 4, CELL - 4, 14 * SC); ctx.stroke();
     ctx.fillStyle = 'rgba(255,226,122,.85)'; for (let j = 1; j <= 3; j++) { const q = (k + j / 3) % 1; ctx.globalAlpha = Math.sin(q * Math.PI); ctx.beginPath(); ctx.arc(x + dx * (30 + q * 60), y + dy * (30 + q * 60), 5, 0, TAU); ctx.fill(); }
     ctx.restore(); if (e && e.k === 'free') drawHand(x + dx * 50 * k, y + dy * 50 * k + 10, 0.3); else drawHand(x + 8, y + 14, Math.abs(Math.sin(G.time * 4)));
     return;
   }
   if (m.t === 'aim') { const cells = aimCells(S.pending[0] || { kind: 'bomb' }, m.c, m.r); for (const [c, r] of cells) { ctx.globalAlpha = 0.6; rr(BX + c * CELL + 4, BY + r * CELL + 4, CELL - 8, CELL - 8, 10); ctx.stroke(); } ctx.restore(); drawHand(cellX(m.c) + 8, cellY(m.r) + 14, Math.abs(Math.sin(G.time * 4))); return; }
   rr(BX - 4, BY + m.r * CELL + 3, BW + 8, CELL - 6, 10); ctx.stroke(); ctx.restore(); drawHand(W / 2, cellY(m.r) + 14, Math.abs(Math.sin(G.time * 4)));
+}
+/* VISTA PREVIA: con el dedo sobre un bloque-flecha se ve adónde irá antes de soltar; arrastrar fuera lo cancela */
+function dragCancels() { if (!drag || drag.done || drag.lx === undefined || drag.e.k !== 'arrow') return false; const dx = drag.lx - drag.x, dy = drag.ly - drag.y, d = Math.hypot(dx, dy); if (d < CELL * 0.9) return false; const [ax, ay] = DIRS[drag.e.dir]; return (dx * ax + dy * ay) / d < 0.5; }
+function drawMovePreview() {
+  if (!drag || drag.done || drag.e.k !== 'arrow' || G.state !== 'play' || V.aim || V.portalMode || V.pause || V.intro || V.dead || busy() || !S.grid[drag.r] || S.grid[drag.r][drag.c] !== drag.e) return;
+  const e = drag.e, cx = cellX(drag.c), cy = cellY(drag.r), u = CELL / 2 - 2, C = COLORS[e.col] || COLORS.P;
+  ctx.save(); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  if (dragCancels()) { ctx.strokeStyle = 'rgba(207,198,238,.8)'; ctx.lineWidth = 3; ctx.setLineDash([6, 6]); rr(cx - u, cy - u, 2 * u, 2 * u, 10); ctx.stroke(); ctx.setLineDash([]);
+    const ty = cy - CELL * 0.5 - 18, tx = clamp(cx, 90, W - 90); ctx.fillStyle = 'rgba(8,6,16,.92)'; rr(tx - 80, ty - 14, 160, 28, 14); ctx.fill(); ctx.restore(); text('Suelta para cancelar', tx, ty + 1, 15, '#e8e2ff', 'center', 800); return; }
+  const inf = S.moves > 0 ? slideInfo(S, drag.c, drag.r, e.dir) : null;
+  if (!inf) { ctx.strokeStyle = 'rgba(255,93,122,.9)'; ctx.lineWidth = 4; const k = CELL * 0.18; ctx.beginPath(); ctx.moveTo(cx - k, cy - k); ctx.lineTo(cx + k, cy + k); ctx.moveTo(cx + k, cy - k); ctx.lineTo(cx - k, cy + k); ctx.stroke(); rr(cx - u, cy - u, 2 * u, 2 * u, 10); ctx.stroke(); ctx.restore(); return; }
+  const pts = [[cx + DIRS[e.dir][0] * CELL * 0.38, cy + DIRS[e.dir][1] * CELL * 0.38, 0]]; for (const [x, y, t] of inf.steps) pts.push([cellX(x), cellY(y), t ? 1 : 0]);
+  let [lx, ly] = pts[pts.length - 1]; if (inf.leave) { lx += inf.dx * CELL * 0.75; ly += inf.dy * CELL * 0.75; pts.push([lx, ly, 0]); }
+  const fl = (G.time * 40) % 16;
+  for (const [w, col] of [[11, 'rgba(8,6,16,.7)'], [5, C.l]]) { ctx.strokeStyle = col; ctx.lineWidth = w; ctx.setLineDash(w > 5 ? [] : [10, 6]); ctx.lineDashOffset = -fl; ctx.beginPath(); pts.forEach(([x, y, t], i) => (i && !t) ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke(); }
+  ctx.setLineDash([]);
+  if (inf.leave) { const dx = inf.dx, dy = inf.dy; ctx.fillStyle = C.l; ctx.beginPath(); ctx.moveTo(lx + dx * 10, ly + dy * 10); ctx.lineTo(lx - dx * 6 - dy * 9, ly - dy * 6 - dx * 9); ctx.lineTo(lx - dx * 6 + dy * 9, ly - dy * 6 + dx * 9); ctx.closePath(); ctx.fill(); }   // sale del tablero
+  else if (inf.steps.length) { ctx.globalAlpha = 0.3; ctx.fillStyle = C.m; rr(lx - u + 2, ly - u + 2, 2 * u - 4, 2 * u - 4, 10); ctx.fill(); ctx.globalAlpha = 0.95; ctx.strokeStyle = C.l; ctx.lineWidth = 3; ctx.setLineDash([5, 5]); ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1; }   // dónde se parará
+  if (inf.impact) { const tx = cellX(inf.bc), ty = cellY(inf.br), p = 0.5 + 0.5 * Math.sin(G.time * 10); ctx.strokeStyle = 'rgba(255,210,74,' + (0.6 + 0.4 * p) + ')'; ctx.lineWidth = 4; rr(tx - u, ty - u, 2 * u, 2 * u, 10); ctx.stroke(); }
+  ctx.restore();
 }
 /* mecánicas que aparecen por primera vez en un nivel: se señalan sobre el tablero hasta el primer movimiento */
 const MECH_INFO = { frost: 'Hielo · 2 golpes, 1 golpe rojo o Deshielo', stone: 'Piedra · hechizos o 2 golpes verdes', tnt: 'Barril · golpéalo y explota en 3×3', seal: 'Sello · se abre al fusionar su color',
@@ -3662,10 +3694,14 @@ function drawFx() {
     } else if (f.type === 'ripple') {           // onda en un líquido
       ctx.globalAlpha = 1 - p; ctx.strokeStyle = f.color; ctx.lineWidth = 3 * (1 - p) + 1;
       for (let k = 0; k < 2; k++) { const e2 = clamp(p * 1.3 - k * 0.3, 0, 1); if (!e2) continue; ctx.beginPath(); ctx.ellipse(f.x, f.y, f.rx * e2, f.ry * e2, 0, 0, TAU); ctx.stroke(); }
-    } else if (f.type === 'bolt') {             // rayo zigzagueante (se redibuja cada fotograma)
-      ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 1 - p; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-      const pts = [[f.x1, f.y1]], n = 9; for (let i = 1; i < n; i++) { const t = i / n; pts.push([lerp(f.x1, f.x2, t) + rand(-16, 16), lerp(f.y1, f.y2, t) + rand(-8, 8)]); } pts.push([f.x2, f.y2]);
-      for (const [lw, col] of [[12 * (1 - p) + 3, f.color], [3, '#ffffff']]) { ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.beginPath(); pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.stroke(); }
+    } else if (f.type === 'bolt') {             // rayo zigzagueante: cambia de forma a 30 Hz (no a 60, que emborrona), zigzag perpendicular y parpadeo
+      if (f.sd === undefined) f.sd = Math.random() * 997;
+      const fr = Math.floor(f.t * 30), dx = f.x2 - f.x1, dy = f.y2 - f.y1, len = Math.hypot(dx, dy) || 1, nx = -dy / len, ny = dx / len, n = Math.max(6, Math.min(14, Math.round(len / 40))), amp = Math.min(18, 8 + len * 0.03);
+      ctx.globalCompositeOperation = 'lighter'; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(f.x1, f.y1); for (let i = 1; i < n; i++) { const u = i / n, o = jit(fr * 31 + i, f.sd) * amp * (0.35 + 0.65 * Math.sin(u * Math.PI)); ctx.lineTo(f.x1 + dx * u + nx * o, f.y1 + dy * u + ny * o); } ctx.lineTo(f.x2, f.y2);
+      const a = Math.pow(1 - p, 1.2) * (0.78 + 0.22 * jit(fr, f.sd + 5));
+      ctx.strokeStyle = f.color; ctx.globalAlpha = a * 0.28; ctx.lineWidth = 26 * (1 - p) + 6; ctx.stroke();      // halo
+      ctx.globalAlpha = a; ctx.lineWidth = 12 * (1 - p) + 3; ctx.stroke(); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3; ctx.stroke();
     } else if (f.type === 'vortex' && f.el) {
       drawElemSwirl(f, p);
     } else if (f.type === 'vortex') {          // corte giratorio con núcleo blanco
@@ -3690,7 +3726,15 @@ function drawFx() {
       ctx.strokeStyle = f.color; ctx.lineWidth = 6 * (1 - p) + 1; ctx.beginPath(); ctx.ellipse(f.x, f.y, 10 + p * 70, 4 + p * 22, 0, 0, TAU); ctx.stroke();
     } else if (f.type === 'link') {            // rayo que une los bloques en resonancia
       ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 1 - p; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-      for (const [lw, col] of [[16 * (1 - p) + 2, f.color], [5, '#ffffff']]) { ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.beginPath(); f.pts.forEach(([x, y], i) => i ? ctx.lineTo(x + rand(-4, 4), y + rand(-4, 4)) : ctx.moveTo(x, y)); ctx.stroke(); }
+      const fr = Math.floor(f.t * 30); ctx.beginPath(); f.pts.forEach(([x, y], i) => i ? ctx.lineTo(x + jit(fr * 7 + i, 1) * 4, y + jit(fr * 7 + i, 2) * 4) : ctx.moveTo(x, y));   // las dos capas siguen el mismo trazo
+      ctx.strokeStyle = f.color; ctx.lineWidth = 16 * (1 - p) + 2; ctx.stroke(); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 5 * (1 - p * 0.6); ctx.stroke();
+      ctx.fillStyle = '#ffffff'; for (const [x, y] of f.pts) { starPath(x, y, 10 + 14 * (1 - p), 4, 0.22, p * 2); ctx.fill(); }   // nodo brillante en cada bloque unido
+    } else if (f.type === 'glint') {           // destello de impacto del hechizo: estrella de luz del color del elemento
+      const [, c1] = ELCOL[f.el] || ELCOL.P, e = 1 - Math.pow(1 - p, 3), a = Math.pow(1 - p, 1.5), L = f.r * (0.4 + 0.6 * e);
+      ctx.translate(f.x, f.y); ctx.globalCompositeOperation = 'lighter'; ctx.rotate(p * 0.5);
+      ctx.globalAlpha = a * 0.6; ctx.fillStyle = 'rgb(' + c1 + ')'; starPath(0, 0, L, 4, 0.1, 0); ctx.fill(); starPath(0, 0, L * 0.55, 4, 0.12, Math.PI / 4); ctx.fill();
+      ctx.globalAlpha = a; ctx.fillStyle = '#ffffff'; starPath(0, 0, L * 0.7, 4, 0.06, 0); ctx.fill();
+      const cg = ctx.createRadialGradient(0, 0, 0, 0, 0, 34 * (1 - p) + 6); cg.addColorStop(0, 'rgba(255,255,255,1)'); cg.addColorStop(1, 'rgba(' + c1 + ',0)'); ctx.fillStyle = cg; ctx.beginPath(); ctx.arc(0, 0, 34 * (1 - p) + 6, 0, TAU); ctx.fill();
     } else if (f.type === 'portalRow') {
       const y = cellY(f.r), th = 60 * (1 - p) + 4; ctx.globalAlpha = 1 - p; ctx.shadowColor = '#b76bff'; ctx.shadowBlur = 30;
       ctx.fillStyle = '#b76bff'; ctx.fillRect(BX - 20, y - th / 2, BW + 40, th); ctx.fillStyle = '#fff'; ctx.fillRect(BX - 20, y - th / 6, BW + 40, th / 3);
@@ -3823,7 +3867,7 @@ function lvKeep(L) { const P = parseLevel(L); if (S) dims(S); return P; }
 function rulesPages() {
   newKinds(0); const lim = G.state === 'play' ? G.levelIdx : Math.min(G.unlocked, LEVELS.length) - 1, seen = [];
   for (let j = 0; j <= lim; j++) for (const o of (KIND_NEW[j] || [])) seen.push(Object.assign({ lv: j }, o));
-  for (const [lv, k] of [[4, 'boil'], [5, 'cap'], [20, 'reso'], [30, 'portal']]) if (lv <= lim) seen.push({ lv, k, c: -1, r: -1 });
+  for (const [lv, k] of [[4, 'boil'], [7, 'cap'], [20, 'reso'], [30, 'portal']]) if (lv <= lim) seen.push({ lv, k, c: -1, r: -1 });
   seen.sort((a, b) => a.lv - b.lv);
   const pages = [{ icons: true, title: 'Cómo jugar' }], np = Math.ceil(seen.length / 5);
   for (let p = 0; p < np; p++) pages.push({ title: 'Reglas ' + (p + 1) + '/' + np, lines: [], cards: seen.slice(p * 5, p * 5 + 5) });
@@ -3864,7 +3908,7 @@ function drawResult() {
     text(V.daily && V.undos <= 0 ? 'El reto diario solo da 1 DESHACER' : V.undos > 0 ? 'Puedes deshacer ' + V.undos + (V.undos > 1 ? ' veces más' : ' vez más') : G.hintBank > 0 ? 'Deshacer cuesta 1 pista guardada (tienes ' + G.hintBank + ')' : 'Sin deshacer: reintenta el nivel', W / 2, y + 380, 15, '#cdb8ff', 'center', 700);
     if (!S.over && S.moves <= 0 && elixOk() && G.pots && G.pots.t > 0) { btn(x + 40, y + 404, w - 80, 58, 'BEBER ELIXIR DEL TIEMPO · +3', drinkTime, { color: '#2f7ad0', size: 18, glow: true }); text((G.pots.t > 1 ? 'Te quedan ' + G.pots.t + ' elixires' : 'Te queda 1 elixir') + ' del tiempo', W / 2, y + 476, 14, '#a5d6ff', 'center', 700); }
     btn(x + 30, y + h - 76, 120, 54, 'MENÚ', () => { G.state = 'menu'; }, { color: '#3b4a7a', size: 17 });
-    btn(x + 160, y + h - 76, 130, 54, stepsToGood() > 1 ? 'VOLVER ' + stepsToGood() : 'DESHACER', () => { G.state = 'play'; G.res = null; if (G.streakBefore) { G.streak = G.streakBefore; G.streakBefore = 0; } rewind(); }, { color: '#3f7a5a', size: 16, disabled: !canUndo() });
+    btn(x + 160, y + h - 76, 130, 54, stepsToGood() > 1 ? 'VOLVER ' + stepsToGood() : 'DESHACER', () => { const st = G.state, rs = G.res; G.state = 'play'; G.res = null; if (!rewind()) { G.state = st; G.res = rs; return; } if (G.streakBefore) { G.streak = G.streakBefore; G.streakBefore = 0; } }, { color: '#3f7a5a', size: 16, disabled: !canUndo() });
     btn(x + 300, y + h - 76, 130, 54, 'REINTENTAR', restartLevel, { color: '#c2415f', size: 15, glow: true });
     return;
   }
@@ -3876,6 +3920,7 @@ function drawResult() {
     ctx.save(); if (on) { ctx.shadowColor = '#ffd24a'; ctx.shadowBlur = 18; }
     starPath(sx, sy, on ? 30 : 26); ctx.fillStyle = on ? '#ffd24a' : '#2e2848'; ctx.fill(); ctx.strokeStyle = on ? '#fff6c2' : '#463e6a'; ctx.lineWidth = 2; ctx.stroke(); ctx.restore();
   }
+  if (!V.daily && !V.master && R.stars < 3) text('Para ★★★ deben sobrar ' + (star3(V.L) + (V.moveBonus || 0)) + ' movimientos · te sobraron ' + R.rem, W / 2, y + 184, 14, '#cfc6ee', 'center', 700);
   drawBadge(W / 2 - 120, y + 232, 34, i);
   text('Rango alcanzado', W / 2 - 74, y + 212, 14, '#a79fc9', 'left', 600);
   text(RANK_TIERS[i].name, W / 2 - 74, y + 236, 23, RANK_TIERS[i].color, 'left');
@@ -5026,7 +5071,7 @@ function draw() {
   drawBackground(); drawHUD();
   ctx.save();
   V.cam = { x: 0, y: 0, z: 1 };
-  if (V.shake > 0.3) { const sk = G.fxLow ? 0.25 : 0.6; V.cam.x = rand(-1, 1) * V.shake * sk; V.cam.y = rand(-1, 1) * V.shake * sk; ctx.translate(V.cam.x, V.cam.y); }
+  if (V.shake > 0.3) { const sk = G.fxLow || RM ? 0.25 : 0.6; V.cam.x = rand(-1, 1) * V.shake * sk; V.cam.y = rand(-1, 1) * V.shake * sk; ctx.translate(V.cam.x, V.cam.y); }
   if (V.zoom > 0.002) { V.cam.z = 1 + V.zoom; ctx.translate(W / 2, 480); ctx.scale(1 + V.zoom, 1 + V.zoom); ctx.translate(-W / 2, -480); }
   drawBoard(); drawSpecialLanes(); drawCauldron(); drawSpellBar();
   for (const s of V.sp.values()) if (s.k !== 'fluffy') drawBlock(s);
@@ -5044,7 +5089,13 @@ function draw() {
   drawCauldronFront();
   for (const o of V.orbs) {                  // cometa del hechizo con la forma de su elemento
     const [c0, c1] = ELCOL[o.color] || ELCOL.P, ang = Math.atan2(o.y - (o.py ?? o.y + 1), o.x - (o.px ?? o.x)), tt = G.time;
-    ctx.save(); ctx.translate(o.x, o.y); ctx.globalCompositeOperation = 'lighter';
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round';
+    if (o.tr && o.tn > 1) { const tr = o.tr, n = o.tn;      // estela que se afina: halo del color del elemento y hilo blanco
+      for (let L = 0; L < 2; L++) { ctx.strokeStyle = L ? '#ffffff' : 'rgb(' + c1 + ')';
+        for (let i = 1; i < n; i++) { const q = 1 - i / n; ctx.globalAlpha = q * (L ? 0.85 : 0.5); ctx.lineWidth = (L ? 7 : 26) * q + 1; ctx.beginPath(); ctx.moveTo(tr[i * 2 - 2], tr[i * 2 - 1]); ctx.lineTo(tr[i * 2], tr[i * 2 + 1]); ctx.stroke(); } }
+      ctx.globalAlpha = 1; }
+    const su = Math.min(1, o.t / 0.12), sc = 0.35 + 0.65 * (1 + 2.70158 * Math.pow(su - 1, 3) + 1.70158 * Math.pow(su - 1, 2));   // sale con un pequeño rebote
+    ctx.translate(o.x, o.y); ctx.scale(sc, sc);
     const og = ctx.createRadialGradient(0, 0, 0, 0, 0, 38); og.addColorStop(0, 'rgba(' + c0 + ',.9)'); og.addColorStop(0.4, 'rgba(' + c1 + ',.45)'); og.addColorStop(1, 'rgba(' + c1 + ',0)'); ctx.fillStyle = og; ctx.beginPath(); ctx.arc(0, 0, 38, 0, TAU); ctx.fill();
     if (o.color === 'R') { ctx.save(); ctx.rotate(ang - Math.PI / 2); drawFlame(0, 8, 26, 64, FIRE, 3, 1); ctx.restore(); }
     else if (o.color === 'G') { for (let k = 0; k < 5; k++) { ctx.save(); ctx.rotate(tt * 9 + k * TAU / 5); ctx.translate(0, -18); ctx.fillStyle = k % 2 ? '#a8f5c9' : '#3ddc84'; leafPath(7); ctx.fill(); ctx.restore(); } }
@@ -5056,7 +5107,7 @@ function draw() {
   }
   drawParticles();
   if (V.aim && G.state === 'play') drawAim();
-  drawCallouts(); drawHint();
+  drawCallouts(); drawHint(); drawMovePreview();
   ctx.restore();
   drawBottomBar();
   if (V.portalMode && G.state === 'play') {
@@ -5064,7 +5115,7 @@ function draw() {
     ctx.fillStyle = 'rgba(8,6,16,.95)'; rr(8, 84, 282, 36, 18); ctx.fill(); ctx.strokeStyle = '#b76bff'; ctx.lineWidth = 2; ctx.stroke();
     text('Portal: toca una fila', 149, 103, 15, '#e3ccff');
   }
-  if (V.flash) { ctx.globalAlpha = clamp(V.flash.a, 0, 1) * (G.fxLow ? 0.3 : 1); ctx.fillStyle = V.flash.color; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
+  if (V.flash) { ctx.globalAlpha = clamp(V.flash.a, 0, 1) * (G.fxLow || RM ? 0.3 : 1); ctx.fillStyle = V.flash.color; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
   if (V.banner) {                            // cartel del hechizo: placa que entra y nombre letra a letra
     const b = V.banner, p = b.t / b.dur, s = p < 0.1 ? 0.6 + p / 0.1 * 0.45 : p < 0.18 ? 1.05 - (p - 0.1) / 0.08 * 0.05 : 1, a = p > 0.75 ? (1 - p) / 0.25 : 1;
     ctx.save(); ctx.globalAlpha = a; ctx.translate(W / 2, b.y || 330); ctx.scale(s, s);
@@ -5150,6 +5201,7 @@ function onAlt(x, y) {      // clic derecho sobre un Elementi: te cuenta algo
 function onMove(x, y) {
   if (G.state === 'garden') { Garden.move(x, y); return; }
   V.look = { x, y, t: G.time };
+  if (drag) { drag.lx = x; drag.ly = y; }
   if (!drag || drag.done || drag.e.k !== 'free') return;
   const dx = x - drag.x, dy = y - drag.y;
   if (Math.hypot(dx, dy) > 20) { drag.done = true; const d = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? '>' : '<') : (dy > 0 ? 'v' : '^'); if (busy()) pushBuf({ id: drag.e.id, d }); else tryMove(drag.c, drag.r, d); }   // si hay animación, se guarda el arrastre
@@ -5158,7 +5210,8 @@ function onUp() {
   if (G.state === 'garden') { Garden.up(); return; }
   if (!drag) return; const { e, c, r } = drag, s = V.sp.get(e.id);
   if (!drag.done && s) {
-    if (e.k === 'arrow') { if (busy()) pushBuf({ id: e.id, d: e.dir }); else tryMove(c, r, e.dir); }
+    if (e.k === 'arrow' && dragCancels()) { floater(s.x, s.y - 40, 'Cancelado', '#cfc6ee', 15, 0.7); }   // arrastrar fuera (no hacia la flecha) anula el toque
+    else if (e.k === 'arrow') { if (busy()) pushBuf({ id: e.id, d: e.dir }); else tryMove(c, r, e.dir); }
     else if (e.k === 'free') { s.shake = 1; floater(s.x, s.y - 40, e.ch ? '¡Encadenado!' : 'Arrástrame', '#ffd9d9', 16, 0.9); Snd.bump(); }
     else if (e.k === 'fluffy') { s.sq = 0.25; Snd.boing(0.6); if (e.bub) floater(s.x, s.y - 44, 'Burbuja: golpéala con un bloque', '#dff6ff', 15, 1.2); }
     else { s.shake = 1; Snd.bump(); floater(s.x, s.y - 40, e.k === 'frost' ? 'Hielo: 2 golpes, 1 golpe rojo o hechizo' : e.k === 'stone' ? 'Piedra: hechizos o 2 golpes verdes' : e.k === 'tnt' ? 'Barril: golpéalo con un bloque' : 'Sello: fusiona su color', '#ffd9d9', 15, 1.2); }
