@@ -1464,7 +1464,7 @@ const Post = {
       this.blur = mk('uniform sampler2D t; uniform vec2 d; void main(){ vec3 s = texture2D(t, vUv).rgb * 0.227; s += (texture2D(t, vUv + d * 1.385).rgb + texture2D(t, vUv - d * 1.385).rgb) * 0.316; s += (texture2D(t, vUv + d * 3.231).rgb + texture2D(t, vUv - d * 3.231).rgb) * 0.070; gl_FragColor = vec4(s, 1.); }');
       this.comp = mk([
         'uniform sampler2D t; uniform sampler2D b; uniform float time; uniform float ca; uniform float bk; uniform float asp;',
-        'uniform vec4 wave[8]; uniform vec4 heat[6]; uniform vec4 fire[4]; uniform float hot; uniform sampler2D b2; uniform vec3 rays; uniform vec3 fc1; uniform vec3 fc2; uniform vec3 fc3; uniform float fsh; uniform float fsp; uniform vec4 liq; uniform vec3 ltint; uniform vec3 cam; uniform vec4 lob;',
+        'uniform vec4 wave[8]; uniform vec4 heat[6]; uniform vec4 fire[4]; uniform float hot; uniform sampler2D b2; uniform vec3 rays; uniform vec3 fc1; uniform vec3 fc2; uniform vec3 fc3; uniform float fsh; uniform float fsp; uniform vec4 liq; uniform vec3 ltint; uniform vec3 cam; uniform vec4 lob; uniform vec4 gar; uniform vec4 gpond; uniform vec4 gpot;',
         'float hsh(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }',
         'float nse(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f); return mix(mix(hsh(i), hsh(i + vec2(1., 0.)), f.x), mix(hsh(i + vec2(0., 1.)), hsh(i + vec2(1., 1.)), f.x), f.y); }',
         'float fbm(vec2 p){ float v = 0., a = 0.5; for (int i = 0; i < 5; i++) { v += a * nse(p); p = p * 2.03 + vec2(1.7, 9.2); a *= 0.5; } return v; }',
@@ -1492,7 +1492,7 @@ const Post = {
         '    float e = smoothstep(0., 40., pp.x - xl) * smoothstep(0., 40., xr - pp.x) * smoothstep(700., 560., pp.y);',
         '    float fog = fbm(pp * 0.011 + vec2(time * 0.05, -time * 0.08));',
         '    float mt = pow(nse(pp * 0.07 + vec2(sin(time * 0.3) * 2., time * 0.5)), 14.);',
-        '    col += bc * e * (1. - yb * 0.7) * (0.06 + fog * 0.16 + mt * 1.6);',
+        '    col += bc * e * (1. - yb * 0.7) * (0.03 + fog * 0.08 + mt * 0.9);',
         '  }',
         '  vec3 dl = mix(vec3(1., .9, .55), vec3(.66, .78, 1.), lob.w); float op = lob.y;',
         '  float slit = exp(-pow((pp.x - 527.) / 5., 2.)) * smoothstep(440., 460., pp.y) * step(pp.y, 622.);',
@@ -1519,11 +1519,23 @@ const Post = {
         '  vec2 uv = vUv; vec2 off = vec2(0.);',
         '  for (int i = 0; i < 8; i++) { vec4 w = wave[i]; if (w.w > 0.0) { vec2 d = (uv - w.xy) * vec2(asp, 1.); float dist = length(d); float q = (dist - w.z) / 0.032; off -= (d / (dist + 0.0001)) * exp(-q * q) * w.w; } }',
         '  for (int i = 0; i < 6; i++) { vec4 h = heat[i]; if (h.z > 0.0) { vec2 d = (uv - h.xy) / h.zw; float m = max(0., 1. - dot(d, d)); m *= m; off.x += sin(uv.y * 170. + time * 11. + float(i) * 3.) * 0.0024 * m; off.y += sin(uv.x * 130. - time * 8.) * 0.0016 * m; } }',
+        '  if (gar.x > 0.5) {',
+        '    vec2 pd = (uv - gpond.xy) / gpond.zw; float pk = dot(pd, pd);',
+        '    if (pk < 1.) { float m = (1. - pk); off += vec2(sin(uv.y * 260. + time * 2.6) + sin(uv.x * 90. - time * 1.7) * .5, cos(uv.x * 210. + time * 2.1)) * 0.0016 * m; }',
+        '    vec2 hd = (uv - gpot.xy) / gpot.zw; float hk = max(0., 1. - dot(hd, hd)); off.x += sin(uv.y * 190. + time * 9.) * 0.0022 * hk * hk;',
+        '  }',
         '  uv = clamp(uv + off, 0.001, 0.999);',
         '  vec3 c; if (ca > 0.0005) { vec2 dir = (uv - 0.5) * ca; c = vec3(texture2D(t, uv + dir).r, texture2D(t, uv).g, texture2D(t, uv - dir).b); } else { c = texture2D(t, uv).rgb; }',
         '  c += texture2D(b, uv).rgb * bk + texture2D(b2, uv).rgb * bk * 0.9;',
         '  c += potion(uv) * 0.55;',
         '  if (lob.x > 0.5) c += lobbyFx(uv);',
+        '  if (gar.x > 0.5) {',
+        '    vec2 pd2 = (uv - gpond.xy) / gpond.zw; float pk2 = dot(pd2, pd2);',
+        '    if (pk2 < 0.85) { float sp = pow(max(0., sin(uv.x * 140. + time * 1.3) * sin(uv.y * 90. - time * 1.1 + uv.x * 30.)), 14.); c += mix(vec3(1.), vec3(.7, .8, 1.), gar.w) * sp * 0.35 * (1. - pk2); }',
+        '    float day = gar.y;',
+        '    if (day > 0.01) { float bnd = sin((uv.x * 0.9 - uv.y * 0.55) * 11. + time * 0.18) * 0.5 + 0.5; bnd = pow(bnd, 8.) * (0.55 + 0.45 * fbm(vec2(uv.x * 3. + time * 0.05, uv.y * 3.))); c += mix(vec3(1., .93, .72), vec3(1., .7, .45), gar.z) * bnd * 0.085 * day * (0.4 + uv.y * 0.9); }',
+        '    float gl2 = dot(c, vec3(.299, .587, .114)); c = mix(vec3(gl2), c, 1.06 + 0.06 * day);',
+        '  }',
         '  if (rays.z > 0.01) { vec2 dl = (uv - rays.xy) * 0.045; vec2 p = uv; float dc = 1.0; vec3 acc = vec3(0.); for (int i = 0; i < 12; i++) { p -= dl; acc += texture2D(b2, p).rgb * dc; dc *= 0.87; } c += acc * rays.z * 0.32; }',
         '  for (int i = 0; i < 4; i++) { if (fire[i].z > 0.0) c += flame(uv, fire[i], float(i) * 7.3); }',
         '  vec3 g = c; float lum = dot(g, vec3(.299, .587, .114)); g = mix(vec3(lum), g, 1.12); g = g * (2.51 * g + 0.03) / (g * (2.43 * g + 0.59) + 0.14); c = mix(c, g, 0.3);',
@@ -1581,12 +1593,15 @@ const Post = {
     this.hotV = hotV;
     this.pass(this.comp, null, this.scene, u => {
       gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, this.A.t); gl.uniform1i(u.b, 1);
-      gl.uniform1f(u.time, G.time); gl.uniform1f(u.ca, V.ca); gl.uniform1f(u.bk, 0.4 + V.bloom); gl.uniform1f(u.asp, W / H);
+      gl.uniform1f(u.time, G.time); gl.uniform1f(u.ca, V.ca); gl.uniform1f(u.bk, (G.state === 'lobby' ? 0.12 : G.state === 'garden' ? 0.3 : 0.4) + V.bloom); gl.uniform1f(u.asp, W / H);
       gl.uniform4fv(u.wave, wv); gl.uniform4fv(u.heat, ht); gl.uniform4fv(u.fire, this.fire); gl.uniform1f(u.hot, this.hotV); { const fc = fireCols(this.st || 0); gl.uniform3fv(u.fc1, fc[0]); gl.uniform3fv(u.fc2, fc[1]); gl.uniform3fv(u.fc3, fc[2]); gl.uniform1f(u.fsh, (0.8 + (this.st || 0) * 1.8 + this.hotV * 2) / W); gl.uniform1f(u.fsp, 1 + (this.st || 0) * 0.28); }
       { const inGame = G.state === 'play' && S && !V.intro ? 1 : 0, tc = (COLORS[V.tint] || COLORS.G).m, rgb = [1, 3, 5].map(i => parseInt(tc.substr(i, 2), 16) / 255); gl.uniform4f(u.liq, V.liq, this.st || 0, 0, inGame); gl.uniform3fv(u.ltint, rgb); const cm = V.cam || { x: 0, y: 0, z: 1 }; gl.uniform3f(u.cam, cm.x, cm.y, cm.z); }
       gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, this.C.t); gl.uniform1i(u.b2, 2); if (G.state === 'lobby' && !G.brew) { const op = lobbyDoorOpen(), dk = Garden.light().dark; gl.uniform4f(u.lob, 1, op, 0.5 + 0.5 * Math.sin(G.time * 2.5), dk);
-              gl.uniform3f(u.rays, 140 / W, 1 - 222 / H, 0.42 * (1 - op)); }
+              gl.uniform3f(u.rays, 0, 0, 0); }
             else { gl.uniform4f(u.lob, 0, 0, 0, 0); gl.uniform3f(u.rays, V.rays.x / W, 1 - V.rays.y / H, V.rays.k); }
+      if (G.state === 'garden' && Garden.built) { const Lg = Garden.light(), TS = Garden.TS, px = (wx, wy) => [(wx * TS - Garden.cx) / W, 1 - (wy * TS - Garden.cy) / H];
+        const [pxu, pyu] = px(16.5, 18.5), [kxu, kyu] = px(16.5, 7.4); gl.uniform4f(u.gar, 1, 1 - Lg.dark, Lg.warm, Lg.dark); gl.uniform4f(u.gpond, pxu, pyu, 2.7 * TS / W, 2.2 * TS / H); gl.uniform4f(u.gpot, kxu, kyu, 0.9 * TS / W, 1.2 * TS / H); }
+      else gl.uniform4f(u.gar, 0, 0, 0, 0);
     });
   },
 };
@@ -3630,7 +3645,7 @@ function drawLobby() {
   if (G.lobbySay === undefined || G.time - (G.lobbyT || 0) > 6) { G.lobbySay = ((G.lobbySay === undefined ? -1 : G.lobbySay) + 1) % lines.length; G.lobbyT = G.time; }
   const msg = lines[G.lobbySay % lines.length], ba = Math.min(1, (G.time - G.lobbyT) * 4);
   ctx.save(); ctx.globalAlpha = ba; ctx.font = '700 16px "Trebuchet MS","Segoe UI",system-ui,sans-serif'; const tw = Math.min(380, ctx.measureText(msg).width + 32), bx = 40, by = 360;
-  ctx.fillStyle = 'rgba(255,250,240,.96)'; rr(bx, by, tw, 46, 18); ctx.fill(); ctx.beginPath(); ctx.moveTo(bx + 100, by + 46); ctx.lineTo(bx + 116, by + 64); ctx.lineTo(bx + 126, by + 46); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = 'rgba(236,226,214,.94)'; rr(bx, by, tw, 46, 18); ctx.fill(); ctx.beginPath(); ctx.moveTo(bx + 100, by + 46); ctx.lineTo(bx + 116, by + 64); ctx.lineTo(bx + 126, by + 46); ctx.closePath(); ctx.fill();
   text(msg, bx + tw / 2, by + 24, 16, '#2a1838', 'center', 800); ctx.restore();
   G.btns.push({ x: 290, y: 470, w: 140, h: 180, fn: () => { G.brew = true; Snd.click(); } });   // tocar a Caldo: preparar elixires
   G.btns.push({ x: 430, y: 350, w: 110, h: 280, fn: () => { if (G.doorT) return; G.doorT = G.time; G.doorC = 0; Snd.v(150, 0.45, { type: 'sawtooth', vol: 0.04, to: 95 }); Snd.chainNote(4); } });   // puerta a la granja
@@ -3775,13 +3790,13 @@ const Garden = {
   resize() {},
   enter() {
     if (!this.built) this.build();
-    G.state = 'garden'; this.postWas = Post.on; if (Post.on) Post.off();
+    G.state = 'garden';
     this.joy = null; this.keys = {}; this.t0 = G.time; this.last = G.time; this.greet = [];
     this.p = { x: 10.5, y: 7.8, fx: 0, fy: 1, ph: 0, vel: 0 }; this.camInit = false;
     this.fly = []; this.leaves = []; this.farm(); this.spawnStars(); Snd.chainNote(3);
   },
-  exit() { G.state = 'lobby'; G.doorC = G.time; G.doorT = 0; if (this.postWas) Post.enable(); this.joy = null; Snd.click(); },
-  farm() { if (!G.farm || !Array.isArray(G.farm.p)) G.farm = { p: [], h: 0, sel: 0 }; if (!G.farm.inv) G.farm.inv = [0, 0, 0]; while (G.farm.p.length < (this.plots ? this.plots.length : 12)) G.farm.p.push(null); return G.farm; },
+  exit() { G.state = 'lobby'; G.doorC = G.time; G.doorT = 0; this.joy = null; Snd.click(); },
+  farm() { if (!G.farm || !Array.isArray(G.farm.p)) G.farm = { p: [], h: 0, sel: 0 }; if (!G.farm.inv) G.farm.inv = [0, 0, 0]; while (G.farm.p.length < (this.plots ? this.plots.length : 30)) G.farm.p.push(null); return G.farm; },
   prog(p, now) { return p.gp + (p.w ? Math.min(now - p.w, this.WET * this.HOUR) : 0); },
   wet(p, now) { return !!p.w && now - p.w < this.WET * this.HOUR; },
   ripe(p, now) { return this.prog(p, now) >= this.SEEDS[p.s].need * this.HOUR; },
@@ -3815,18 +3830,18 @@ const Garden = {
     set(10, 6, 'D');
     for (let y = 7; y <= 23; y++) set(10, y, '=');
     for (let x = 3; x <= 18; x++) set(x, 12, '=');
-    set(4, 13, '='); set(4, 14, '=');
-    for (let x = 2; x <= 7; x++) { set(x, 15, 'f'); set(x, 19, 'f'); }
-    for (let y = 15; y <= 19; y++) { set(2, y, 'f'); set(7, y, 'f'); }
-    set(4, 15, '=');
+    set(4, 13, '=');
+    for (let x = 1; x <= 8; x++) { set(x, 14, 'f'); set(x, 20, 'f'); }
+    for (let y = 14; y <= 20; y++) { set(1, y, 'f'); set(8, y, 'f'); }
+    set(4, 14, '=');
     this.plots = []; this.plotIdx = {};
-    for (let y = 16; y <= 18; y++) for (let x = 3; x <= 6; x++) { set(x, y, 'S'); this.plotIdx[x + ',' + y] = this.plots.length; this.plots.push([x, y]); }
+    for (let y = 15; y <= 19; y++) for (let x = 2; x <= 7; x++) { set(x, y, 'S'); this.plotIdx[x + ',' + y] = this.plots.length; this.plots.push([x, y]); }
     for (let y = 14; y <= 22; y++) for (let x = 13; x <= 20; x++) if (((x + 0.5 - 16.5) / 2.7) ** 2 + ((y + 0.5 - 18.5) / 2.2) ** 2 < 1) set(x, y, '~');
     [[3, 3], [17, 3], [19, 5], [5, 4], [2, 9], [6, 9], [16, 10], [19, 13], [3, 22], [7, 22], [14, 23], [18, 23], [19, 8]].forEach(([x, y]) => set(x, y, 'T'));
-    [[13, 14], [19, 21], [12, 21], [8, 18]].forEach(([x, y]) => set(x, y, 'o'));
+    [[13, 14], [19, 21], [12, 21]].forEach(([x, y]) => set(x, y, 'o'));
     [[9, 8], [11, 10], [9, 14], [11, 17], [9, 21]].forEach(([x, y]) => set(x, y, 'L'));
-    [[6, 6], [14, 6], [1, 12], [8, 13]].forEach(([x, y]) => set(x, y, 'b'));
-    set(16, 7, 'C'); set(13, 9, 'W'); set(8, 16, 'K'); set(14, 7, 'x'); set(6, 7, 'r'); set(11, 7, 'M'); set(11, 13, 'P');
+    [[6, 6], [14, 6], [1, 12], [8, 13], [1, 21]].forEach(([x, y]) => set(x, y, 'b'));
+    set(16, 7, 'C'); set(13, 9, 'W'); set(9, 17, 'K'); set(14, 7, 'x'); set(6, 7, 'r'); set(11, 7, 'M'); set(11, 13, 'P');
     set(14, 18, 'd'); set(15, 18, 'd');   // embarcadero sobre el estanque
     for (let y = 1; y < MH - 1; y++) for (let x = 1; x < MW - 1; x++) if (m[y][x] === '.' && this.rng(x * 7349 + y * 9151 + 3)() < 0.13) m[y][x] = '*';
     // sprites
@@ -3858,7 +3873,7 @@ const Garden = {
       else if (t === 'L') this.objs.push({ k: 'lamp', x, y, by: y + 0.85 }); else if (t === 'b') this.objs.push({ k: 'bush', x, y, by: y + 0.9 }); else if (t === 'C') this.objs.push({ k: 'pot', x, y, by: y + 0.9 }); else if ('WKxrMP'.includes(t)) this.objs.push({ k: t, x, y, by: y + 0.9 });
     }
     // Elementis
-    const spots = [[5, 10], [14, 9], [8, 16], [16, 13], [12, 22]];
+    const spots = [[5, 10], [14, 11], [12, 15], [16, 13], [12, 22]];
     this.elems = spots.map(([x, y], i) => ({ x: x + 0.5, y: y + 0.6, tx: x + 0.5, ty: y + 0.6, wait: 1 + i, ph: i, happy: 0, greeted: -99, spr: this.elemSpr[i] }));
     this.ff = [...Array(18)].map((_, i) => ({ x: 2 + (i * 7.3) % 18, y: 3 + (i * 5.1) % 20, ph: i * 1.7 }));
     this.bf = [...Array(4)].map((_, i) => ({ x: 4 + i * 4, y: 9 + (i % 2) * 6, ph: i * 2.1, col: ['#ffffff', '#ffb0d0', '#b0e0ff', '#fff0a0'][i] }));
@@ -4220,7 +4235,7 @@ const Garden = {
       const anyPlant = f.p.some(Boolean), st = this.status();
       const tip = G.time - this.t0 < 6 ? 'Arrastra el dedo para caminar' : st && st.ripe ? '¡Hay plantas listas en el huerto!' : st && st.dry ? 'Tus plantas tienen sed: ve a regarlas' : !anyPlant ? 'Ve al huerto vallado y planta semillas' : f.inv.some(Boolean) ? 'Con tu cosecha, Caldo prepara elixires' : 'Recoge las estrellas escondidas';
       ctx.save(); ctx.fillStyle = 'rgba(20,14,40,.7)'; rr(60, 892, 420, 46, 16); ctx.fill(); ctx.restore(); text(tip, W / 2, 915, 16, '#ffffff', 'center', 800);
-      if (!anyPlant || (st && (st.ripe || st.dry))) { const [sx, sy] = this.scr(4.5, 15.2 + Math.sin(G.time * 5) * 0.12); if (sy > 70 && sy < 880) { ctx.fillStyle = '#ffe27a'; ctx.beginPath(); ctx.moveTo(sx - 12, sy - 26); ctx.lineTo(sx + 12, sy - 26); ctx.lineTo(sx, sy - 8); ctx.closePath(); ctx.fill(); } }
+      if (!anyPlant || (st && (st.ripe || st.dry))) { const [sx, sy] = this.scr(4.5, 14.2 + Math.sin(G.time * 5) * 0.12); if (sy > 70 && sy < 880) { ctx.fillStyle = '#ffe27a'; ctx.beginPath(); ctx.moveTo(sx - 12, sy - 26); ctx.lineTo(sx + 12, sy - 26); ctx.lineTo(sx, sy - 8); ctx.closePath(); ctx.fill(); } }
     }
     if (this.joy && this.joy.moved) {
       const j = this.joy, dx = j.x - j.x0, dy = j.y - j.y0, m = Math.hypot(dx, dy), k2 = m > 50 ? 50 / m : 1;
