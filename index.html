@@ -2400,7 +2400,7 @@ function finish(win) {
     if (!V.master) { G.best = G.best || {}; } if (!V.master && V.score > (G.best[G.levelIdx] || 0)) { V.newRec = !!G.best[G.levelIdx]; G.best[G.levelIdx] = V.score; }
     { const ch = Math.floor(G.levelIdx / 10); G.shelfDone = G.shelfDone || [];      // estante del capítulo completo: premio único
       if (!G.shelfDone[ch] && [...Array(10)].every((_, j) => (G.stars[ch * 10 + j] || 0) > 0)) { G.shelfDone[ch] = 1; addXp(200, true); say('¡Estante del capítulo completo! +200 XP', 6); } }
-    G.unlocked = Math.max(G.unlocked, Math.min(LEVELS.length, G.levelIdx + 2)); const chw = Math.floor(G.levelIdx / 10); G.menuCh = chestReady(chw) ? chw : undefined; } save();
+    if (!G.test || G.levelIdx < G.unlocked) G.unlocked = Math.max(G.unlocked, Math.min(LEVELS.length, G.levelIdx + 2)); const chw = Math.floor(G.levelIdx / 10); G.menuCh = chestReady(chw) ? chw : undefined; } save();
     for (let i = 0; i < 7; i++) burst(rand(80, 460), rand(180, 520), Object.values(COLORS)[i % 5].m, 22, 400, 400, i % 2 ? 'star' : 'dot');
   } else { Snd.lose(); if (!V.master && !V.daily) { G.streakBefore = G.streak; G.streak = 0; G.fails = G.fails || {}; G.fails[G.levelIdx] = (G.fails[G.levelIdx] || 0) + 1; V.failCounted = true; } save(); }
   G.state = win ? 'win' : 'lose'; G.res = { stars, bonus, t: 0, shown: 0, left: S.left, total: S.total, rem };
@@ -4308,6 +4308,13 @@ function drawLore() {
 }
 function lobbyOv() { return !!G.brew || G.lore != null; }
 const LOBBY_SAYS = ['¡Hola, Princesa Omaira!', 'Caldo te estaba esperando, princesa.', 'Los Elementis te quieren mucho.', 'Tu cariño es la magia más fuerte.', 'Grisvel no sabe lo que es un abrazo.', 'Los libros del estante guardan la leyenda.', 'Toca a un Elementi: ¡te dirá algo!', 'Toca la puerta de la GRANJA para salir a cultivar.', 'Cada 3 Elementis iguales forman un hechizo.', 'Si te atascas, pulsa VOLVER sin miedo.', 'Las estrellas abren los cofres del mapa.', 'Vuelve cada día: hay regalo y reto nuevo.', 'En Maestría solo vale la solución perfecta.'];
+// MODO TEST (solo para revisar niveles): en el lobby, 2 toques al Elementi de fuego, 2 al de agua, 2 al de naturaleza, 2 al del tiempo y 1 a la lechuza.
+// Abre todos los niveles y la Maestría mientras dure la sesión; no se guarda y no adelanta el progreso real. Repetir el código lo apaga.
+function testTap(k) {
+  if (G.time - (G.codeT || 0) > 8) G.code = ''; G.codeT = G.time; G.code = ((G.code || '') + k).slice(-9);
+  if (G.code !== 'RRBBGGYYO') return; G.code = ''; G.test = !G.test; G.menuMaster = false;
+  V.floaters = []; floater(W / 2, 250, G.test ? 'MODO TEST: todos los niveles abiertos' : 'Modo test apagado', '#7ff0ff', 18, 2.4); burst(160, 318, '#7ff0ff', 26, 300, 200, 'star'); Snd.win();
+}
 function lobbyNext() { let k = Math.min(G.unlocked, LEVELS.length) - 1; if (G.stars[k] > 0) { const f = LEVELS.findIndex((_, j) => (G.stars[j] || 0) < 3); if (f >= 0) k = f; } return k; }
 function drawLobby() {
   const t = G.time; drawLobbyRoom();
@@ -4333,7 +4340,9 @@ function drawLobby() {
   G.btns.push({ x: 290, y: 470, w: 140, h: 180, fn: () => { G.brew = true; Snd.click(); } });   // tocar a Caldo: preparar elixires
   G.btns.push({ x: 292, y: 318, w: 50, h: 44, fn: () => { const n = loreNew(); G.lore = n >= 0 ? n : 0; Snd.click(); } });
   if (loreNew() >= 0 && !lobbyOv()) { const by3 = 304 + Math.sin(G.time * 4) * 4; ctx.save(); ctx.shadowColor = '#ffe27a'; ctx.shadowBlur = 12; ctx.fillStyle = '#ffe27a'; ctx.beginPath(); ctx.arc(318, by3, 12, 0, TAU); ctx.fill(); ctx.restore(); text('!', 318, by3 + 1, 16, '#2a1838', 'center', 900); }   // libros del estante: la leyenda
-  for (const le of G.lobbyEl || []) G.btns.push({ x: le.x - 30, y: le.y - 36, w: 60, h: 60, fn: () => elementiSay(le.x, le.y - 30, le.k) });
+  for (const le of G.lobbyEl || []) { let x0 = le.x - 30, x1 = le.x + 30; for (const o of G.lobbyEl) if (o !== le && Math.abs(o.x - le.x) < 60) { const m = (o.x + le.x) / 2; if (o.x < le.x) x0 = Math.max(x0, m); else x1 = Math.min(x1, m); }   // los que se pisan se reparten el hueco
+    G.btns.push({ x: x0, y: le.y - 36, w: x1 - x0, h: 60, fn: () => { elementiSay(le.x, le.y - 30, le.k); testTap(le.k); } }); }
+  G.btns.push({ x: 132, y: 286, w: 56, h: 60, fn: () => { Snd.v(520, 0.18, { type: 'sine', vol: 0.05, to: 380 }); testTap('O'); } });   // lechuza del alféizar
   G.btns.push({ x: 430, y: 350, w: 110, h: 280, fn: () => { if (G.doorT) return; G.doorT = G.time; G.doorC = 0; Snd.v(150, 0.45, { type: 'sawtooth', vol: 0.04, to: 95 }); Snd.chainNote(4); } });   // puerta a la granja
   if (G.doorT && G.time - G.doorT > 0.85) { G.doorT = 0; Garden.enter(); }
   G.btns.push({ x: 90, y: 400, w: 170, h: 260, fn: () => { G.lobbyT = -99; Snd.letter(1 + Math.floor(Math.random() * 8), 1); burst(170, 470, '#ffe27a', 10, 160, 60, 'star'); } });   // tocar al alquimista: otra frase
@@ -4352,6 +4361,7 @@ function drawLobby() {
   btn(360, 812, 160, 60, dDone ? 'RETO ✓' : 'RETO DIARIO', () => { if (dp >= 0) loadLevel(dp, { daily: true }); else { V.floaters = []; floater(W / 2, 700, 'El reto se abre al superar el nivel 3', '#ffd9d9', 16, 1.8); Snd.bump(); } }, { color: dDone ? '#3f7a5a' : '#c2415f', size: 17, glow: dp >= 0 && !dDone, disabled: false });
   text(CHAPTERS_SHORT[Math.min(CHAPTERS.length - 1, Math.floor(nk / 10))] + ' · ' + LEVELS[nk].name, W / 2, 900, 15, '#cdb8ff', 'center', 700);
   if (ELIXIRS.some(canBrew) && !lobbyOv()) { const by2 = 470 + Math.sin(G.time * 4) * 5; ctx.save(); ctx.shadowColor = '#ffe27a'; ctx.shadowBlur = 12; ctx.fillStyle = '#ffe27a'; ctx.beginPath(); ctx.arc(420, by2, 15, 0, TAU); ctx.fill(); ctx.restore(); text('!', 420, by2 + 1, 20, '#2a1838', 'center', 900); }
+  if (G.test) text('MODO TEST', W / 2, 946, 13, '#7ff0ff', 'center', 900);
   if (!lobbyOv() && G.lore == null) drawESay();
   if (G.brew) drawBrew();
   if (G.lore != null) drawLore();
@@ -4423,7 +4433,7 @@ function drawMenu() {
   btn(10, 10, 106, 38, '◀ INICIO', () => { G.state = 'lobby'; }, { color: '#3b4a7a', size: 14 });
   btn(408, 254, 116, 58, 'JUGAR', () => { let k = Math.min(G.unlocked, LEVELS.length) - 1; if (G.stars[k] > 0) { const f = LEVELS.findIndex((_, j) => (G.stars[j] || 0) < 3); if (f >= 0) k = f; } loadLevel(k); }, { color: '#7b4dff', size: 24, glow: true });
   if (G.menuCh === undefined) G.menuCh = chU;
-  const ch = G.menuCh, open = ch * 10 + 1 <= G.unlocked, cs = chStars(ch);
+  const ch = G.menuCh, open = G.test || ch * 10 + 1 <= G.unlocked, cs = chStars(ch);
   const CHC = ['#b76bff', '#7fd8ff', '#ff8a3c', '#c08aff', '#3ddc84', '#ffb347', '#ff6ab8'][ch];
   ctx.fillStyle = 'rgba(12,10,23,.66)'; rr(16, 348, W - 32, 506, 18); ctx.fill();
   ctx.save(); ctx.globalAlpha = open ? 0.1 : 0.04; drawChapterEmblem(ch, W / 2, 600, CHC); ctx.restore();
@@ -4436,7 +4446,7 @@ function drawMenu() {
   text(CHAPTERS_SHORT[ch], W / 2, 400, 21, open ? '#ffe27a' : '#6d668a', 'center', 900);
   for (let k = 0; k < CHAPTERS.length; k++) { ctx.fillStyle = k === ch ? '#ffe27a' : '#4a4466'; ctx.beginPath(); ctx.arc(W / 2 - (CHAPTERS.length - 1) * 8 + k * 16, 422, k === ch ? 4.5 : 3.5, 0, TAU); ctx.fill(); }
   for (let j = 0; j < 10; j++) {
-    const k = ch * 10 + j, col = j % 5, row = Math.floor(j / 5), bx = 36 + col * 96, by = 446 + row * 128, lock = k + 1 > G.unlocked, cur = k + 1 === G.unlocked && !(G.stars[k] > 0), boss = j === 9;
+    const k = ch * 10 + j, col = j % 5, row = Math.floor(j / 5), bx = 36 + col * 96, by = 446 + row * 128, lock = !G.test && k + 1 > G.unlocked, cur = k + 1 === G.unlocked && !(G.stars[k] > 0), boss = j === 9;
     const mm = G.menuMaster;
     btn(bx, by, 84, 84, lock ? '···' : String(k + 1), () => { if (lock) { V.floaters = []; floater(W / 2, 236, 'Supera el nivel ' + G.unlocked + ' para abrirlo', '#ffd9d9', 16, 1.5); Snd.bump(); } else loadLevel(k, mm ? { master: true } : undefined); }, { color: mm ? '#6a3aa8' : boss ? (lock ? '#4a2c1e' : '#a8562a') : lock ? '#2a2640' : '#3b4a7a', size: 30, glow: cur && !mm });
     if ((G.master || {})[k]) drawCrown(bx + 68, by + 13, 0.32);   // corona de maestría
@@ -4455,7 +4465,8 @@ function drawMenu() {
       else if (!st) { V.floaters = []; floater(W / 2, 236, 'Consigue ' + need + '★ en este capítulo', '#cfc6ee', 16, 1.5); Snd.click(); } } });
   });
   const allDone = [...Array(10)].every((_, j) => (G.stars[ch * 10 + j] || 0) > 0), mc = [...Array(10)].filter((_, j) => (G.master || {})[ch * 10 + j]).length;
-  if (allDone) btn(150, 814, 240, 34, (G.menuMaster ? '✓ MODO MAESTRÍA' : 'MODO MAESTRÍA') + ' · ' + mc + '/10', () => { G.menuMaster = !G.menuMaster; Snd.click(); if (G.menuMaster) { V.floaters = []; floater(W / 2, 330, 'Movimientos justos: gana coronas', '#e3ccff', 16, 1.8); } }, { color: G.menuMaster ? '#8a4ab8' : '#3b2f5e', size: 14, glow: G.menuMaster });
+  if (G.test) text('MODO TEST', W / 2, 948, 12, '#7ff0ff', 'center', 900);
+  if (allDone || G.test) btn(150, 814, 240, 34, (G.menuMaster ? '✓ MODO MAESTRÍA' : 'MODO MAESTRÍA') + ' · ' + mc + '/10', () => { G.menuMaster = !G.menuMaster; Snd.click(); if (G.menuMaster) { V.floaters = []; floater(W / 2, 330, 'Movimientos justos: gana coronas', '#e3ccff', 16, 1.8); } }, { color: G.menuMaster ? '#8a4ab8' : '#3b2f5e', size: 14, glow: G.menuMaster });
   const dk = dayKey(new Date()), dp = dailyPick(), dDone = G.dailyDone === dk, dRun = G.dLast === dk || G.dLast === dayKey(new Date(Date.now() - 86400000)) ? G.dRun | 0 : 0;
   btn(20, 872, 500, 64, dDone ? 'RETO DE HOY SUPERADO ✓' + (dRun > 1 ? ' · racha de ' + dRun + ' días' : '') : dp < 0 ? 'RETO DIARIO: supera el nivel 3' : 'RETO DIARIO · +100 XP y 1 pista' + (dRun ? ' · racha ' + dRun : ''), () => { if (dp >= 0) loadLevel(dp, { daily: true }); }, { color: dDone ? '#3f7a5a' : '#c2415f', size: dp < 0 || dDone ? 17 : 19, disabled: dp < 0, glow: dp >= 0 && !dDone });
   drawParticles();
