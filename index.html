@@ -1464,7 +1464,7 @@ const Post = {
       this.blur = mk('uniform sampler2D t; uniform vec2 d; void main(){ vec3 s = texture2D(t, vUv).rgb * 0.227; s += (texture2D(t, vUv + d * 1.385).rgb + texture2D(t, vUv - d * 1.385).rgb) * 0.316; s += (texture2D(t, vUv + d * 3.231).rgb + texture2D(t, vUv - d * 3.231).rgb) * 0.070; gl_FragColor = vec4(s, 1.); }');
       this.comp = mk([
         'uniform sampler2D t; uniform sampler2D b; uniform float time; uniform float ca; uniform float bk; uniform float asp;',
-        'uniform vec4 wave[8]; uniform vec4 heat[6]; uniform vec4 fire[4]; uniform float hot; uniform sampler2D b2; uniform vec3 rays; uniform vec3 fc1; uniform vec3 fc2; uniform vec3 fc3; uniform float fsh; uniform float fsp; uniform vec4 liq; uniform vec3 ltint; uniform vec3 cam; uniform vec4 lob; uniform vec4 gar; uniform vec4 gpond; uniform vec4 gpot;',
+        'uniform vec4 wave[8]; uniform vec4 heat[6]; uniform vec4 fire[4]; uniform float hot; uniform sampler2D b2; uniform vec3 rays; uniform vec3 fc1; uniform vec3 fc2; uniform vec3 fc3; uniform float fsh; uniform float fsp; uniform vec4 liq; uniform vec3 ltint; uniform vec3 cam; uniform vec4 lob; uniform vec4 gar; uniform vec4 gpond; uniform vec4 gpot; uniform vec4 lts[10]; uniform vec3 ltc[10];',
         'float hsh(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }',
         'float nse(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3. - 2. * f); return mix(mix(hsh(i), hsh(i + vec2(1., 0.)), f.x), mix(hsh(i + vec2(0., 1.)), hsh(i + vec2(1., 1.)), f.x), f.y); }',
         'float fbm(vec2 p){ float v = 0., a = 0.5; for (int i = 0; i < 5; i++) { v += a * nse(p); p = p * 2.03 + vec2(1.7, 9.2); a *= 0.5; } return v; }',
@@ -1530,6 +1530,11 @@ const Post = {
         '  c += texture2D(b, uv).rgb * bk + texture2D(b2, uv).rgb * bk * 0.9;',
         '  c += potion(uv) * 0.55;',
         '  if (lob.x > 0.5) c += lobbyFx(uv);',
+        '  if (gar.x > 0.5 || lob.x > 0.5) {   /* luces puntuales: iluminan lo que tocan (no solo suman brillo) y titilan */',
+        '    vec3 la = vec3(0.);',
+        '    for (int i = 0; i < 10; i++) { vec4 q = lts[i]; if (q.z > 0.) { vec2 d = (uv - q.xy) * vec2(asp, 1.); float r = length(d) / q.z; float fall = smoothstep(1.25, 0.0, r); fall *= fall; float core = exp(-r * r * 90.); float halo = exp(-r * r * 9.) * 0.35; la += ltc[i] * (fall * 0.9 + halo + core * 1.4) * q.w; } }',
+        '    c = c * (1. + la * 1.4) + la * vec3(0.10, 0.07, 0.04) * 1.2;',
+        '  }',
         '  if (gar.x > 0.5) {',
         '    vec2 pd2 = (uv - gpond.xy) / gpond.zw; float pk2 = dot(pd2, pd2);',
         '    vec3 wb2 = texture2D(t, vUv).rgb; float isW2 = step(0.25, wb2.b - wb2.r) * step(0.08, wb2.b - wb2.g);',
@@ -1602,8 +1607,16 @@ const Post = {
               gl.uniform3f(u.rays, 0, 0, 0); }
             else { gl.uniform4f(u.lob, 0, 0, 0, 0); gl.uniform3f(u.rays, V.rays.x / W, 1 - V.rays.y / H, V.rays.k); }
       if (G.state === 'garden' && Garden.built) { const Lg = Garden.light(), TS = Garden.TS, px = (wx, wy) => [(wx * TS - Garden.cx) / W, 1 - (wy * TS - Garden.cy) / H];
-        const [pxu, pyu] = px(16.5, 18.5), [kxu, kyu] = px(16.5, 7.4); gl.uniform4f(u.gar, 1, 1 - Lg.dark, Lg.warm, Lg.dark); gl.uniform4f(u.gpond, pxu, pyu, 2.7 * TS / W, 2.2 * TS / H); gl.uniform4f(u.gpot, kxu, kyu, 0.9 * TS / W, 1.2 * TS / H); }
+        const [pxu, pyu] = px(21.5, 22.3), [kxu, kyu] = px(22.5, 9.4); gl.uniform4f(u.gar, 1, 1 - Lg.dark, Lg.warm, Lg.dark); gl.uniform4f(u.gpond, pxu, pyu, 5.2 * TS / W, 3.6 * TS / H); gl.uniform4f(u.gpot, kxu, kyu, 0.9 * TS / W, 1.2 * TS / H); }
       else gl.uniform4f(u.gar, 0, 0, 0, 0);
+      { const LT = new Float32Array(40), LC = new Float32Array(30); let nl = 0; const add = (x, y, r, w, col) => { if (nl >= 10 || x < -0.2 || x > 1.2 || y < -0.2 || y > 1.2) return; LT.set([x, y, r, w], nl * 4); LC.set(col, nl * 3); nl++; }, t = G.time;
+        if (G.state === 'garden' && Garden.built) { const Lg = Garden.light(), k = 0.12 + 0.88 * Math.max(Lg.dark, Lg.warm * 0.5), TS = Garden.TS, PX = Garden.PX, sp = (ax, ay) => [(ax * PX - Garden.cx) / W, 1 - (ay * PX - Garden.cy) / H];
+          for (const o of Garden.objs) { if (o.k === 'lamp') { const [x, y] = sp(o.x * 16 + 8, o.y * 16 - 9), fl = 0.88 + 0.08 * Math.sin(t * 9 + o.x * 3) + 0.04 * Math.sin(t * 23 + o.y); add(x, y, 0.15, k * fl, [1, 0.7, 0.36]); } }
+          for (const [ax, ay] of [[200, 75], [264, 75], [232, 36]]) { const [x, y] = sp(ax, ay); add(x, y, 0.1, Lg.dark * 0.6, [1, 0.78, 0.45]); }
+          { const [x, y] = sp(22 * 16 + 8, 9 * 16 + 4), h = (t * 40) % 360 / 360, cc = hsl2rgb(h * 360, 0.9, 0.6).map(v => v / 255); add(x, y, 0.1, 0.08 + 0.22 * Lg.dark, cc); }
+          { const [x, y] = sp(22 * 16 + 8, 5 * 16 + 8); add(x, y, 0.13, Lg.dark * 0.45, [1, 0.55, 0.85]); } }
+        else if (G.state === 'lobby' && !lobbyOv()) { for (const lx of [250, 470]) { const sw = Math.sin(t * 1.2 + lx) * 0.08, x = lx - Math.sin(sw) * 66, y = 114 + Math.cos(sw) * 66; add(x / W, 1 - y / H, 0.2, 0.45 * (0.9 + 0.1 * Math.sin(t * 11 + lx)), [1, 0.72, 0.4]); } for (const [vx, vy] of [[306, 238], [424, 328]]) add(vx / W, 1 - vy / H, 0.09, 0.4 * (0.85 + 0.15 * Math.sin(t * 13 + vx)), [1, 0.75, 0.42]); }
+        gl.uniform4fv(u.lts, LT); gl.uniform3fv(u.ltc, LC); }
     });
   },
 };
@@ -3633,7 +3646,7 @@ const LORE = [   // [título, texto, condición para leerla]
   ['Los Elementis', 'De aquella estrella cayeron cinco colores: Fuego, Naturaleza, Agua, Rayo y Arcano. Así nacieron los Elementis. Quieren muchísimo a la princesa, porque ella conoce el nombre de cada uno y nunca olvida darles las buenas noches.'],
   ['El Archimago Grisvel', 'En la torre más alta vivía Grisvel, un archimago que nunca había recibido un abrazo. Al ver que hasta las estrellas brillaban por Omaira, sintió celos, robó a los Elementis y los encerró. Sin ellos, el reino empezó a volverse gris.'],
   ['Caldo y el alquimista', 'Un alquimista y su caldero parlanchín, Caldo, ofrecieron su ayuda a la princesa: «Cada Elementi que liberes caerá en Caldo y se convertirá en magia». Y así, con una sonrisa, Omaira empezó su viaje.'],
-  ['La granja', 'Detrás del laboratorio hay una granja donde crecen Lunarias, Solarias y Fuegofloras, flores que solo se abren cuando pasa la Princesa Omaira. Con ellas, Caldo prepara elixires para ayudarla en su camino.'],
+  ['La granja', 'Detrás del laboratorio hay una granja con Lunarias, Solarias y Fuegofloras, que solo se abren cuando pasa la Princesa Omaira, y un jardín de orquídeas, sus flores favoritas. Con la cosecha, Caldo prepara elixires.'],
   ['La Bóveda del Aprendiz', 'En la Bóveda, los Elementis temblaban de miedo. La princesa les habló con tanta ternura que dejaron de llorar y saltaron a Caldo uno tras otro. Grisvel, escondido, no entendía cómo alguien podía ser tan dulce.', 1],
   ['La Cripta de Escarcha', 'Grisvel heló la cripta para que nadie pudiera entrar. Pero el corazón de Omaira es tan cálido que el hielo se agrietaba a su paso. Los Elementis azules aún cuentan que ese día sintieron primavera en pleno invierno.', 2],
   ['La Forja de Pólvora', 'En la forja, barriles y cadenas guardaban a los Elementis. La princesa no tuvo miedo de las explosiones: tomó a los más pequeños en brazos y los liberó con cuidado. Hasta los barriles parecían estallar de alegría.', 3],
@@ -3643,8 +3656,10 @@ const LORE = [   // [título, texto, condición para leerla]
 ];
 function loreOpen(i) { const c = LORE[i][2]; return !c || (c < 5 ? (G.unlocked | 0) > c * 10 : (G.stars[49] || 0) > 0); }   // capítulos: se leen al superarlos
 function loreNew() { for (let i = 0; i < LORE.length; i++) if (loreOpen(i) && i > (G.loreSeen ?? -1)) return i; return -1; }
+const SUN_SAYS = ['Los girasoles miran al sol... y cuando pasa la Princesa Omaira, la miran a ella.', 'De noche, los girasoles se duermen soñando con el día.', 'Sus semillas son el desayuno favorito de los patos del lago.', 'Los girasoles crecen altos para ver pasar a la princesa.'];
+const ORCHID_SAYS = ['Orquídeas: las flores favoritas de la Princesa Omaira.', 'Se abren despacio, como la sonrisa de la princesa.', 'El alquimista las cuida cada mañana para la Princesa Omaira.', 'Dicen que cada orquídea guarda un secreto cariñoso.', 'Ninguna flor del reino es tan elegante... salvo la princesa.'];
 const ELEMENTI_SAYS = {
-  all: ['La Princesa Omaira es maravillosa.', 'Dicen que la Princesa Omaira es la mujer más hermosa del mundo... ¡y es totalmente verdad!', 'La princesa siempre tiene una palabra cariñosa para cada uno de nosotros.',
+  all: ['La Princesa Omaira es maravillosa.', 'Las orquídeas del jardín son las flores favoritas de la Princesa Omaira.', 'Dicen que la Princesa Omaira es la mujer más hermosa del mundo... ¡y es totalmente verdad!', 'La princesa siempre tiene una palabra cariñosa para cada uno de nosotros.',
     'Cuando tengo miedo, pienso en la sonrisa de la Princesa Omaira y se me pasa.', 'Las flores se ponen celosas: la Princesa Omaira es más bonita que todas ellas.', 'La princesa nos da las buenas noches a todos, uno por uno.', 'Ni los hechizos de Grisvel pueden apagar el cariño de la princesa.', 'Somos Elementis y muchas veces brillamos, pero la Princesa Omaira brilla más que nosotros.', 'Qué lindas las estrellas... se dice que fueron creadas como referencia a la Princesa Omaira.',
     'Nacimos de la primera estrella que encendió la Princesa Omaira.', 'Cuando la Princesa Omaira sonríe, Caldo hierve de alegría.', 'El Archimago nos encerró, ¡pero la Princesa Omaira nos libera!',
     'Dicen que las flores de la granja se abren solo cuando pasa la Princesa Omaira.', 'Cada poción que destilas devuelve un color al Reino de Chroma.', 'La luna sale cada noche para ver dormir a la Princesa Omaira.',
@@ -3716,7 +3731,7 @@ function drawLobby() {
   for (const le of G.lobbyEl || []) G.btns.push({ x: le.x - 30, y: le.y - 36, w: 60, h: 60, fn: () => elementiSay(le.x, le.y - 30, le.k) });
   G.btns.push({ x: 430, y: 350, w: 110, h: 280, fn: () => { if (G.doorT) return; G.doorT = G.time; G.doorC = 0; Snd.v(150, 0.45, { type: 'sawtooth', vol: 0.04, to: 95 }); Snd.chainNote(4); } });   // puerta a la granja
   if (G.doorT && G.time - G.doorT > 0.85) { G.doorT = 0; Garden.enter(); }
-  G.btns.push({ x: 90, y: 400, w: 170, h: 260, fn: () => { G.lobbyT = -99; Snd.letter(Math.floor(Math.random() * 8), 1); burst(170, 470, '#ffe27a', 10, 160, 60, 'star'); } });   // tocar al alquimista: otra frase
+  G.btns.push({ x: 90, y: 400, w: 170, h: 260, fn: () => { G.lobbyT = -99; Snd.letter(1 + Math.floor(Math.random() * 8), 1); burst(170, 470, '#ffe27a', 10, 160, 60, 'star'); } });   // tocar al alquimista: otra frase
   // rango y estrellas
   const i = rankIdx(G.xp), ts = G.stars.reduce((a, b) => a + (b || 0), 0), pot = G.stars.filter(x => x > 0).length;
   ctx.fillStyle = 'rgba(12,10,23,.7)'; rr(16, 112, W - 32, 62, 16); ctx.fill();
@@ -3845,14 +3860,14 @@ function drawMenu() {
    y un ciclo de día, atardecer y noche según la hora del móvil.
    ===================================================================== */
 const Garden = {
-  MW: 22, MH: 26, PX: 3, TS: 48, keys: {}, joy: null, built: false, greet: [], last: 0, skew: 0, hourOv: null, cx: 0, cy: 0,
+  MW: 30, MH: 32, PX: 3, TS: 48, keys: {}, joy: null, built: false, greet: [], last: 0, skew: 0, hourOv: null, cx: 0, cy: 0,
   SEEDS: [
     { n: 'Lunaria', c: COLORS.B, need: 10 / 60, xp: 5 },
     { n: 'Solaria', c: COLORS.Y, need: 30 / 60, xp: 10 },
     { n: 'Fuegoflor', c: COLORS.R, need: 1, xp: 20 },
   ],
   WET: 40 / 60, HOUR: 3600000,   // la tierra sigue húmeda 40 min tras regar; las plantas solo crecen húmedas
-  SOLID: 'ThD~foCLbWKxrMP',
+  SOLID: 'ThD~foCLbWKxrMPQO',
   now() { return Date.now() + this.skew; },
   load() {},
   resize() {},
@@ -3860,7 +3875,7 @@ const Garden = {
     if (!this.built) this.build();
     G.state = 'garden';
     this.joy = null; this.keys = {}; this.t0 = G.time; this.last = G.time; this.greet = [];
-    this.p = { x: 10.5, y: 7.8, fx: 0, fy: 1, ph: 0, vel: 0 }; this.camInit = false;
+    this.p = { x: 14.5, y: 7.8, fx: 0, fy: 1, ph: 0, vel: 0 }; this.camInit = false;
     this.fly = []; this.leaves = []; this.farm(); this.spawnStars(); Snd.chainNote(3);
   },
   exit() { G.state = 'lobby'; G.doorC = G.time; G.doorT = 0; this.joy = null; Snd.click(); },
@@ -3884,7 +3899,9 @@ const Garden = {
   sprite(rows, pal) { const [c, x] = this.cnv(rows[0].length, rows.length); rows.forEach((r, y) => { for (let i = 0; i < r.length; i++) if (pal[r[i]]) { x.fillStyle = pal[r[i]]; x.fillRect(i, y, 1, 1); } }); return c; },
   tile(x, y) { return x < 0 || y < 0 || x >= this.MW || y >= this.MH ? 'T' : this.m[y][x]; },
   solidAt(x, y) { return this.SOLID.includes(this.tile(Math.floor(x), Math.floor(y))); },
-  blocked(x, y) { return this.solidAt(x - 0.28, y - 0.04) || this.solidAt(x + 0.28, y - 0.04) || this.solidAt(x - 0.28, y - 0.32) || this.solidAt(x + 0.28, y - 0.32); },
+  blocked(x, y) { return this.solidAt(x - 0.2, y - 0.04) || this.solidAt(x + 0.2, y - 0.04) || this.solidAt(x - 0.2, y - 0.24) || this.solidAt(x + 0.2, y - 0.24); },
+  swim(x, y) { for (const [a, b] of [[-0.4, 0], [0.4, 0], [0, -0.25], [0, 0.3]]) if (this.tile(Math.floor(x + a), Math.floor(y + b)) !== '~') return false; return true; },
+  waterSpot() { for (let k = 0; k < 40; k++) { const x = 16 + Math.random() * 12, y = 18 + Math.random() * 8; if (this.swim(x, y)) return [x, y]; } return null; },
   plotAt(x, y) { const i = this.plotIdx[x + ',' + y]; return i === undefined ? -1 : i; },
   scr(wx, wy) { return [wx * this.TS - this.cx, wy * this.TS - this.cy]; },
   /* ---------- construcción del mapa y los dibujos ---------- */
@@ -3894,23 +3911,27 @@ const Garden = {
     const set = (x, y, c) => { if (x >= 0 && y >= 0 && x < MW && y < MH) m[y][x] = c; };
     for (let x = 0; x < MW; x++) { set(x, 0, 'T'); set(x, MH - 1, 'T'); }
     for (let y = 0; y < MH; y++) { set(0, y, 'T'); set(MW - 1, y, 'T'); }
-    for (let y = 3; y <= 6; y++) for (let x = 7; x <= 13; x++) set(x, y, 'h');
-    set(10, 6, 'D');
-    for (let y = 7; y <= 23; y++) set(10, y, '=');
-    for (let x = 3; x <= 18; x++) set(x, 12, '=');
-    set(4, 13, '=');
-    for (let x = 1; x <= 8; x++) { set(x, 14, 'f'); set(x, 20, 'f'); }
-    for (let y = 14; y <= 20; y++) { set(1, y, 'f'); set(8, y, 'f'); }
-    set(4, 14, '='); set(5, 14, '='); set(5, 13, '=');   // entrada doble al huerto
+    for (let y = 3; y <= 6; y++) for (let x = 11; x <= 17; x++) set(x, y, 'h');   // casa
+    set(14, 6, 'D');
+    for (let y = 7; y <= 28; y++) for (let x = 13; x <= 15; x++) set(x, y, '=');     // camino principal ancho
+    for (let y = 13; y <= 14; y++) for (let x = 2; x <= 27; x++) set(x, y, '=');      // camino que cruza la granja
+    for (let x = 2; x <= 9; x++) { set(x, 16, 'f'); set(x, 22, 'f'); }                // huerto vallado
+    for (let y = 16; y <= 22; y++) { set(2, y, 'f'); set(9, y, 'f'); }
+    set(5, 15, '='); set(6, 15, '='); set(5, 16, '='); set(6, 16, '=');              // entrada doble
     this.plots = []; this.plotIdx = {};
-    for (let y = 15; y <= 19; y++) for (let x = 2; x <= 7; x++) { set(x, y, 'S'); this.plotIdx[x + ',' + y] = this.plots.length; this.plots.push([x, y]); }
-    for (let y = 14; y <= 22; y++) for (let x = 13; x <= 20; x++) if (((x + 0.5 - 16.5) / 2.7) ** 2 + ((y + 0.5 - 18.5) / 2.2) ** 2 < 1) set(x, y, '~');
-    [[3, 3], [17, 3], [19, 5], [5, 4], [2, 9], [6, 9], [16, 10], [19, 13], [3, 22], [7, 22], [14, 23], [18, 23], [19, 8]].forEach(([x, y]) => set(x, y, 'T'));
-    [[13, 14], [19, 21], [12, 21]].forEach(([x, y]) => set(x, y, 'o'));
-    [[9, 8], [11, 10], [9, 14], [11, 17], [9, 21]].forEach(([x, y]) => set(x, y, 'L'));
-    [[6, 6], [14, 6], [1, 12], [8, 13], [1, 21]].forEach(([x, y]) => set(x, y, 'b'));
-    set(16, 7, 'C'); set(13, 9, 'W'); set(9, 17, 'K'); set(14, 7, 'x'); set(6, 7, 'r'); set(11, 7, 'M'); set(11, 13, 'P');
-    set(14, 18, 'd'); set(15, 18, 'd');   // embarcadero sobre el estanque
+    for (let y = 17; y <= 21; y++) for (let x = 3; x <= 8; x++) { set(x, y, 'S'); this.plotIdx[x + ',' + y] = this.plots.length; this.plots.push([x, y]); }
+    for (let y = 17; y <= 27; y++) for (let x = 15; x <= 28; x++) if (((x + 0.5 - 21.5) / 5.2) ** 2 + ((y + 0.5 - 22.3) / 3.6) ** 2 < 1) set(x, y, '~');   // lago
+    set(16, 22, 'd'); set(17, 22, 'd'); set(18, 22, 'd');                             // embarcadero que sale del camino
+    set(23, 23, '.'); set(24, 23, 'q');                                               // islita con una orquídea
+    [[4, 4], [8, 9], [3, 11], [25, 9], [27, 5], [26, 11], [25, 16], [9, 27], [4, 28], [20, 29], [26, 28], [17, 29], [2, 25]].forEach(([x, y]) => set(x, y, 'T'));
+    [[27, 18], [11, 25], [19, 17]].forEach(([x, y]) => set(x, y, 'o'));
+    [[12, 9], [16, 11], [12, 18], [16, 17], [12, 26], [8, 12], [21, 15]].forEach(([x, y]) => set(x, y, 'L'));
+    [[10, 5], [18, 5], [1, 15], [28, 14], [11, 23]].forEach(([x, y]) => set(x, y, 'b'));
+    for (let y = 4; y <= 6; y++) for (let x = 20; x <= 24; x++) set(x, y, 'Q');      // jardín de orquídeas
+    set(12, 7, 'O'); set(16, 7, 'O');                                                 // orquídeas en maceta junto a la puerta
+    for (let x = 3; x <= 8; x++) set(x, 24, 'g'); set(10, 7, 'g'); set(18, 7, 'g');   // girasoles
+    [[6, 5], [2, 10], [24, 11], [20, 26], [6, 29], [28, 17]].forEach(([x, y]) => set(x, y, 'q'));   // orquídeas silvestres
+    set(22, 9, 'C'); set(18, 10, 'W'); set(10, 19, 'K'); set(19, 8, 'x'); set(9, 8, 'r'); set(17, 8, 'M'); set(16, 15, 'P');
     for (let y = 1; y < MH - 1; y++) for (let x = 1; x < MW - 1; x++) if (m[y][x] === '.' && this.rng(x * 7349 + y * 9151 + 3)() < 0.13) m[y][x] = '*';
     // sprites
     const K = '#140a34', base = { K, H: '#6a4ac0', h: '#4a3090', Y: '#ffd24a', S: '#f0c8a0', E: '#140a34', C: '#ff9aa8', R: '#2a1b5e', r: '#4a3496', B: '#5a3418' };
@@ -3931,20 +3952,23 @@ const Garden = {
     this.houseSpr = this.mkHouse(); this.lampSpr = this.mkLamp(); this.bushSpr = this.mkBush(); this.potSpr = this.mkPot();
     this.wellSpr = this.mkWell(); this.scareSpr = this.mkScare(); this.crateSpr = this.mkCrate(); this.barrelSpr = this.mkBarrel(); this.mailSpr = this.mkMail(); this.signSpr = this.mkSign();
     this.duckSpr = this.sprite(['..KK....', '.KWWK...', '.KWEOO..', 'KKWWK...', 'KWWWWWK.', 'KWWWWWWK', '.KKKKKK.'], { K: '#3a3a4a', W: '#ffffff', E: '#140a34', O: '#ffa030' });
-    this.tufts = []; { const rr2 = this.rng(4242); for (let k = 0; k < 70; k++) { const x = 1 + rr2() * (MW - 2), y = 1 + rr2() * (MH - 2); if ('.*'.includes(m[Math.floor(y)][Math.floor(x)])) this.tufts.push({ x, y, ph: rr2() * 6, h: 3 + (rr2() * 3 | 0) }); } }
-    this.ducks = [{ a: 0, sp: 0.25, rx: 1.6, ry: 1.1 }, { a: 2.5, sp: -0.18, rx: 1.0, ry: 0.7 }]; this.fishT = 3;
+    this.sunSpr = [0, 1].map(v => this.mkSunflower(v)); this.orqSpr = [0, 1, 2, 3].map(v => this.mkOrchid(v)); this.petals = [];
+    this.tufts = []; { const rr2 = this.rng(4242); for (let k = 0; k < 110; k++) { const x = 1 + rr2() * (MW - 2), y = 1 + rr2() * (MH - 2); if ('.*'.includes(m[Math.floor(y)][Math.floor(x)])) this.tufts.push({ x, y, ph: rr2() * 6, h: 3 + (rr2() * 3 | 0) }); } }
+    this.ducks = [{ x: 20.5, y: 23.5, kids: 0 }, { x: 23.5, y: 20.5, kids: 2 }].map(d => Object.assign(d, { tx: d.x, ty: d.y, fl: false, hist: [], ht: 0 })); this.fishT = 3; this.rips = []; this.ripT = 1;
+    this.fishSh = [0, 1, 2].map(i => ({ x: 19 + i * 2, y: 22 + (i % 2), tx: 19, ty: 22, ph: i }));
+    this.duckling = this.sprite(['.KK..', 'KWEO.', 'KWWWK', '.KKK.'], { K: '#a08030', W: '#ffe27a', E: '#140a34', O: '#ff9a30' });
     this.mkMap();
     // objetos que se ordenan por profundidad
-    this.objs = [{ k: 'house', x: 7, y: 3, by: 7 }];
+    this.objs = [{ k: 'house', x: 11, y: 3, by: 7 }];
     for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) {
       const t = m[y][x]; if (t === 'T') this.objs.push({ k: 'tree', x, y, by: y + 0.92, v: (x * 3 + y * 5) % 7 === 0 ? 1 : (x + y) % 3 === 0 ? 2 : 0 });
-      else if (t === 'L') this.objs.push({ k: 'lamp', x, y, by: y + 0.85 }); else if (t === 'b') this.objs.push({ k: 'bush', x, y, by: y + 0.9 }); else if (t === 'C') this.objs.push({ k: 'pot', x, y, by: y + 0.9 }); else if ('WKxrMP'.includes(t)) this.objs.push({ k: t, x, y, by: y + 0.9 });
+      else if (t === 'L') this.objs.push({ k: 'lamp', x, y, by: y + 0.85 }); else if (t === 'b') this.objs.push({ k: 'bush', x, y, by: y + 0.9 }); else if (t === 'C') this.objs.push({ k: 'pot', x, y, by: y + 0.9 }); else if ('WKxrMP'.includes(t)) this.objs.push({ k: t, x, y, by: y + 0.9 }); else if (t === 'g') this.objs.push({ k: 'sun', x, y, by: y + 0.8, v: (x + y) % 2 }); else if ('QOq'.includes(t)) this.objs.push({ k: 'orq', t, x, y, by: y + 0.8, v: (x * 7 + y * 3) % 4 });
     }
     // Elementis
-    const spots = [[5, 10], [14, 11], [12, 15], [16, 13], [12, 22]];
+    const spots = [[6, 11], [21, 12], [11, 20], [23, 16], [17, 26]];
     this.elems = spots.map(([x, y], i) => ({ x: x + 0.5, y: y + 0.6, tx: x + 0.5, ty: y + 0.6, wait: 1 + i, ph: i, happy: 0, greeted: -99, spr: this.elemSpr[i] }));
-    this.ff = [...Array(18)].map((_, i) => ({ x: 2 + (i * 7.3) % 18, y: 3 + (i * 5.1) % 20, ph: i * 1.7 }));
-    this.bf = [...Array(4)].map((_, i) => ({ x: 4 + i * 4, y: 9 + (i % 2) * 6, ph: i * 2.1, col: ['#ffffff', '#ffb0d0', '#b0e0ff', '#fff0a0'][i] }));
+    this.ff = [...Array(18)].map((_, i) => ({ x: 2 + (i * 7.3) % 26, y: 3 + (i * 5.1) % 27, ph: i * 1.7 }));
+    this.bf = [...Array(5)].map((_, i) => ({ x: i < 2 ? 21 + i * 1.5 : 4 + i * 5, y: i < 2 ? 4.6 : 9 + (i % 2) * 6, ph: i * 2.1, col: ['#ffffff', '#ffb0d0', '#b0e0ff', '#fff0a0', '#e0c0ff'][i] }));
     this.built = true;
   },
   mkElem(C) {
@@ -4002,6 +4026,22 @@ const Garden = {
   mkBarrel() { const [c, x] = this.cnv(14, 18), P = this.px.bind(this, x); P(1, 0, 12, 18, '#3a2412'); P(2, 1, 10, 16, '#8a5a2e'); P(2, 1, 3, 16, '#a8703c'); P(1, 4, 12, 2, '#5a5a6e'); P(1, 12, 12, 2, '#5a5a6e'); P(3, 0, 8, 2, '#5a3418'); return c; },
   mkMail() { const [c, x] = this.cnv(12, 22), P = this.px.bind(this, x); P(5, 9, 2, 13, '#5a3418'); P(0, 1, 12, 9, '#3e2a8a'); P(1, 2, 10, 7, '#6a4ac0'); P(0, 0, 12, 2, '#22165a'); P(10, 2, 2, 5, '#ff4d6d'); P(2, 4, 6, 3, '#ffd24a'); return c; },
   mkSign() { const [c, x] = this.cnv(22, 22), P = this.px.bind(this, x); P(10, 6, 2, 16, '#5a3418'); P(0, 2, 20, 8, '#5a3418'); P(1, 3, 18, 6, '#c8925a'); P(19, 4, 3, 4, '#5a3418'); P(3, 5, 9, 1, '#5a3418'); P(3, 7, 6, 1, '#5a3418'); P(14, 5, 2, 2, '#3f9a48'); return c; },
+  mkSunflower(v) {   // girasol alto: tallo, hojas y cabeza grande de pétalos amarillos con centro de semillas
+    const [c, x] = this.cnv(16, 28), P = this.px.bind(this, x);
+    P(7, 11, 2, 17, '#3f7a2c'); P(7, 11, 1, 17, '#5c9a3a'); this.ell(x, 4.5, 18, 4, 1.8, '#3f8a34'); this.ell(x, 11.5, 22 - v * 3, 4, 1.8, '#4e9a3e'); P(3, 17, 3, 1, '#6cbc52'); P(10, 21 - v * 3, 3, 1, '#6cbc52');
+    for (let k = 0; k < 12; k++) { const an = k / 12 * TAU, px2 = Math.round(8 + Math.cos(an) * 6), py2 = Math.round(7 + Math.sin(an) * 6); P(px2 - 1, py2 - 1, 2, 2, k % 2 ? '#ffc93c' : '#ffd24a'); }
+    this.disc(x, 8, 7, 5, '#f0a820'); this.disc(x, 8, 7, 4, '#ffd24a'); this.disc(x, 8, 7, 3, '#6a3a14'); this.disc(x, 7, 6, 1, '#8a5424');
+    for (const [a, b] of [[6, 8], [9, 6], [10, 9], [7, 5], [8, 10]]) P(a, b, 1, 1, '#3a2010');
+    return c;
+  },
+  mkOrchid(v) {     // orquídea: hojas anchas, tallo curvo y varias flores de pétalos grandes con labio de otro color
+    const [c, x] = this.cnv(16, 20), P = this.px.bind(this, x), [pc, lc, ed] = [['#ff9ad0', '#c8306e', '#e060a0'], ['#d0a8ff', '#7a3fd0', '#a070f0'], ['#fff6fb', '#ff5aa8', '#f0d0e8'], ['#ff6ab8', '#ffd24a', '#e0408a']][v];
+    this.ell(x, 5, 17.5, 5, 2.2, '#245a2c'); this.ell(x, 11, 17.8, 5, 2, '#2f7a3a'); this.ell(x, 8, 16.6, 4, 1.6, '#3f9a48'); P(4, 16, 3, 1, '#5cb85a'); P(10, 17, 3, 1, '#5cb85a');
+    for (const [a, b] of [[8, 15], [8, 14], [8, 13], [8, 12], [8, 11], [9, 10], [9, 9], [10, 8], [10, 7], [11, 6], [12, 5]]) P(a, b, 1, 1, '#3f6a2c');
+    const bloom = (cx, cy) => { P(cx - 3, cy - 1, 3, 3, ed); P(cx + 1, cy - 1, 3, 3, ed); P(cx - 2, cy - 1, 2, 2, pc); P(cx + 1, cy - 1, 2, 2, pc); P(cx - 1, cy - 3, 2, 2, pc); P(cx - 1, cy + 1, 2, 2, lc); P(cx - 1, cy - 1, 2, 2, pc); P(cx, cy, 1, 1, '#ffe27a'); P(cx - 2, cy - 1, 1, 1, '#ffffff'); };
+    bloom(12, 4); bloom(6, 8); bloom(11, 10);
+    return c;
+  },
   mkLamp() { const [c, x] = this.cnv(10, 28), P = this.px.bind(this, x); P(4, 10, 2, 16, '#3a2412'); P(4, 10, 1, 16, '#7a4a24'); P(2, 25, 6, 3, '#3a2412'); P(1, 2, 8, 9, '#3a2412'); P(2, 3, 6, 7, '#ffe27a'); P(3, 4, 2, 3, '#fff6d0'); P(0, 0, 10, 3, '#22165a'); P(4, 0, 2, 1, '#ffd24a'); return c; },
   mkBush() { const [c, x] = this.cnv(18, 15); this.disc(x, 9, 8, 7, '#1f4f28'); this.disc(x, 9, 7, 6, '#3f9a48'); this.disc(x, 7, 5, 3, '#5cb85a'); for (const [a, b] of [[5, 9], [11, 6], [13, 10], [8, 11]]) { this.px(x, a, b, 2, 2, '#ff5a7a'); this.px(x, a, b, 1, 1, '#ffd0d8'); } return c; },
   mkPot() { const [c, x] = this.cnv(22, 20), P = this.px.bind(this, x); P(4, 16, 2, 4, '#140a34'); P(16, 16, 2, 4, '#140a34'); this.ell(x, 11, 11, 10, 8, '#140a34'); this.ell(x, 11, 11, 9, 7, '#3a3250'); this.ell(x, 9, 12, 5, 4, '#4a4266'); P(1, 4, 20, 4, '#140a34'); P(2, 5, 18, 2, '#6a6088'); return c; },
@@ -4013,6 +4053,7 @@ const Garden = {
       // hierba de fondo en todas partes
       P(ox, oy, 16, 16, (tx + ty) % 2 ? '#5aa846' : '#58a544');
       for (let i = 0; i < 14; i++) P(ox + (r() * 16 | 0), oy + (r() * 16 | 0), 1, 1, r() < 0.5 ? '#68b852' : '#4e9a3e');
+      if (r() < 0.2) { const bx = ox + 2 + (r() * 10 | 0), by = oy + 2 + (r() * 10 | 0), cl = r() < 0.5 ? '#4e9a3e' : '#66b44e'; P(bx, by, 4, 2, cl); P(bx + 1, by - 1, 2, 4, cl); }
       if (r() < 0.5) { const gx = ox + 2 + (r() * 11 | 0), gy = oy + 4 + (r() * 9 | 0); P(gx, gy, 1, 2, '#3f8a34'); P(gx + 2, gy, 1, 2, '#3f8a34'); P(gx + 1, gy - 1, 1, 3, '#7ccc5e'); }
       if (t === '=') {
         P(ox, oy, 16, 16, '#d4a86c');
@@ -4029,13 +4070,14 @@ const Garden = {
         P(ox, oy, 16, 16, '#5e3a20'); P(ox + 1, oy + 1, 14, 14, '#7a5030');
         for (let yy = 3; yy < 15; yy += 4) { P(ox + 1, oy + yy, 14, 1, '#5e3a20'); for (let i = 1; i < 15; i++) if (r() < 0.5) P(ox + i, oy + yy + 1, 1, 1, '#8e6040'); }
       } else if (t === '~') {
-        P(ox, oy, 16, 16, '#3f8fd6'); for (let i = 0; i < 10; i++) P(ox + (r() * 16 | 0), oy + (r() * 16 | 0), 2, 1, '#4a9ce0');
+        let dep = 2; for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) if (!isT(tx + dx, ty + dy, '~d')) dep = Math.min(dep, Math.max(Math.abs(dx), Math.abs(dy)) - 1);
+        P(ox, oy, 16, 16, ['#4a9ce0', '#3f8fd6', '#3274bc'][dep]); for (let i = 0; i < 10; i++) P(ox + (r() * 16 | 0), oy + (r() * 16 | 0), 2, 1, ['#5aaae8', '#4a9ce0', '#3a82c8'][dep]);
         const w = '~d';
         if (!isT(tx, ty - 1, w)) { P(ox, oy, 16, 3, '#d8c088'); P(ox, oy + 3, 16, 1, '#2f6fae'); }
         if (!isT(tx, ty + 1, w)) { P(ox, oy + 13, 16, 3, '#d8c088'); P(ox, oy + 12, 16, 1, '#2f6fae'); }
         if (!isT(tx - 1, ty, w)) { P(ox, oy, 3, 16, '#d8c088'); P(ox + 3, oy + (isT(tx, ty - 1, w) ? 0 : 3), 1, 16 - (isT(tx, ty - 1, w) ? 0 : 3) - (isT(tx, ty + 1, w) ? 0 : 3), '#2f6fae'); }
         if (!isT(tx + 1, ty, w)) { P(ox + 13, oy, 3, 16, '#d8c088'); P(ox + 12, oy + (isT(tx, ty - 1, w) ? 0 : 3), 1, 16 - (isT(tx, ty - 1, w) ? 0 : 3) - (isT(tx, ty + 1, w) ? 0 : 3), '#2f6fae'); }
-        if (r() < 0.3) { P(ox + 6, oy + 7, 4, 2, '#3f9a48'); P(ox + 7, oy + 6, 2, 1, '#5cb85a'); P(ox + 8, oy + 6, 1, 1, '#ff9ad0'); }   // nenúfar
+        if (r() < 0.42) { const lx = ox + 3 + (r() * 8 | 0), ly = oy + 4 + (r() * 7 | 0); P(lx, ly + 1, 5, 2, '#2f7a3a'); P(lx + 1, ly, 3, 1, '#3f9a48'); P(lx + 1, ly + 1, 3, 1, '#5cb85a'); P(lx + 2, ly + 2, 1, 1, '#2f6e34'); if (r() < 0.5) { const fc = r() < 0.5 ? '#ff9ad0' : '#fff6fb'; P(lx + 1, ly - 1, 3, 2, fc); P(lx + 2, ly - 2, 1, 1, fc); P(lx + 2, ly - 1, 1, 1, '#ffe27a'); } }   // nenúfares
       } else if (t === 'f') {
         const L = isT(tx - 1, ty, 'f'), Rr = isT(tx + 1, ty, 'f'), U = isT(tx, ty - 1, 'f'), Dn = isT(tx, ty + 1, 'f');
         if (L) { P(ox, oy + 5, 8, 2, '#b07a44'); P(ox, oy + 7, 8, 1, '#5a3418'); P(ox, oy + 10, 8, 2, '#b07a44'); P(ox, oy + 12, 8, 1, '#5a3418'); }
@@ -4047,8 +4089,19 @@ const Garden = {
         P(ox + 1, oy + 13, 2, 3, '#3a2412'); P(ox + 13, oy + 13, 2, 3, '#3a2412');
       } else if (t === 'o') {
         P(ox + 3, oy + 13, 11, 2, 'rgba(0,0,0,.2)'); this.ell(x, ox + 8, oy + 9, 6, 5, '#4a4a5e'); this.ell(x, ox + 8, oy + 9, 5, 4, '#8a8a9a'); this.ell(x, ox + 7, oy + 7, 3, 2, '#b0b0c0'); P(ox + 10, oy + 11, 2, 1, '#5cb85a');
+      }
+      if ((t === '.' || t === '*') && ['~'].some(w => isT(tx + 1, ty, w) || isT(tx - 1, ty, w) || isT(tx, ty + 1, w) || isT(tx, ty - 1, w))) {   // orilla: juncos y piedras
+        for (let k = 0; k < 3; k++) if (r() < 0.55) { const rx = ox + 2 + (r() * 12 | 0), h = 6 + (r() * 4 | 0), ry = oy + 15 - h; P(rx, ry + 2, 1, h - 2, '#4e8a34'); P(rx - 1, ry, 2, 3, '#7a4a24'); P(rx - 1, ry, 1, 1, '#9a6a3a'); }
+        if (r() < 0.4) { const sx = ox + 2 + (r() * 10 | 0), sy = oy + 10 + (r() * 4 | 0); P(sx, sy, 4, 2, '#7a7a90'); P(sx + 1, sy - 1, 2, 1, '#a0a0b8'); }
+      }
+      if (false) {
       } else if (t === '.' && r() < 0.06) {
         const a = ox + 4 + (r() * 7 | 0), b = oy + 6 + (r() * 6 | 0); for (const [mx, my, sc] of [[0, 0, 1], [4, 2, 0]]) { P(a + mx + 1, b + my + 2, 1, 2, '#f0e0c8'); P(a + mx - sc, b + my, 3 + sc * 2, 2, sc ? '#e84a5a' : '#c89a5a'); P(a + mx, b + my, 1, 1, '#ffffff'); }
+      } else if (t === 'Q') {
+        P(ox, oy, 16, 16, '#4a2c18'); for (let i = 0; i < 12; i++) P(ox + (r() * 16 | 0), oy + (r() * 16 | 0), 1, 1, r() < 0.5 ? '#5e3a20' : '#3a2010');
+        const st = (sx, sy, w, h) => { P(sx, sy, w, h, '#6a6a80'); P(sx, sy, w, 1, '#a0a0b8'); };
+        if (!isT(tx, ty - 1, 'Q')) for (let i = 0; i < 16; i += 4) st(ox + i, oy, 4, 3); if (!isT(tx, ty + 1, 'Q')) for (let i = 0; i < 16; i += 4) st(ox + i, oy + 13, 4, 3);
+        if (!isT(tx - 1, ty, 'Q')) for (let i = 0; i < 16; i += 4) st(ox, oy + i, 3, 4); if (!isT(tx + 1, ty, 'Q')) for (let i = 0; i < 16; i += 4) st(ox + 13, oy + i, 3, 4);
       } else if (t === '*') {
         const n = 2 + (r() * 2 | 0);
         for (let i = 0; i < n; i++) { const a = ox + 3 + (r() * 10 | 0), b = oy + 3 + (r() * 10 | 0), col = ['#ff6b8a', '#ffd24a', '#ffffff', '#b78bff', '#7fd0ff'][r() * 5 | 0]; P(a, b + 2, 1, 2, '#3f8a34'); P(a - 1, b, 3, 1, col); P(a, b - 1, 1, 3, col); P(a, b, 1, 1, '#ffe27a'); }
@@ -4063,7 +4116,7 @@ const Garden = {
     let h0 = 0; for (const ch of day) h0 = (h0 * 31 + ch.charCodeAt(0)) >>> 0; const rnd = this.rng(h0 + 7);
     this.stars = []; const used = {};
     for (let i = 0; i < 5; i++) {
-      let x, y, tries = 0; do { x = 1 + (rnd() * (this.MW - 2) | 0); y = 2 + (rnd() * (this.MH - 3) | 0); } while ((!'.*'.includes(this.m[y][x]) || used[x + ',' + y] || Math.hypot(x - 10, y - 8) < 3) && tries++ < 200);
+      let x, y, tries = 0; do { x = 1 + (rnd() * (this.MW - 2) | 0); y = 2 + (rnd() * (this.MH - 3) | 0); } while ((!'.*'.includes(this.m[y][x]) || used[x + ',' + y] || Math.hypot(x - 14, y - 8) < 3) && tries++ < 200);
       used[x + ',' + y] = 1; if (!G.gStars.got.includes(i)) this.stars.push({ i, x: x + 0.5, y: y + 0.6 });
     }
   },
@@ -4096,6 +4149,8 @@ const Garden = {
       else floater(x, y - 24, 'Acércate más', '#ffffff', 15, 0.9);
       return;
     }
+    if (this.tile(tx, ty) === 'g' || this.tile(tx, ty + 1) === 'g') { const ln = SUN_SAYS[Math.floor(Math.random() * SUN_SAYS.length)], ox = tx + 0.5, oy = ty; G.esay = { x: 0, y: 0, text: ln, t: G.time, col: '#ffc93c', pos: () => this.scr(ox, oy) }; Snd.chainNote(5); return; }
+    if ('QOq'.includes(this.tile(tx, ty)) || 'QOq'.includes(this.tile(tx, ty + 1))) { const ln = ORCHID_SAYS[Math.floor(Math.random() * ORCHID_SAYS.length)], ox = tx + 0.5, oy = ty; G.esay = { x: 0, y: 0, text: ln, t: G.time, col: '#ff6ab8', pos: () => this.scr(ox, oy) }; Snd.chainNote(4); return; }
     for (const e of this.elems) if (Math.hypot(e.x - wx, e.y - 0.3 - wy) < 0.8) { e.happy = 1; e.greeted = G.time; const col = ['R', 'B', 'Y', 'G', 'P'][this.elems.indexOf(e)]; elementiSay(0, 0, col, () => this.scr(e.x, e.y - 0.9)); Snd.boing(0.8); return; }
   },
   /* ---------- cada fotograma ---------- */
@@ -4135,10 +4190,26 @@ const Garden = {
     // hierba alta que se mece con el viento
     for (const g2 of this.tufts) { const X = g2.x * TS - cx, Y = g2.y * TS - cy; if (X < -20 || Y < -20 || X > W + 20 || Y > H + 20) continue; const sw2 = Math.round(Math.sin(t * 1.8 + g2.ph + g2.x * 0.3) * 1.2); wp(g2.x * 16, g2.y * 16 - g2.h, 1, g2.h, '#3f8a34'); wp(g2.x * 16 + 2 + sw2, g2.y * 16 - g2.h - 1, 1, g2.h, '#7ccc5e'); wp(g2.x * 16 - 2 + sw2, g2.y * 16 - g2.h + 1, 1, g2.h - 1, '#5cb85a'); }
     // patos en el estanque
-    for (const d of this.ducks) { d.a += d.sp * dt; const dx2 = 17 + Math.cos(d.a) * d.rx, dy2 = 18.6 + Math.sin(d.a) * d.ry, fl = (-Math.sin(d.a) * d.sp) < 0;
-      ctx.globalAlpha = 0.5; wp(dx2 * 16 - 6, dy2 * 16 + 3, 12, 1, '#d8f0ff'); ctx.globalAlpha = 1; ws(this.duckSpr, dx2 * 16 - 4, dy2 * 16 - 4 + Math.round(Math.sin(t * 3 + d.a)), fl); }
+    // sombras de peces bajo el agua
+    for (const f2 of this.fishSh) { const mx = f2.tx - f2.x, my = f2.ty - f2.y, md = Math.hypot(mx, my); if (md < 0.1) { const w2 = this.waterSpot(); if (w2) [f2.tx, f2.ty] = w2; } else { const nx = f2.x + mx / md * 0.6 * dt, ny = f2.y + my / md * 0.6 * dt; if (this.tile(Math.floor(nx), Math.floor(ny)) === '~') { f2.x = nx; f2.y = ny; } else { f2.tx = f2.x; f2.ty = f2.y; } }
+      ctx.globalAlpha = 0.22; wp(f2.x * 16 - 3, f2.y * 16, 6, 2, '#0a2a50'); wp(f2.x * 16 + (mx > 0 ? -5 : 3), f2.y * 16 + (Math.sin(t * 8 + f2.ph) > 0 ? 0 : 1), 2, 1, '#0a2a50'); ctx.globalAlpha = 1; }
+    // ondas en el agua
+    this.ripT -= dt; if (this.ripT <= 0) { this.ripT = 0.8 + Math.random() * 1.5; const w2 = this.waterSpot(); if (w2) this.rips.push({ x: w2[0], y: w2[1], t: 0 }); }
+    for (const rp of this.rips) { rp.t += dt; const rad = 1 + rp.t * 9, a3 = Math.max(0, 1 - rp.t / 1.4); ctx.globalAlpha = a3 * 0.7; for (let k = 0; k < 14; k++) { const an = k / 14 * TAU; wp(rp.x * 16 + Math.cos(an) * rad, rp.y * 16 + Math.sin(an) * rad * 0.5, 1, 1, '#d8f0ff'); } } ctx.globalAlpha = 1; this.rips = this.rips.filter(rp => rp.t < 1.4);
+    // patos (y patitos) que nadan solo por el agua
+    for (const d of this.ducks) {
+      const mx = d.tx - d.x, my = d.ty - d.y, md = Math.hypot(mx, my);
+      if (md < 0.08) { const w2 = this.waterSpot(); if (w2) [d.tx, d.ty] = w2; }
+      else { const st = 0.38 * dt, nx = d.x + mx / md * st, ny = d.y + my / md * st; if (this.swim(nx, ny)) { d.x = nx; d.y = ny; if (Math.abs(mx) > 0.05) d.fl = mx < 0; } else { d.tx = d.x; d.ty = d.y; } }
+      d.ht -= dt; if (d.ht <= 0) { d.ht = 0.12; d.hist.push([d.x, d.y, d.fl]); if (d.hist.length > 30) d.hist.shift(); }
+      const bob = Math.round(Math.sin(t * 3 + d.x));
+      for (let k = d.kids; k >= 1; k--) { const h = d.hist[Math.max(0, d.hist.length - 1 - k * 5)]; if (!h) continue; ctx.globalAlpha = 0.4; wp(h[0] * 16 - 3, h[1] * 16 + 2, 6, 1, '#d8f0ff'); ctx.globalAlpha = 1; ws(this.duckling, h[0] * 16 - 2.5, h[1] * 16 - 2 + Math.round(Math.sin(t * 4 + k)), h[2]); }
+      ctx.globalAlpha = 0.5; wp(d.x * 16 - 6, d.y * 16 + 3, 12, 1, '#d8f0ff'); ctx.globalAlpha = 1; ws(this.duckSpr, d.x * 16 - 4, d.y * 16 - 4 + bob, d.fl);
+    }
+    // rana sobre un nenúfar
+    { const fx = 25.2, fy = 21.6, jump = (t % 7) < 0.4 ? Math.sin((t % 7) / 0.4 * Math.PI) * 4 : 0, bl = (t % 3) < 0.15; wp(fx * 16 - 3, fy * 16 + 1, 7, 2, '#2f7a3a'); wp(fx * 16 - 2, fy * 16 - 2 - jump, 5, 3, '#5cb85a'); wp(fx * 16 - 2, fy * 16 - 3 - jump, 1, 1, bl ? '#5cb85a' : '#140a34'); wp(fx * 16 + 2, fy * 16 - 3 - jump, 1, 1, bl ? '#5cb85a' : '#140a34'); wp(fx * 16 - 1, fy * 16 - 1 - jump, 3, 1, '#a8e070'); }
     // un pez que salta de vez en cuando
-    this.fishT -= dt; if (this.fishT <= 0) { this.fishT = 4 + Math.random() * 5; const a2 = Math.random() * TAU; this.fish = { x: 16.5 + Math.cos(a2) * 1.3, y: 18.6 + Math.sin(a2) * 0.9, t: 0 }; }
+    this.fishT -= dt; if (this.fishT <= 0) { this.fishT = 3 + Math.random() * 4; const w2 = this.waterSpot(); if (w2) this.fish = { x: w2[0], y: w2[1], t: 0 }; }
     if (this.fish) { const fi = this.fish; fi.t += dt; const u = fi.t / 0.9; if (u >= 1) this.fish = null; else { const hy = Math.sin(u * Math.PI) * 10; wp(fi.x * 16 - 2 + u * 6, fi.y * 16 - hy, 4, 2, '#ff9a3a'); wp(fi.x * 16 - 3 + u * 6, fi.y * 16 - hy - (u < 0.5 ? 1 : -1), 1, 2, '#ffd24a'); if (u < 0.15 || u > 0.85) { ctx.globalAlpha = 0.8; wp(fi.x * 16 - 3 + (u > 0.5 ? 6 : 0), fi.y * 16, 6, 1, '#ffffff'); ctx.globalAlpha = 1; } } }
     // parcelas: tierra húmeda, cultivos y la marca de la parcela elegida
     const crops = [];
@@ -4163,17 +4234,25 @@ const Garden = {
       if (o.k === 'tree') {
         const behind = p.y < o.by && p.y > o.by - 2.6 && Math.abs(p.x - (o.x + 0.5)) < 1.1;
         shadow(o.x + 0.5, o.y + 0.9, 0.55); if (behind) ctx.globalAlpha = 0.5;
-        ws(this.treeSpr[o.v], o.x * 16 - 8, o.y * 16 + 16 - 42); ctx.globalAlpha = 1;
+        { const X = Math.round((o.x * 16 - 8) * PX - cx), Y = Math.round((o.y * 16 - 26) * PX - cy); if (X > -110 && Y > -140 && X < W + 10 && Y < H + 10) { ctx.save(); ctx.translate(X + 16 * PX, Y + 42 * PX); ctx.transform(1, 0, Math.sin(t * 1.1 + o.x * 0.7 + o.y * 0.4) * 0.025, 1, 0, 0); ctx.drawImage(this.treeSpr[o.v], -16 * PX, -42 * PX, 32 * PX, 42 * PX); ctx.restore(); } } ctx.globalAlpha = 1;
       } else if (o.k === 'house') {
-        const behind = p.y < o.by && p.x > 7 && p.x < 14; if (behind) ctx.globalAlpha = 0.55;
-        ws(this.houseSpr, 112, 8); ctx.globalAlpha = 1;
-      } else if (o.k === 'lamp') { shadow(o.x + 0.5, o.y + 0.85, 0.2); ws(this.lampSpr, o.x * 16 + 3, o.y * 16 + 13 - 28); }
+        const behind = p.y < o.by && p.x > 11 && p.x < 18; if (behind) ctx.globalAlpha = 0.55;
+        ws(this.houseSpr, 176, 8); ctx.globalAlpha = 1;
+      } else if (o.k === 'lamp') { shadow(o.x + 0.5, o.y + 0.85, 0.2); ws(this.lampSpr, o.x * 16 + 3, o.y * 16 + 13 - 28); const fk = Math.sin(t * 11 + o.x * 3) + Math.sin(t * 17 + o.y); wp(o.x * 16 + 7, o.y * 16 - 11 - (fk > 0.6 ? 1 : 0), 2, 3 + (fk > 0.6 ? 1 : 0), fk > 0 ? '#ffb030' : '#ff8a20'); wp(o.x * 16 + 7, o.y * 16 - 9, 2, 1, '#fff6d0'); }
       else if (o.k === 'bush') { shadow(o.x + 0.5, o.y + 0.85, 0.45); ws(this.bushSpr, o.x * 16 - 1, o.y * 16 + 1); }
       else if (o.k === 'pot') {
         const X = o.x * 16 - 3, Y = o.y * 16 - 4, hue = (t * 40) % 360;
         for (let j = 0; j < 3; j++) wp(X + 6 + j * 4, Y + 18 + (Math.sin(t * 14 + j * 2) > 0 ? 0 : 1), 2, 2, j % 2 ? '#ffd24a' : '#ff7a3c');
         ws(this.potSpr, X, Y); ctx.fillStyle = 'hsl(' + hue + ',85%,58%)'; ctx.fillRect(Math.round((X + 3) * PX - cx), Math.round((Y + 5) * PX - cy), 16 * PX, 2 * PX);
         for (let j = 0; j < 3; j++) { const ph = (t * 0.8 + j / 3) % 1; ctx.globalAlpha = 1 - ph; wp(X + 6 + j * 4 + Math.round(Math.sin(t * 3 + j)), Y + 3 - ph * 12, 2, 2, 'hsl(' + hue + ',85%,75%)'); } ctx.globalAlpha = 1;
+      } else if (o.k === 'sun') {
+        const X = Math.round((o.x * 16) * PX - cx), Y = Math.round((o.y * 16 - 14) * PX - cy); shadow(o.x + 0.5, o.y + 0.85, 0.25);
+        if (X > -60 && Y > -100 && X < W + 20 && Y < H + 20) { const droop = Garden.light().dark * 0.18; ctx.save(); ctx.translate(X + 8 * PX, Y + 28 * PX); ctx.transform(1, 0, Math.sin(t * 1.3 + o.x * 0.9) * 0.05 + droop, 1, 0, 0); ctx.drawImage(this.sunSpr[o.v], -8 * PX, -28 * PX, 16 * PX, 28 * PX); ctx.restore(); }
+      } else if (o.k === 'orq') {
+        const sway = (sp, X0, Y0) => { const X = Math.round(X0 * PX - cx), Y = Math.round(Y0 * PX - cy); if (X < -60 || Y < -80 || X > W + 20 || Y > H + 20) return; ctx.save(); ctx.translate(X + 8 * PX, Y + 18 * PX); ctx.transform(1, 0, Math.sin(t * 1.6 + X0 * 0.13) * 0.06, 1, 0, 0); ctx.drawImage(sp, -8 * PX, -18 * PX, 16 * PX, 20 * PX); ctx.restore(); };
+        if (o.t === 'Q') { sway(this.orqSpr[o.v], o.x * 16 - 4, o.y * 16 - 6); sway(this.orqSpr[(o.v + 2) % 4], o.x * 16 + 5, o.y * 16 - 2); }
+        else if (o.t === 'O') { shadow(o.x + 0.5, o.y + 0.85, 0.3); wp(o.x * 16 + 3, o.y * 16 + 8, 10, 7, '#a84a26'); wp(o.x * 16 + 2, o.y * 16 + 6, 12, 3, '#c8603a'); wp(o.x * 16 + 4, o.y * 16 + 9, 2, 5, '#c8603a'); sway(this.orqSpr[o.v], o.x * 16, o.y * 16 - 12); }
+        else { shadow(o.x + 0.5, o.y + 0.85, 0.25); sway(this.orqSpr[o.v], o.x * 16, o.y * 16 - 4); }
       } else if (o.k === 'W') { shadow(o.x + 0.5, o.y + 0.9, 0.6); ws(this.wellSpr, o.x * 16 - 3, o.y * 16 + 15 - 30); }
       else if (o.k === 'K') { shadow(o.x + 0.5, o.y + 0.9, 0.35); const sw2 = Math.sin(t * 1.5) * 0.04; ctx.save(); const X = (o.x * 16 + 8) * PX - cx, Y = (o.y * 16 + 15) * PX - cy; ctx.translate(X, Y); ctx.rotate(sw2); ctx.drawImage(this.scareSpr, -10 * PX, -30 * PX, 20 * PX, 30 * PX); ctx.restore(); }
       else if (o.k === 'x') { shadow(o.x + 0.5, o.y + 0.9, 0.45); ws(this.crateSpr, o.x * 16, o.y * 16); }
@@ -4193,11 +4272,14 @@ const Garden = {
       }
     }
     // humo de la chimenea
-    for (let j = 0; j < 5; j++) { const ph = (t * 0.22 + j / 5) % 1, s2 = 2 + Math.round(ph * 5); ctx.globalAlpha = 0.55 * (1 - ph); wp(198 - s2 / 2 + Math.sin(t + j * 2) * 3 + ph * 10, 4 - ph * 34, s2, s2, '#d8d0e8'); } ctx.globalAlpha = 1;
+    for (let j = 0; j < 5; j++) { const ph = (t * 0.22 + j / 5) % 1, s2 = 2 + Math.round(ph * 5); ctx.globalAlpha = 0.55 * (1 - ph); wp(262 - s2 / 2 + Math.sin(t + j * 2) * 3 + ph * 10, 4 - ph * 34, s2, s2, '#d8d0e8'); } ctx.globalAlpha = 1;
     // mariposas de día
     if (L.dark < 0.5) for (const b of this.bf) { const bx = b.x + Math.sin(t * 0.4 + b.ph) * 2.5, by = b.y + Math.sin(t * 0.7 + b.ph * 2) * 1.5 - 0.6, fl = Math.sin(t * 18 + b.ph) > 0; ctx.globalAlpha = 1 - L.dark * 2; wp(bx * 16 - (fl ? 2 : 1), by * 16, fl ? 2 : 1, 2, b.col); wp(bx * 16 + 1, by * 16, fl ? 2 : 1, 2, b.col); wp(bx * 16, by * 16, 1, 2, '#3a2412'); ctx.globalAlpha = 1; }
     // sombras de nubes que pasan (de día)
     if (L.dark < 0.6) { ctx.fillStyle = 'rgba(20,30,70,' + (0.09 * (1 - L.dark)) + ')'; for (let j = 0; j < 3; j++) { const X = ((t * 9 + j * 420) % (this.MW * TS + 600)) - 300 - cx, Y = (4 + j * 8) * TS - cy; ctx.beginPath(); ctx.ellipse(X, Y, 180, 90, 0, 0, TAU); ctx.ellipse(X + 120, Y + 30, 130, 70, 0, 0, TAU); ctx.fill(); } }
+    // pétalos de orquídea que se lleva el viento
+    if (Math.random() < dt * 1.5 && Math.abs(p.x - 22.5) < 9 && Math.abs(p.y - 6) < 12) this.petals.push({ x: 20 + Math.random() * 5, y: 4 + Math.random() * 2.5, ph: Math.random() * 6, life: 5, col: ['#ff9ad0', '#d0a8ff', '#fff6fb', '#ff6ab8'][Math.random() * 4 | 0] });
+    for (const pe of this.petals) { pe.life -= dt; pe.x += (0.35 + Math.sin(t * 1.5 + pe.ph) * 0.3) * dt; pe.y += (Math.sin(t * 2 + pe.ph) * 0.25 + 0.05) * dt; ctx.globalAlpha = Math.min(1, pe.life); wp(pe.x * 16, pe.y * 16, Math.sin(t * 6 + pe.ph) > 0 ? 2 : 1, 1, pe.col); } ctx.globalAlpha = 1; this.petals = this.petals.filter(pe => pe.life > 0);
     // hojas que caen de los árboles
     if (Math.random() < dt * 0.8) { const tr = this.objs.filter(o => o.k === 'tree'); const o = tr[(Math.random() * tr.length) | 0]; if (o && Math.abs(o.x - p.x) < 7 && Math.abs(o.y - p.y) < 11) this.leaves.push({ x: o.x + 0.5 + (Math.random() - 0.5), y: o.y - 0.6, vy: 0.35, ph: Math.random() * 6, life: 4, col: Math.random() < 0.5 ? '#5cb85a' : '#e8c060' }); }
     for (const lf of this.leaves) { lf.life -= dt; lf.y += lf.vy * dt; lf.x += Math.sin(t * 2 + lf.ph) * 0.4 * dt + 0.15 * dt; ctx.globalAlpha = Math.min(1, lf.life); wp(lf.x * 16, lf.y * 16, Math.sin(t * 5 + lf.ph) > 0 ? 2 : 1, 1, lf.col); } ctx.globalAlpha = 1; this.leaves = this.leaves.filter(lf => lf.life > 0);
@@ -4238,8 +4320,8 @@ const Garden = {
     ctx.save(); ctx.globalCompositeOperation = 'lighter';
     const glow = (ax, ay, rad, col, a) => { const X = ax * PX - cx, Y = ay * PX - cy; if (X < -rad || Y < -rad || X > W + rad || Y > H + rad || a <= 0.01) return; const g = ctx.createRadialGradient(X, Y, 0, X, Y, rad); g.addColorStop(0, col.replace('A', a.toFixed(3))); g.addColorStop(1, col.replace('A', '0')); ctx.fillStyle = g; ctx.fillRect(X - rad, Y - rad, rad * 2, rad * 2); };
     if (k > 0.02) {
-      for (const [ax, ay] of [[112 + 24, 8 + 67], [112 + 88, 8 + 67], [112 + 56, 8 + 28], [112 + 56, 8 + 80]]) glow(ax, ay, 70, 'rgba(255,200,110,A)', 0.55 * k);
-      for (const o of this.objs) if (o.k === 'lamp') glow(o.x * 16 + 8, o.y * 16 - 9, 90 + Math.sin(t * 3 + o.x) * 6, 'rgba(255,214,120,A)', 0.6 * k);
+      for (const [ax, ay] of [[176 + 24, 8 + 67], [176 + 88, 8 + 67], [176 + 56, 8 + 28], [176 + 56, 8 + 80]]) glow(ax, ay, 70, 'rgba(255,200,110,A)', 0.55 * k);
+      for (const o of this.objs) if (o.k === 'lamp') glow(o.x * 16 + 8, o.y * 16 - 9, 90 + Math.sin(t * 3 + o.x) * 6, 'rgba(255,214,120,A)', (Post.on ? 0.2 : 0.6) * k);
       for (const o of this.objs) if (o.k === 'pot') glow(o.x * 16 + 8, o.y * 16 + 4, 80, 'hsla(' + ((t * 40) % 360) + ',90%,60%,A)', 0.5 * k + 0.1);
       this.plots.forEach(([tx, ty], i) => { const q = f.p[i]; if (q && this.ripe(q, now)) glow(tx * 16 + 8, ty * 16 + 3, 46, 'rgba(255,240,200,A)', 0.35 * k + 0.08); });
     }
@@ -4278,7 +4360,7 @@ const Garden = {
     this.fly = this.fly.filter(fl2 => G.time - fl2.t < 0.8);
     text(L.dark > 0.5 ? '☾' : L.warm > 0.3 ? '◐' : '☀', 505, 46, 16, L.dark > 0.5 ? '#c8d0ff' : '#ffd24a', 'center', 900);
     for (const g of this.greet) { const [sx, sy] = this.scr(g.e.x, g.e.y - 0.9); const a = Math.min(1, (1.8 - (G.time - g.t)) * 2); ctx.save(); ctx.globalAlpha = a; ctx.fillStyle = 'rgba(255,250,240,.95)'; rr(sx - 64, sy - 30, 128, 28, 12); ctx.fill(); text('¡Hola, Omaira!', sx, sy - 16, 15, '#2a1838', 'center', 900); ctx.restore(); }
-    const nearDoor = Math.hypot(p.x - 10.5, p.y - 7.3) < 1.0;
+    const nearDoor = Math.hypot(p.x - 14.5, p.y - 7.3) < 1.0;
     if (this.target >= 0) {
       const i = this.target, q = f.p[i];
       let label, fn = () => this.act(i), dis = false, col = '#3f9a48', info;
@@ -4303,7 +4385,7 @@ const Garden = {
       const anyPlant = f.p.some(Boolean), st = this.status();
       const tip = G.time - this.t0 < 6 ? 'Arrastra el dedo para caminar' : st && st.ripe ? '¡Hay plantas listas en el huerto!' : st && st.dry ? 'Tus plantas tienen sed: ve a regarlas' : !anyPlant ? 'Ve al huerto vallado y planta semillas' : f.inv.some(Boolean) ? 'Con tu cosecha, Caldo prepara elixires' : 'Recoge las estrellas escondidas';
       ctx.save(); ctx.fillStyle = 'rgba(20,14,40,.7)'; rr(60, 892, 420, 46, 16); ctx.fill(); ctx.restore(); text(tip, W / 2, 915, 16, '#ffffff', 'center', 800);
-      if (!anyPlant || (st && (st.ripe || st.dry))) { const [sx, sy] = this.scr(4.5, 14.2 + Math.sin(G.time * 5) * 0.12); if (sy > 70 && sy < 880) { ctx.fillStyle = '#ffe27a'; ctx.beginPath(); ctx.moveTo(sx - 12, sy - 26); ctx.lineTo(sx + 12, sy - 26); ctx.lineTo(sx, sy - 8); ctx.closePath(); ctx.fill(); } }
+      if (!anyPlant || (st && (st.ripe || st.dry))) { const [sx, sy] = this.scr(6, 15.2 + Math.sin(G.time * 5) * 0.12); if (sy > 70 && sy < 880) { ctx.fillStyle = '#ffe27a'; ctx.beginPath(); ctx.moveTo(sx - 12, sy - 26); ctx.lineTo(sx + 12, sy - 26); ctx.lineTo(sx, sy - 8); ctx.closePath(); ctx.fill(); } }
     }
     if (this.joy && this.joy.moved) {
       const j = this.joy, dx = j.x - j.x0, dy = j.y - j.y0, m = Math.hypot(dx, dy), k2 = m > 50 ? 50 / m : 1;
