@@ -964,158 +964,158 @@ const LEVELS = [
     ],
     sol: '1,8> 5,7v 6,8> 1,8> 6,8> A1,6 1,8> 2,8> A6,0 2,3> 0,2< 4,6> 1,2> 2,8> A3,0',
   },
-  {   // 61 · óptimo 4 · azar 29.2% · 3★ azar 3.3% · hechizos útiles 4 en 2 jugadas · cadena 3
-    name: 'Runa Despierta', moves: 7, par: 3, cap: 5, manaPerCell: 3, runes: true,
+  {   // 61 · óptimo 8 · azar 5.5% · 3★ azar 0% · hechizos útiles 6 en 2 jugadas · cadena 5
+    name: 'Runa Despierta', moves: 15, par: 7, cap: 6, manaPerCell: 3, runes: true,
     intro: { title: 'Runas especiales', lines: ['4 runas iguales en línea: RUNA CARGADA.', 'Muévela y arrasa su fila o columna.', '5 en línea o en L: PRISMA RÚNICO.', 'Contra un bloque, borra todo su color.'] },
     grid: [
-      'G@ G^ R@ .. G@ G@ .. G@',
-      'R< .. R< R@ Rv R< .. %%',
-      '.. G@ R@ R@ R@ G< R< ..',
-      'G@ ## ## Rv G@ .. .. G@',
-      'G> .. %% .. R@ .. .. %%',
-      'G^ R^ R@ .. %% .. .. ..',
-      '.. R^ Rv .. Rv R@ %% ..',
-      '.. .. G< ## R@ Rv .. G@',
-      '.. .. .. .. G> R^ .. %%',
+      'Rv .. .. R@ ## .. G@ .. ..',
+      'R@ R@ R< G@ G@ .. R> G< ##',
+      'Gv R> R> R@ G@ .. G^ ## ..',
+      '.. G@ G@ Rv R> R@ R@ R@ R<',
+      '.. Rv G> %% G< G< G@ G^ R@',
+      '.. R@ G^ .. G^ G^ %% R@ R^',
+      '## R< .. .. .. R@ .. R^ ..',
+      'G@ .. R> Rv G@ G> %% .. R@',
+      '%% R> .. G< ## .. .. .. G^',
     ],
-    sol: '3,3v 3,6v 2,7< A0,4 0,1< A7,0 A5,0 A0,1',
+    sol: '2,4> 2,4> 4,4< 4,5^ 4,4^ A0,0 3,8< 3,7v 3,3v A7,6 A8,0 A2,6 A5,0 A0,0',
   },
-  {   // 62 · óptimo 5 · azar 5.9% · 3★ azar 0% · hechizos útiles 5 en 2 jugadas · cadena 3
-    name: 'Cuatro en Línea', moves: 14, par: 9, cap: 5, manaPerCell: 3, runes: true,
+  {   // 62 · óptimo 6 · azar 8.8% · 3★ azar 0% · hechizos útiles 4 en 2 jugadas · cadena 4
+    name: 'Cuatro en Línea', moves: 15, par: 9, cap: 6, manaPerCell: 3, runes: true,
     grid: [
-      'R> B@ B@ .. .. R@ .. B@',
-      'B^ B@ R< B@ B@ ## %% B<',
-      '.. B@ .. Rv %% ## R@ ..',
-      'R@ Bv R@ R@ .. R@ R< ..',
-      'B> .. %% ## R@ R< .. ..',
-      'Bv .. Bv Bv R@ B> .. R@',
-      'B@ ## Rv .. R> .. R< B<',
-      'Bv Bv .. .. B@ .. .. ..',
-      'R^ .. Rv B< ## ## .. ..',
+      'R@ B@ B@ B< R@ .. .. .. R@',
+      'B< B> B@ B@ R@ B< R@ R@ B@',
+      '.. .. B@ Bv %% B> ## B^ B<',
+      '.. %% Bv .. Bv R@ .. R@ ..',
+      'B^ .. ## .. %% R< .. B@ R@',
+      '.. R> .. .. .. .. B@ B< R<',
+      'R@ B^ .. B^ B^ .. B> B^ B@',
+      '%% %% ## Bv .. R@ R@ .. B>',
+      '.. .. .. .. .. B< ## .. ..',
     ],
-    sol: '6,6< 7,6< 1,3v 1,5v 3,2v A6,4 A1,6 A0,3 7,1<',
+    sol: '2,3v 2,3v 8,7> 2,3v 2,6v 5,8< A7,5 A4,5 A1,3 5,2>',
   },
-  {   // 63 · óptimo 4 · azar 4.5% · 3★ azar 3% · hechizos útiles 5 en 4 jugadas · cadena 2
-    name: 'Prisma Naciente', moves: 14, par: 10, cap: 5, manaPerCell: 3, runes: true,
+  {   // 63 · óptimo 4 · azar 4.9% · 3★ azar 1.7% · hechizos útiles 5 en 4 jugadas · cadena 2
+    name: 'Prisma Naciente', moves: 13, par: 9, cap: 6, manaPerCell: 3, runes: true,
     grid: [
-      'G@ .. Y@ .. Y@ G@ G@ Y@',
-      'G@ .. %% .. G@ G@ Gv %%',
-      'Yv Y@ Gv .. %% Y@ .. ..',
-      '.. %% Y@ .. .. Gv ## ..',
-      'G< Y@ ## G^ .. .. Y> ..',
-      'Y@ G> .. G> Gv .. G^ G@',
-      'Y@ Gv .. Y< Y> %% .. ##',
-      'Y< ## G@ G@ .. .. ## ..',
-      '.. ## G< %% .. .. .. ..',
+      '.. .. Y^ G@ Y@ Y@ .. .. %%',
+      'G@ .. .. Gv Y@ Y> Y^ G@ G@',
+      'Gv Y< G< G@ Y@ G@ Gv G< Yv',
+      'Yv .. .. Yv Gv Y> G@ Y^ Y>',
+      '.. Y@ G@ Y^ .. .. Y> .. ..',
+      'Yv G< G^ .. .. .. .. Yv Y<',
+      'G@ .. G^ Gv .. G< G@ Y@ %%',
+      'G@ Y@ G@ Y@ %% Y@ G> Y> ..',
+      '## ## ## G< Yv G^ .. .. %%',
     ],
-    sol: '5,3v 5,5v 4,6> 6,6> A4,0 0,7< 0,4< 0,2v A2,0 6,4> 6,1v 6,6> 6,2v 6,2v 6,6v 6,6v A7,0',
+    sol: '7,7> 4,3v 4,6v 6,4> 5,3> 3,8< 3,8< 6,7> A5,0 3,8< 6,2v 7,2< 7,5v 8,5< A1,0 A7,0 3,1v',
   },
-  {   // 64 · óptimo 6 · azar 9.1% · 3★ azar 0% · hechizos útiles 4 en 3 jugadas · cadena 2
-    name: 'Coro de Runas', moves: 15, par: 9, cap: 5, manaPerCell: 3, runes: true,
+  {   // 64 · óptimo 6 · azar 4.1% · 3★ azar 0% · hechizos útiles 4 en 4 jugadas · cadena 2
+    name: 'Coro de Runas', moves: 14, par: 8, cap: 6, manaPerCell: 3, runes: true,
     grid: [
-      'B< .. Bv .. TT .. P@ B@',
-      'P@ .. P> B@ %% B> ## Bv',
-      'Pv P@ P> P@ %% .. .. B@',
-      '.. P^ B@ P< .. .. B@ B>',
-      'B^ B^ ## Bv %% B< B> B@',
-      '.. .. ## P> B@ P@ .. B>',
-      'B@ .. .. .. Bv Bv %% B@',
-      'Bv P@ P@ TT .. P@ P@ P>',
-      '.. ## ## %% .. P> B> ..',
+      'B@ P@ B> B@ P@ .. B@ .. %%',
+      'P@ B> P^ ## P< B@ B@ .. P@',
+      'B> P> P@ .. %% P> P@ B@ P<',
+      'P< P@ P> B@ B@ P@ Bv ## ..',
+      '.. P< B@ ## Pv ## .. .. B>',
+      'P< B@ P> P^ B^ B^ .. Bv B>',
+      'P< B< P@ Bv B@ %% %% B> B@',
+      '.. TT B< .. Bv TT .. %% P<',
+      '%% %% .. P> B^ .. B^ .. ..',
     ],
-    sol: '7,7> 7,5> 6,8> 0,7v 0,2v 3,3< P3 3,4v 5,4< P1 5,6v 6,4>',
+    sol: '6,3v 4,4v 2,7< 6,5v 3,8> 5,2> 8,7< P3 0,5< 1,2> P1 1,4<',
   },
-  {   // 65 · óptimo 4 · azar 4.1% · 3★ azar 0.1% · hechizos útiles 4 en 3 jugadas · cadena 3
-    name: 'Franjas de Luz', moves: 14, par: 10, cap: 5, manaPerCell: 3, runes: true,
+  {   // 65 · óptimo 6 · azar 4.6% · 3★ azar 0.5% · hechizos útiles 5 en 3 jugadas · cadena 4
+    name: 'Franjas de Luz', moves: 16, par: 10, cap: 6, manaPerCell: 3, runes: true,
     grid: [
-      '.. Y@ Y@ .. R@ ## Y@ R@',
-      'Y^ Y@ Y< Y^ R< R@ Y^ R>',
-      'R@ Y@ .. R@ .. R< R@ Yv',
-      'R> Yv ## %% .. Rv Y< ..',
-      '.. .. .. .. R@ .. .. Y@',
-      'Yv .. Rv Y^ ## %% Y@ y>',
-      'Y^ %% Y@ R@ TT Y^ R@ ..',
-      'R> TT R< Y> .. Y@ R< yv',
-      '.. .. .. .. Rv Y< .. ..',
+      '.. .. Rv R@ %% .. TT R@ Y@',
+      'Rv R@ .. R@ R@ Y@ R@ R@ R>',
+      'Yv Yv R< Y@ %% R@ R> y> ..',
+      '.. Y@ TT R^ Y> r^ Y@ R> Y@',
+      '.. Y> .. .. .. .. Y@ R@ Y>',
+      'R@ .. .. .. %% .. R> ## ..',
+      'Y< .. .. .. R^ Rv .. Y@ ..',
+      'Y@ .. .. %% .. R@ .. Y> R@',
+      'Y< Y< .. .. .. R> ## ## R<',
     ],
-    sol: '0,7> 1,3v 3,7> 2,1< 4,8v 0,3> 5,8< 2,5v 6,7< 0,5v A5,5 A5,0',
+    sol: '0,8< 1,8< 8,4> 8,1> 8,8< 1,4> 8,8< 7,7> 6,5> 6,5> 7,8< 0,6< A3,5 A5,3 A4,6',
   },
-  {   // 66 · óptimo 6 · azar 5.8% · 3★ azar 0% · hechizos útiles 4 en 2 jugadas · cadena 2
-    name: 'Prisma y Sendero', moves: 13, par: 7, cap: 5, manaPerCell: 3, trail: true, runes: true,
+  {   // 66 · óptimo 6 · azar 6.9% · 3★ azar 0% · hechizos útiles 6 en 3 jugadas · cadena 3
+    name: 'Prisma y Sendero', moves: 16, par: 10, cap: 6, manaPerCell: 3, trail: true, runes: true,
     intro: { title: 'Runas y senderos', lines: ['Vuelven los rastros alquímicos:', 'combínalos con tus runas especiales.'] },
     grid: [
-      '%% .. .. %% R@ G@ B@ ..',
-      'TT Bv B< G< bv G@ G> G>',
-      'Gv G^ G@ .. .. Bv G@ ..',
-      'G@ ## G> B@ .. .. Bv ..',
-      '%% ## .. G> B< ## Bv B>',
-      'R@ R@ B@ .. .. %% B@ G^',
-      'G< B> G> B@ .. TT Gv G@',
-      '.. .. R@ R@ R@ B@ B> g>',
-      '.. B> G^ ## ## Gv .. ..',
+      '%% R@ %% G@ .. G^ G< .. ..',
+      'B@ %% .. G@ ## G@ .. R@ ..',
+      'g^ G@ R@ G@ .. %% G@ B^ ..',
+      'R@ B@ G< Gv Bv Gv B> .. ..',
+      'G@ B< G@ ## .. B@ .. B@ G>',
+      'G@ G> G^ .. G^ ## B@ B^ ..',
+      '%% .. TT ## .. ## b^ B< ..',
+      'G^ B@ .. .. B^ TT R@ R@ ..',
+      '%% B< .. .. .. B> %% B> ..',
     ],
-    sol: '5,2v 5,3v 5,3v 5,4v 6,3v A3,0 4,1v A0,6 A4,1 7,7>',
+    sol: '3,3v 3,3v 3,3v 3,5v A5,0 7,6< 6,3> A1,0 2,3< A0,6 A8,0 A0,0',
   },
-  {   // 67 · óptimo 5 · azar 5.9% · 3★ azar 0.7% · hechizos útiles 4 en 4 jugadas · cadena 1
-    name: 'Runas Cruzadas', moves: 15, par: 10, cap: 5, manaPerCell: 3, trail: true, runes: true,
+  {   // 67 · óptimo 4 · azar 2% · 3★ azar 0.9% · hechizos útiles 7 en 6 jugadas · cadena 2
+    name: 'Runas Cruzadas', moves: 14, par: 10, cap: 6, manaPerCell: 3, trail: true, runes: true,
     grid: [
-      'R@ Y@ Y^ Y@ Y> P@ %% ..',
-      'p< P< R@ Y@ Y@ P@ R@ ..',
-      'P@ Y< Y< P^ P> P@ y< Pv',
-      'Y< R@ Y< Y@ %% Yv .. ##',
-      '.. Yv .. P> TT .. .. R@',
-      'Y@ .. .. .. .. P< Pv Y<',
-      'Pv .. .. P@ Yv .. Y^ Y^',
-      '.. .. R@ P< P@ ## .. ##',
-      'TT ## P< .. Y> .. .. ..',
+      'Y< .. %% TT R@ P< %% .. ..',
+      '.. P> R@ Y@ R@ .. P> R@ ##',
+      '.. Pv P< P@ TT .. .. P@ R@',
+      'R@ .. P@ Y< Y@ P@ P@ Pv P>',
+      'Yv .. Y@ Y< P< ## ## .. ..',
+      'P> R@ yv .. .. Pv P^ .. Pv',
+      'P< ## Y@ Y> R@ Y@ R@ %% ..',
+      'P@ .. Y< .. P< Y> ## .. Y@',
+      'Y< .. .. .. .. .. .. .. p>',
     ],
-    sol: '0,6v 1,4v 5,5< 5,3v 2,8< 3,7< 5,6v P2 3,4> 0,3< 2,3< A5,6 1,1< 0,1< A0,0',
+    sol: '4,7< 7,3v 5,7> 7,5v 5,7> A2,6 5,7> 0,8< P4 3,3< P8 0,5> 8,3> 0,6< A2,0',
   },
-  {   // 68 · óptimo 6 · azar 7.6% · 3★ azar 0% · hechizos útiles 5 en 2 jugadas · cadena 4
-    name: 'Altar Cargado', moves: 16, par: 10, cap: 5, manaPerCell: 3, trail: true, runes: true,
+  {   // 68 · óptimo 6 · azar 7.9% · 3★ azar 0% · hechizos útiles 6 en 2 jugadas · cadena 5
+    name: 'Altar Cargado', moves: 12, par: 6, cap: 6, manaPerCell: 3, trail: true, runes: true,
     grid: [
-      '.. R^ .. R< R@ .. .. %%',
-      '.. Rv TT R^ R@ .. G^ B@',
-      '## %% %% .. R@ G@ .. R>',
-      'G@ G@ %% .. Gv ## .. B@',
-      '## %% G@ R@ .. G> B@ G>',
-      '.. TT G> gv .. ## ## ..',
-      'G@ .. .. G^ B@ G^ R@ ..',
-      'Gv G@ R@ B@ %% B@ G< ..',
-      '%% Gv r> R> .. G< .. ..',
+      'Rv %% B@ B@ R^ .. .. R@ ..',
+      'G@ TT G> B@ %% Rv G@ Rv ..',
+      'g> R^ G@ G@ G@ .. R< .. R@',
+      'R@ G@ B@ Gv r< R@ .. .. R<',
+      'R> R> ## .. .. R@ .. Gv R@',
+      'B@ G^ G^ .. Gv ## R@ R@ R>',
+      'R> R@ .. %% %% B@ %% %% ..',
+      '.. G< G> .. %% Gv .. .. ..',
+      '.. Gv G> .. .. ## TT .. ..',
     ],
-    sol: '7,4> 7,2> 3,8> 5,6^ 4,3v 4,5v A1,7 A5,0 A0,3',
+    sol: '3,3v 3,5v 1,7< 0,6> 1,8v 5,7v A0,3 A8,0 A3,5 A0,0',
   },
-  {   // 69 · óptimo 4 · azar 4.7% · 3★ azar 1.6% · hechizos útiles 5 en 3 jugadas · cadena 2
-    name: 'Sinfonía Rúnica', moves: 12, par: 8, cap: 5, manaPerCell: 3, trail: true, runes: true,
+  {   // 69 · óptimo 6 · azar 6.2% · 3★ azar 0% · hechizos útiles 8 en 4 jugadas · cadena 2
+    name: 'Sinfonía Rúnica', moves: 16, par: 10, cap: 6, manaPerCell: 3, trail: true, runes: true,
     grid: [
-      'G@ Bv G@ .. Y@ .. Bv Y@',
-      'Y> %% G@ Yv B< TT %% b<',
-      '.. Y@ G@ Y@ .. Y@ Y@ G@',
-      '.. B< Yv B@ .. B> ## G@',
-      'B< .. .. Y< B@ .. .. ##',
-      'B< Y> .. .. Bv B^ B@ TT',
-      'Y^ Y> .. Y< B@ .. Bv ..',
-      '.. B@ ## .. ## B@ .. ..',
-      '.. Y> .. Yv .. y^ .. ..',
+      'Bv TT Y@ .. B@ .. B@ G@ ..',
+      'Bv Y^ B> Y> B@ ## B@ y> B>',
+      'B@ B@ .. B@ G@ %% ## Y@ ..',
+      'B< Y> ## B^ Yv TT .. Yv ..',
+      '.. .. B@ B@ .. Y@ .. .. G@',
+      'G@ .. B> ## .. Yv .. .. bv',
+      'B> B> Y@ Y^ .. Yv Y^ G@ ..',
+      'Y> Y@ b> .. ## G@ .. Y@ B>',
+      '.. Y> .. Yv .. bv .. %% ..',
     ],
-    sol: '2,3v 1,8> 6,6v 2,6v A5,0 4,5v 1,3< 3,4< 3,8v 1,5> 7,1< 0,4< 0,1> 0,5<',
+    sol: '3,8v 1,8> 0,7> 2,7> 1,6> 4,3v 5,8v 5,5v 0,6> A3,0 7,3v 2,1> 2,5> 8,7> 8,5v 8,1> 7,1> A0,0',
   },
-  {   // 70 · óptimo 6 · azar 3.1% · 3★ azar 1% · hechizos útiles 5 en 4 jugadas · cadena 2
-    name: 'Corazón del Santuario', moves: 9, par: 3, cap: 6, manaPerCell: 3, trail: true, runes: true,
+  {   // 70 · óptimo 4 · azar 4.8% · 3★ azar 0.9% · hechizos útiles 6 en 4 jugadas · cadena 2
+    name: 'Corazón del Santuario', moves: 13, par: 9, cap: 6, manaPerCell: 3, trail: true, runes: true,
     intro: { title: 'Corazón del Santuario', lines: ['El último santuario de la princesa.', 'Runas, prismas y senderos: ¡combo!'] },
     grid: [
-      'R@ .. .. .. R@ .. Gv g<',
-      'G@ R@ .. .. R@ Y@ G@ ..',
-      'g< Y@ R@ .. R@ Gv R< B@',
-      '.. Rv G< .. Gv Y@ %% Gv',
-      'G< R^ .. .. .. R< .. Y@',
-      '.. Y@ G> Gv .. G^ %% ##',
-      'G< g> .. Y@ %% .. TT TT',
-      '%% G@ .. g> R< B@ B@ ..',
-      '.. ## %% .. .. %% ## %%',
+      '.. G< .. .. .. R@ .. R@ ..',
+      '%% R@ R@ TT G@ Y@ Y@ R@ Rv',
+      'Y@ R@ g> %% Gv %% %% B@ B@',
+      'Y@ %% .. .. .. G@ .. Gv G<',
+      'Y@ .. %% r> Rv G> .. .. G<',
+      '%% R@ .. .. .. .. %% .. R@',
+      'G> R> Y@ .. G@ Gv Gv .. G^',
+      '.. G^ G> ## %% R@ B@ ## ..',
+      'R> ## ## R> .. G> G< TT R>',
     ],
-    sol: '5,4< 4,3v 5,2v 6,2< 4,5v A6,7 0,4< 7,3v 0,6< 0,2< A1,0 3,7> 2,4< 2,3<',
+    sol: '7,3v 7,6v A1,6 8,4< 8,3< 0,8> 4,4v 4,2v 5,8> 6,3< 2,3< A5,7 A1,0',
   },
 ];
 /*LEVELS-END*/
@@ -1427,8 +1427,8 @@ function legalMoves(S) {
    ===================================================================== */
 const W = 540, H = 960, BY = 132;
 let CELL = 72, SC = 1, BX = 54, BW = COLS * CELL, BH = ROWS * CELL, BB = BY + BH;
-/* el tablero crece con los capítulos (6×7 → 7×8 → 8×9): las casillas se encogen para ocupar el mismo hueco */
-function setBoard(S) { dims(S); const c = Math.floor(Math.min(448 / COLS, 504 / ROWS)); if (c === CELL && BW === COLS * c && BH === ROWS * c) return; CELL = c; SC = CELL / 72; BW = COLS * CELL; BH = ROWS * CELL; BX = Math.round((W - BW) / 2); BB = BY + BH; }
+/* el tablero crece con los capítulos (6×7 → 7×8 → 8×9 → 9×9): las casillas se encogen para ocupar el mismo hueco */
+function setBoard(S) { dims(S); const c = Math.floor(Math.min(504 / COLS, 504 / ROWS)); if (c === CELL && BW === COLS * c && BH === ROWS * c) return; CELL = c; SC = CELL / 72; BW = COLS * CELL; BH = ROWS * CELL; BX = Math.round((W - BW) / 2); BB = BY + BH; }
 const POT = { xl: 96, xr: 444, rim: 668, floor: 836 };
 const CONFIG = { gravity: 2300, bounce: 0.52, slideSpeed: 1500, bodyR: 25, xpFusion: 25 };
 
@@ -1757,7 +1757,7 @@ function buildView() {      // reconstruye sprites y caldero desde el estado ló
 /* RETO DIARIO: un nivel ya superado (en espejo), elegido por la fecha, con 2 movimientos de margen */
 /* el reto diario se juega en espejo (izquierda-derecha): el mismo puzle con otra cara. Verificado con el solver:
    en todos los niveles salvo estos cinco el espejo tiene el mismo óptimo; en ellos se usa el original */
-const NO_MIRROR = [15, 24, 35, 41, 48, 59];
+const NO_MIRROR = [15, 24, 35, 41, 48, 59, 66];
 function mirrorLevel(L) {
   const flip = t => t === '<<' ? '>>' : t === '>>' ? '<<' : t.length === 2 && (t[1] === '<' || t[1] === '>') && t[0] !== '<' && t[0] !== '>' ? t[0] + (t[1] === '<' ? '>' : '<') : t;
   const M = Object.assign({}, L, { grid: L.grid.map(r => r.trim().split(/\s+/).map(flip).reverse().join(' ')) });
@@ -1767,7 +1767,7 @@ function mirrorLevel(L) {
 function dailyPick() { const dk = dayKey(new Date()); if (G.dPick && G.dPick.d === dk) return G.dPick.k; const k = dailyPick0(); if (k >= 0) { G.dPick = { d: dk, k }; save(); } return k; }
 function dailyPick0() { const c = []; for (let k = 1; k < Math.min(G.unlocked, LEVELS.length); k++) if ((G.stars[k] || 0) > 0) c.push(k); if (c.length < 2) return -1; let h = 7; for (const ch of dayKey(new Date())) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return c[h % c.length]; }
 /* Maestría: el menor límite de movimientos con el que cada nivel aún se puede ganar (scratchpad/master.js) */
-const MASTER_MOVES = [5, 5, 4, 6, 7, 5, 7, 5, 7, 6, 7, 7, 9, 6, 9, 6, 8, 6, 7, 11, 8, 6, 7, 6, 8, 7, 6, 6, 6, 9, 5, 8, 6, 6, 6, 6, 7, 5, 7, 8, 6, 6, 6, 8, 8, 6, 6, 6, 7, 8, 6, 8, 9, 6, 7, 6, 6, 11, 14, 7, 4, 5, 5, 6, 5, 6, 5, 6, 4, 6];
+const MASTER_MOVES = [5, 5, 4, 6, 7, 5, 7, 5, 7, 6, 7, 7, 9, 6, 9, 6, 8, 6, 7, 11, 8, 6, 7, 6, 8, 7, 6, 6, 6, 9, 5, 8, 6, 6, 6, 6, 7, 5, 7, 8, 6, 6, 6, 8, 8, 6, 6, 6, 7, 8, 6, 8, 9, 6, 7, 6, 6, 11, 14, 7, 8, 6, 4, 7, 6, 6, 6, 6, 7, 4];
 function restartLevel() { if (!V.daily && !V.master && !V.failCounted && G.state === 'play' && (V.wasDead || V.hist.length > 0)) { G.fails = G.fails || {}; G.fails[G.levelIdx] = (G.fails[G.levelIdx] || 0) + 1; save(); } loadLevel(G.levelIdx, V.daily ? { daily: true } : V.master ? { master: true } : undefined); }
 function loadLevel(i, opt) {
   const L0 = LEVELS[i], daily = !!(opt && opt.daily), master = !!(opt && opt.master);
@@ -3292,7 +3292,7 @@ function drawBackground() {
   ctx.strokeStyle = 'rgba(255,255,255,.04)'; ctx.lineWidth = 2;
   for (let y = 0, k = 0; y < H; y += 48, k++) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
     for (let x = (k % 2) * 45; x < W; x += 90) { ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y + 48); ctx.stroke(); } }
-  for (const x of G.state === 'play' ? [22, W - 22] : []) {    // gemas mágicas que flotan y cambian de color
+  for (const x of G.state === 'play' && BW <= 470 ? [22, W - 22] : []) {    // gemas mágicas que flotan y cambian de color
     const t = G.time + x * 0.01, y = 396 + Math.sin(t * 1.6) * 5, h = (t * 40 + (x > W / 2 ? 180 : 0)) % 360, [r, g, b] = hsl2rgb(h, 0.9, 0.62).map(Math.round), cl = r + ',' + g + ',' + b;
     const tg = ctx.createRadialGradient(x, y, 4, x, y, 170); tg.addColorStop(0, 'rgba(' + cl + ',.28)'); tg.addColorStop(1, 'rgba(' + cl + ',0)'); ctx.fillStyle = tg; ctx.fillRect(x - 180, y - 180, 360, 360);
     ctx.fillStyle = '#3a3048'; ctx.beginPath(); ctx.moveTo(x - 9, 430); ctx.lineTo(x + 9, 430); ctx.lineTo(x + 5, 440); ctx.lineTo(x - 5, 440); ctx.closePath(); ctx.fill();   // pedestal
