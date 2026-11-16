@@ -3656,7 +3656,26 @@ const LORE = [   // [título, texto, condición para leerla]
 ];
 function loreOpen(i) { const c = LORE[i][2]; return !c || (c < 5 ? (G.unlocked | 0) > c * 10 : (G.stars[49] || 0) > 0); }   // capítulos: se leen al superarlos
 function loreNew() { for (let i = 0; i < LORE.length; i++) if (loreOpen(i) && i > (G.loreSeen ?? -1)) return i; return -1; }
-const SUN_SAYS = ['Los girasoles miran al sol... y cuando pasa la Princesa Omaira, la miran a ella.', 'De noche, los girasoles se duermen soñando con el día.', 'Sus semillas son el desayuno favorito de los patos del lago.', 'Los girasoles crecen altos para ver pasar a la princesa.'];
+/* GIRASOLES Y ESPANTAPÁJAROS: hablan de lo que viven en la granja; algunas frases cambian según la hora y el huerto */
+const SUN_SAYS = {
+  day: ['Seguimos al sol de este a oeste. Ahora mismo miramos hacia donde está él.', 'A mediodía casi no tenemos sombra: el sol nos cae justo encima de la cabeza.'],
+  night: ['De noche nos quedamos mirando al este, esperando a que vuelva a salir el sol.', 'Sin sol no hay nada que seguir, así que bajamos la cabeza y descansamos.'],
+  all: ['Cada una de nuestras cabezas guarda cientos de semillas. Los patos del lago vienen a por las que caen.', 'Crecemos más alto que el alquimista. Desde aquí arriba se ve el huerto, el lago y la casa.',
+    'Las abejas nos visitan cada mañana. Sin ellas no habría semillas el año que viene.', 'Nos plantaron en fila junto al huerto para frenar el viento que baja del bosque.',
+    'Cuando sopla el viento del lago, nos llega el olor de los nenúfares.', 'El espantapájaros dice que somos sus ayudantes: los cuervos no se fían de algo tan alto.'],
+};
+const SCARE_SAYS = ['Llevo aquí desde que se plantó el huerto. Ningún cuervo ha probado una sola semilla.', 'Dos Lunarias en Caldo dan un Elixir del Tiempo: tres movimientos más cuando más falta hacen.',
+  'Las Fuegofloras tardan una hora y piden dos riegos, pero sin ellas no hay Elixir de Sabiduría.', 'Los cuervos de Grisvel venían cada noche. Desde que llegó la princesa, ya no se atreven.',
+  'El sombrero me lo regaló el alquimista. Está un poco roto, pero me tapa del sol.', 'De noche me quedo con las luciérnagas. Me cuentan todo lo que pasa en el lago.',
+  'Riega una planta y la tierra aguanta húmeda un buen rato. Mientras está oscura, la planta crece.', 'Yo no puedo moverme, así que el huerto es cosa tuya, princesa. Yo vigilo.'];
+function sunLine() { const L = Garden.light(), pool = SUN_SAYS.all.concat(L.dark > 0.5 ? SUN_SAYS.night : SUN_SAYS.day); return pool[Math.floor(Math.random() * pool.length)]; }
+function scareLine() {   // primero avisa de lo que pasa en el huerto; si todo va bien, cuenta otra cosa
+  const st = Garden.status(), any = G.farm && G.farm.p && G.farm.p.some(Boolean);
+  if (st && st.ripe && Math.random() < 0.7) return '¡Eh, princesa! Hay ' + (st.ripe > 1 ? st.ripe + ' plantas listas' : 'una planta lista') + ' para cosechar. Mejor antes de que vengan los cuervos.';
+  if (st && st.dry && Math.random() < 0.7) return (st.dry > 1 ? st.dry + ' plantas tienen' : 'Una planta tiene') + ' la tierra seca. Sin agua no crecen, y yo no puedo regarlas.';
+  if (!any && Math.random() < 0.6) return 'El huerto está vacío. Empieza por las Lunarias: son las que antes crecen, solo diez minutos.';
+  return SCARE_SAYS[Math.floor(Math.random() * SCARE_SAYS.length)];
+}
 const ORCHID_SAYS = ['Orquídeas: las flores favoritas de la Princesa Omaira.', 'Se abren despacio, como la sonrisa de la princesa.', 'El alquimista las cuida cada mañana para la Princesa Omaira.', 'Dicen que cada orquídea guarda un secreto cariñoso.', 'Ninguna flor del reino es tan elegante... salvo la princesa.'];
 const ELEMENTI_SAYS = {
   all: ['La Princesa Omaira es maravillosa.', 'Las orquídeas del jardín son las flores favoritas de la Princesa Omaira.', 'Dicen que la Princesa Omaira es la mujer más hermosa del mundo... ¡y es totalmente verdad!', 'La princesa siempre tiene una palabra cariñosa para cada uno de nosotros.',
@@ -4149,7 +4168,8 @@ const Garden = {
       else floater(x, y - 24, 'Acércate más', '#ffffff', 15, 0.9);
       return;
     }
-    if (this.tile(tx, ty) === 'g' || this.tile(tx, ty + 1) === 'g') { const ln = SUN_SAYS[Math.floor(Math.random() * SUN_SAYS.length)], ox = tx + 0.5, oy = ty; G.esay = { x: 0, y: 0, text: ln, t: G.time, col: '#ffc93c', pos: () => this.scr(ox, oy) }; Snd.chainNote(5); return; }
+    if (this.tile(tx, ty) === 'K' || this.tile(tx, ty + 1) === 'K') { const kx = this.tile(tx, ty) === 'K' ? ty : ty + 1, ox = tx + 0.5; G.esay = { x: 0, y: 0, text: scareLine(), t: G.time, col: '#c8925a', pos: () => this.scr(ox, kx - 0.9) }; Snd.v(220, 0.12, { type: 'triangle', vol: 0.1, to: 180 }); return; }
+    if (this.tile(tx, ty) === 'g' || this.tile(tx, ty + 1) === 'g') { const ln = sunLine(), ox = tx + 0.5, oy = ty; G.esay = { x: 0, y: 0, text: ln, t: G.time, col: '#ffc93c', pos: () => this.scr(ox, oy) }; Snd.chainNote(5); return; }
     if ('QOq'.includes(this.tile(tx, ty)) || 'QOq'.includes(this.tile(tx, ty + 1))) { const ln = ORCHID_SAYS[Math.floor(Math.random() * ORCHID_SAYS.length)], ox = tx + 0.5, oy = ty; G.esay = { x: 0, y: 0, text: ln, t: G.time, col: '#ff6ab8', pos: () => this.scr(ox, oy) }; Snd.chainNote(4); return; }
     for (const e of this.elems) if (Math.hypot(e.x - wx, e.y - 0.3 - wy) < 0.8) { e.happy = 1; e.greeted = G.time; const col = ['R', 'B', 'Y', 'G', 'P'][this.elems.indexOf(e)]; elementiSay(0, 0, col, () => this.scr(e.x, e.y - 0.9)); Snd.boing(0.8); return; }
   },
