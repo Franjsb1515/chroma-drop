@@ -28,7 +28,8 @@
 
 /*CORE-BEGIN*/
 /* ---------- NÚCLEO: reglas del puzle (sin DOM) ---------- */
-const COLS = 6, ROWS = 7;
+let COLS = 6, ROWS = 7;                    // tamaño del tablero: lo fija cada nivel (parseLevel / dims)
+function dims(S) { if (S.cols) { COLS = S.cols; ROWS = S.rows; } }
 const COLOR_KEYS = ['R', 'G', 'B', 'Y', 'P'];
 const DIRS = { '>': [1, 0], '<': [-1, 0], '^': [0, -1], 'v': [0, 1] };
 
@@ -43,7 +44,7 @@ const SPELLS = {
 const RULES = { curseMana: 25, timeMoves: 2, timeMovesAmp: 4, timeMovesSup: 6 };
 
 /* ---------- NIVELES ----------
-   6 columnas x 7 filas; cada celda son 2 caracteres:
+   El tablero crece con la campaña (6×7, 7×8, 8×9: lo define el propio grid); cada celda son 2 caracteres:
      ..  vacío          xx  runa maldita (suelo: -1 mov. y -25 maná al pisarla)
      ##  hielo (2 impactos, hechizo o portal)      %%  piedra (solo hechizo o portal)
      R>  R<  R^  Rv  bloque rúnico con flecha      r>  (minúscula) encadenado
@@ -52,884 +53,1069 @@ const RULES = { curseMana: 25, timeMoves: 2, timeMovesAmp: 4, timeMovesSup: 6 };
    portals: { side:'L'|'R'|'T'|'B', i: fila (L/R) o columna (T/B), color }
    moves: límite · par: movimientos sobrantes para 3 estrellas                       */
 const LEVELS = [
-  {   // 1 · óptimo 4 · azar 53.6% · 3★ azar 9.9% · jugadas combo 2
-    name: 'La Bóveda de Iniciación', moves: 7, par: 3, cap: 6, manaPerCell: 2,
+  {   // 1 · óptimo 5 · azar 63.6% · 3★ azar 5.3% · hechizos útiles 2 en 1 jugadas · cadena 2
+    name: 'La Bóveda de Iniciación', moves: 9, par: 4, cap: 6, manaPerCell: 2,
     intro: { icons: true, title: 'Cómo jugar' },
     grid: [
-      '.. .. .. .. .. ..',
-      '.. R@ .. B@ .. ..',
-      'R@ R@ .. B@ .. ..',
-      'G> %% .. Gv G< ..',
-      '.. .. .. .. .. ..',
-      '.. B@ .. .. .. ..',
-      '.. G> .. Gv .. ..',
+      'G< .. .. R@ .. ..',
+      '.. .. .. ## .. ..',
+      '%% R@ G< .. .. ..',
+      'B@ G< .. .. .. ..',
+      'B@ .. .. .. B@ G>',
+      'Gv .. R@ %% G< R@',
+      '.. .. Gv .. .. ##',
     ],
+    sol: '4,5< 0,5v 2,6v 4,5< 4,5< A0,1',
   },
-  {   // 2 · óptimo 3 · azar 66.4% · 3★ azar 13% · jugadas combo 2
-    name: 'Primera Chispa', moves: 7, par: 4, cap: 4, manaPerCell: 2,
+  {   // 2 · óptimo 5 · azar 68.4% · 3★ azar 11.9% · hechizos útiles 2 en 1 jugadas · cadena 2
+    name: 'Primera Chispa', moves: 10, par: 5, cap: 5, manaPerCell: 2,
     intro: { title: 'Dos hechizos', lines: ['Rojos y verdes en el mismo tablero:', 'cada color lanza su propio hechizo.'] },
     grid: [
-      'Gv .. %% R@ .. ..',
-      '.. %% G^ R@ .. ..',
-      'G@ .. .. R@ .. ..',
-      'G@ .. G@ G< .. ..',
-      'G> G> %% .. G< ..',
-      '.. .. .. .. .. ..',
-      '.. .. .. .. .. ..',
+      '.. .. .. R@ %% ..',
+      'Gv .. .. Gv .. R@',
+      '.. R@ G@ .. .. G>',
+      '.. G< G> .. G^ ..',
+      'Gv .. .. .. .. ..',
+      'R@ G@ G@ .. .. ..',
+      'G> %% %% .. .. ..',
     ],
+    sol: '0,6> 0,6> 0,6> 1,6> 0,1v A4,0 A0,4',
   },
-  {   // 3 · óptimo 4 · azar 58.2% · 3★ azar 8.9% · jugadas combo 2
-    name: 'Pasillo de Espinas', moves: 9, par: 5, cap: 5, manaPerCell: 2,
+  {   // 3 · óptimo 4 · azar 53.1% · 3★ azar 6.3% · hechizos útiles 2 en 1 jugadas · cadena 3
+    name: 'Pasillo de Espinas', moves: 8, par: 4, cap: 5, manaPerCell: 2,
     intro: { title: '¡Combos!', lines: ['Si caen varios Elementis a la vez', 'o fusionas dos colores de golpe,', '¡COMBO! Gastas menos movimientos.', '4 o 5 iguales a la vez: ¡más poder!'] },
     grid: [
-      '.. .. G@ .. .. ..',
-      '.. .. G@ .. .. ..',
-      '.. .. R@ .. .. G@',
-      'R@ .. G> .. G> R@',
-      '%% .. .. %% G< G<',
-      'Gv .. .. G^ .. ..',
-      '.. .. .. .. .. ..',
+      '.. .. .. .. .. G@',
+      'G< .. R@ .. .. G@',
+      '.. G@ Gv %% .. %%',
+      'R@ G> .. R@ G@ G>',
+      'G@ .. .. G@ %% %%',
+      'G> G^ .. %% .. G<',
+      '.. .. .. .. .. %%',
     ],
+    sol: '1,5^ 2,2v 0,5> 2,5> A1,4 A4,0',
   },
-  {   // 4 · óptimo 3 · azar 70.6% · 3★ azar 5.9% · jugadas combo 2
-    name: 'Revuelto de Colores', moves: 6, par: 3, cap: 6, manaPerCell: 2,
+  {   // 4 · óptimo 6 · azar 34.1% · 3★ azar 1.7% · hechizos útiles 2 en 1 jugadas · cadena 3
+    name: 'Revuelto de Colores', moves: 9, par: 3, cap: 6, manaPerCell: 2,
     intro: { title: 'Mezcla de colores', lines: ['Rojos y verdes revueltos:', 'decide cuál dejas caer primero.'] },
     grid: [
-      '.. .. .. .. .. ..',
-      '.. .. G@ R@ .. ..',
-      '.. G^ G@ R@ R@ ..',
-      '.. G< G^ %% G< ..',
-      '.. .. G@ .. .. ..',
-      '.. .. G< .. .. ..',
+      '.. .. R@ .. .. G>',
+      '.. .. G> G@ .. ..',
+      '.. .. .. G> .. G>',
+      'G@ .. G@ .. .. R@',
+      'G@ G@ G@ .. R@ G>',
+      '%% %% %% G^ G< ..',
       '.. .. .. .. .. ..',
     ],
+    sol: '3,5^ 4,5< 3,5< 3,5< 5,4> 2,5< A2,0 A1,3',
   },
-  {   // 5 · óptimo 3 · azar 69.2% · 3★ azar 2% · jugadas combo 3
-    name: 'Doble Hornada', moves: 7, par: 4, cap: 5, manaPerCell: 2,
+  {   // 5 · óptimo 7 · azar 37.7% · 3★ azar 8.5% · hechizos útiles 2 en 2 jugadas · cadena 2
+    name: 'Doble Hornada', moves: 10, par: 3, cap: 5, manaPerCell: 2,
     intro: { title: 'Dos fusiones', lines: ['Seis Elementis rojos: dos hechizos.', 'Cada fusión calienta a Caldo: cada 3.ª', 'HIERVE y su hechizo sale potenciado.'] },
     grid: [
-      '.. .. .. .. G@ ..',
-      'R< .. .. .. G@ ..',
-      '.. R@ R@ .. Rv R@',
-      '.. R< %% .. R@ R@',
-      '.. .. .. .. R@ G@',
-      '.. G< .. G> G> %%',
-      '.. .. .. R> .. ..',
+      '.. .. .. R@ .. ..',
+      'R< .. R@ R@ .. ..',
+      '.. .. R> Rv .. ..',
+      'Gv .. .. .. R@ ..',
+      'G@ .. G> .. R@ R@',
+      'G@ G@ .. .. %% %%',
+      '%% %% .. G^ G< ..',
     ],
+    sol: '3,6^ 4,6< 2,6< 2,6< 1,6< A3,0 2,4> 2,2> A4,4',
   },
-  {   // 6 · óptimo 3 · azar 45.4% · 3★ azar 8.3% · jugadas combo 3
-    name: 'Muro de Piedra', moves: 6, par: 3, cap: 3, manaPerCell: 2,
+  {   // 6 · óptimo 5 · azar 30.6% · 3★ azar 0.1% · hechizos útiles 3 en 2 jugadas · cadena 3
+    name: 'Muro de Piedra', moves: 12, par: 7, cap: 5, manaPerCell: 2,
     intro: { title: 'Piedra y caldero', lines: ['La piedra frena tus bloques.', 'Ojo: este caldero solo tiene 3 huecos;', 'si se llena sin fusionar, ¡se desborda!'] },
     grid: [
-      'G@ .. G@ .. R@ ..',
-      'G@ G> G> .. G^ G@',
-      '%% .. .. .. .. R@',
-      '.. .. .. .. .. R@',
-      'R< .. G@ .. .. R<',
-      '%% %% G@ R^ .. ..',
-      '.. .. G^ G> .. ..',
+      'R> .. .. .. .. .. ..',
+      '.. R@ %% .. G@ R< ..',
+      '.. R< G@ Gv G< R@ G@',
+      '.. G@ G> G< R@ G< G>',
+      '%% Gv .. .. G> .. R@',
+      'Gv .. R@ .. .. G@ G<',
+      'G@ .. R> R@ .. Gv ..',
+      '%% %% .. G> .. R< ..',
     ],
+    sol: '4,4> 3,7> 2,6> A0,7 1,4v 5,3< A5,0 A0,0',
   },
-  {   // 7 · óptimo 4 · azar 63.7% · 3★ azar 0.9% · jugadas combo 3
-    name: 'Galería de Ecos', moves: 9, par: 5, cap: 5, manaPerCell: 2,
+  {   // 7 · óptimo 7 · azar 29.1% · 3★ azar 0.1% · hechizos útiles 3 en 2 jugadas · cadena 3
+    name: 'Galería de Ecos', moves: 14, par: 7, cap: 5, manaPerCell: 2,
     grid: [
-      'R@ .. R@ R@ .. R<',
-      'Rv .. R@ R> .. ..',
-      '.. G@ R@ .. .. ..',
-      'G@ G@ Rv G@ .. Rv',
-      'G@ %% G< G@ .. ..',
-      'R@ Gv .. %% .. ..',
-      'G> .. .. .. .. ..',
+      'R> .. %% G@ .. G@ ..',
+      '.. G^ .. G< %% G< G<',
+      '.. R@ R@ R@ .. .. R<',
+      '.. R@ %% R@ G@ .. ..',
+      '%% R< .. G@ Rv G@ ..',
+      'R@ R> .. %% .. R> Rv',
+      'R> .. .. .. .. .. G@',
+      '%% .. .. %% .. .. Gv',
     ],
+    sol: '6,7v 6,5v 5,5> 4,4v A3,0 5,1< 5,1< 5,1< A2,0 A0,5',
   },
-  {   // 8 · óptimo 4 · azar 59.3% · 3★ azar 0.8% · jugadas combo 3
-    name: 'Sala de Prácticas', moves: 12, par: 8, cap: 4, manaPerCell: 2,
+  {   // 8 · óptimo 5 · azar 29.4% · 3★ azar 0% · hechizos útiles 3 en 2 jugadas · cadena 2
+    name: 'Sala de Prácticas', moves: 13, par: 8, cap: 5, manaPerCell: 2,
     intro: { title: 'Caldero estrecho', lines: ['Solo 4 huecos en el caldero:', 'planifica antes de tocar.'] },
     grid: [
-      '.. R@ G@ R^ .. R>',
-      'G@ R@ R@ .. .. G@',
-      'G@ R@ R@ .. .. G@',
-      '%% R> R> .. Rv R@',
-      '%% .. .. G< .. G>',
-      '.. G@ .. .. .. %%',
-      '.. Gv R< .. %% R<',
+      'G< .. Gv .. .. R@ ..',
+      'G< G@ G^ .. .. G> ..',
+      '.. R@ Rv R< R@ G< R<',
+      'G@ G@ .. R> G@ .. R>',
+      'G< %% G@ G< %% %% ..',
+      'G^ .. G< R@ R< .. ..',
+      'G@ .. .. G< R@ R@ ..',
+      'G> %% .. .. G< Rv ..',
     ],
+    sol: '4,7< 3,6< 5,7v A1,6 3,4< 2,4< A5,0 A0,2',
   },
-  {   // 9 · óptimo 6 · azar 73.4% · 3★ azar 0.1% · jugadas combo 3
-    name: 'Umbral de Piedra', moves: 11, par: 5, cap: 5, manaPerCell: 2,
+  {   // 9 · óptimo 7 · azar 30.3% · 3★ azar 4.5% · hechizos útiles 3 en 2 jugadas · cadena 2
+    name: 'Umbral de Piedra', moves: 11, par: 4, cap: 5, manaPerCell: 2,
     grid: [
-      '.. G^ .. .. %% R>',
-      '.. .. R@ R@ .. ..',
-      '.. .. G@ G@ .. ..',
-      '.. R@ G@ G@ R@ ..',
-      'R> R@ R> R< G@ ..',
-      'G< R@ R> G> G@ ..',
-      '.. %% .. %% %% G<',
+      '.. .. R@ .. Rv .. %%',
+      '.. .. R@ .. .. G@ ..',
+      'G@ .. R@ .. %% %% R@',
+      'Gv .. %% R> .. .. R@',
+      'R^ R@ G^ .. .. G@ %%',
+      '.. Gv G@ G@ .. R> ..',
+      '.. %% G< Gv .. G@ ..',
+      '.. .. .. .. .. R> R>',
     ],
+    sol: '6,7> 5,7> 3,6v 5,5> A2,0 A4,2 1,5v 1,5v 1,5v A0,2',
   },
-  {   // 10 · óptimo 3 · azar 42.2% · 3★ azar 1% · jugadas combo 4
-    name: 'Guardián de la Bóveda', moves: 11, par: 8, cap: 5, manaPerCell: 2,
+  {   // 10 · óptimo 6 · azar 22.7% · 3★ azar 1.6% · hechizos útiles 3 en 2 jugadas · cadena 2
+    name: 'Guardián de la Bóveda', moves: 13, par: 7, cap: 5, manaPerCell: 2,
     intro: { title: 'Examen del capítulo', lines: ['Haz que caigan juntos: ¡fusión grande!', 'Piensa qué color cae primero.'] },
     grid: [
-      'R@ R@ R@ .. .. G@',
-      '%% G< R@ .. G@ %%',
-      '.. .. G^ .. G@ G@',
-      'R@ Rv .. R^ R@ R<',
-      'G> .. .. .. Gv G@',
-      '.. .. .. .. %% G@',
-      '.. .. .. G^ .. R<',
+      '.. .. .. .. G< .. ..',
+      'G@ .. %% .. %% .. ..',
+      'G> R@ %% R@ R< G@ G@',
+      '.. %% %% R< .. G@ G@',
+      '.. R@ .. .. G< Gv R>',
+      'R@ G@ .. R@ R@ R< %%',
+      'Rv G^ .. R> Rv G^ Gv',
+      '.. .. .. Rv .. Gv Gv',
     ],
+    sol: '4,6v 0,6v 3,7v 3,6> A6,6 6,4> 5,4v A2,0 A0,0',
   },
-  {   // 11 · óptimo 3 · azar 52.3% · 3★ azar 4% · jugadas combo 3
-    name: 'Primera Helada', moves: 7, par: 4, cap: 6, manaPerCell: 2,
+  {   // 11 · óptimo 7 · azar 33.5% · 3★ azar 4.1% · hechizos útiles 3 en 2 jugadas · cadena 2
+    name: 'Primera Helada', moves: 13, par: 6, cap: 6, manaPerCell: 2,
     intro: { title: 'Cripta de Escarcha', lines: ['Un bloque ROJO derrite el hielo de 1 golpe.', 'Azul = Deshielo: rompe todo el hielo.'] },
     grid: [
-      '.. R@ .. .. R@ ..',
-      '.. R@ .. B@ ## ..',
-      '.. ## .. R< .. ..',
-      'R> .. .. .. .. B@',
-      '.. .. B> .. .. R@',
-      '.. .. .. B@ .. R@',
-      '.. .. .. B< B> ##',
+      'B@ .. B@ .. Bv %% B^',
+      'R> ## Bv B< .. R@ R@',
+      '.. .. .. R@ Bv R< B>',
+      '.. Bv B@ R< R@ B@ ..',
+      '.. R@ ## R@ B< B@ ..',
+      '.. R> .. ## %% R> ..',
+      '.. B@ .. %% .. .. ..',
+      '.. ## B> .. .. .. ..',
     ],
+    sol: '0,1> 4,0v 2,7> 0,1> 5,5> 3,3< 6,2> A3,3',
   },
-  {   // 12 · óptimo 4 · azar 36.3% · 3★ azar 0.5% · jugadas combo 3
-    name: 'Brasas en la Escarcha', moves: 9, par: 5, cap: 5, manaPerCell: 2,
+  {   // 12 · óptimo 7 · azar 28.5% · 3★ azar 0.3% · hechizos útiles 4 en 3 jugadas · cadena 2
+    name: 'Brasas en la Escarcha', moves: 11, par: 4, cap: 5, manaPerCell: 2,
     intro: { title: 'Fuego contra hielo', lines: ['Usa los bloques rojos para abrir', 'paso a través del hielo.'] },
     grid: [
-      'B@ .. B@ .. .. ..',
-      '## R< R@ .. .. ..',
-      '.. ## Rv .. R@ B@',
-      '.. .. Rv .. R@ R@',
-      '.. .. ## .. ## R@',
-      '.. .. .. .. .. R<',
-      '.. .. R> .. R^ ..',
+      '.. R@ B@ %% B@ .. %%',
+      'R^ R> B@ .. ## .. ##',
+      'B@ .. R> R^ .. .. ..',
+      'R< .. .. B@ .. B@ ..',
+      '.. R@ R@ R< .. R< ..',
+      'Rv ## ## .. R> R@ R@',
+      '.. .. .. .. R@ ## R<',
+      '.. .. .. R^ R< .. ..',
     ],
+    sol: '3,7^ 4,7< 6,6< 6,6< A1,4 3,2^ 2,2> 1,1> A3,3',
   },
-  {   // 13 · óptimo 6 · azar 41.3% · 3★ azar 1.6% · jugadas combo 3
-    name: 'Raíces y Témpanos', moves: 13, par: 7, cap: 5, manaPerCell: 2,
+  {   // 13 · óptimo 9 · azar 21% · 3★ azar 0% · hechizos útiles 3 en 3 jugadas · cadena 2
+    name: 'Raíces y Témpanos', moves: 17, par: 8, cap: 5, manaPerCell: 2,
     intro: { title: 'Naturaleza', lines: ['Dos golpes de un bloque verde', 'rompen la piedra.'] },
     grid: [
-      '.. .. .. .. .. B@',
-      '%% .. .. .. B@ B@',
-      '.. .. .. .. G> G<',
-      '.. .. G@ .. Bv ..',
-      '.. G@ G@ Bv .. ..',
-      'B@ B> B@ .. .. ##',
-      '%% .. ## %% G< ..',
+      '%% B@ .. .. .. B> ..',
+      '.. B@ %% Gv .. .. Gv',
+      'G@ G< .. .. B@ G@ ..',
+      'Bv .. B@ .. ## B@ B<',
+      'G< .. G> B@ .. G> ..',
+      '.. %% .. ## .. G< ..',
+      'G^ G@ .. G@ .. G@ G@',
+      '.. Bv ## Gv .. ## B>',
     ],
+    sol: '3,7v 1,7v 6,7> A0,0 5,5< 4,5< 4,5< 2,5< 1,2< 5,4> A1,0',
   },
-  {   // 14 · óptimo 3 · azar antiguo% · 3★ azar -% · jugadas combo -
-    name: 'Portales Laterales', moves: 11, par: 8, cap: 5, manaPerCell: 2,
+  {   // 14 · óptimo 5 · azar 9.3% · 3★ azar 0.1% · hechizos útiles 3 en 2 jugadas · cadena 2
+    name: 'Portales Laterales', moves: 13, par: 8, cap: 5, manaPerCell: 2,
     intro: { title: 'Bloques libres', lines: ['Arrastra el bloque libre (4 flechas)', 'hasta el portal lateral de su color.'] },
     grid: [
-      '.. .. .. B< ## ..',
-      'Yv .. .. .. .. ..',
-      '.. Y@ .. .. .. ..',
-      '.. Y@ .. .. Bv B@',
-      '.. Y@ B@ .. .. Yo',
-      '.. Y> B@ .. Y< ..',
-      'Bo .. ## .. .. ..',
+      'B> %% .. Y> B@ Y@ Y<',
+      '.. .. B@ Y@ Yv ## B@',
+      '.. .. Y< ## .. .. Y<',
+      'B@ .. .. B@ .. .. ..',
+      'Y> Y@ .. ## Y@ .. ..',
+      '.. Y> Bv B@ Bv Y@ Bo',
+      '.. %% .. B> Yv Y@ ..',
+      'B< Bo .. .. .. B^ B>',
     ],
-    portals: [{ side: 'R', i: 4, color: 'Y' }, { side: 'R', i: 6, color: 'B' }],
+    sol: '4,6v 4,5v 1,7> 2,5v 2,2< 1,5> 0,4> 2,4> 4,1v 3,6> 6,5< 6,2< 0,7<',
+    portals: [{ side: 'R', i: 6, color: 'B' }, { side: 'R', i: 0, color: 'B' }],
   },
-  {   // 15 · óptimo 5 · azar 46.5% · 3★ azar 1.8% · jugadas combo 3
-    name: 'El Caldero Hierve', moves: 9, par: 4, cap: 5, manaPerCell: 2,
+  {   // 15 · óptimo 9 · azar 23.2% · 3★ azar 0.1% · hechizos útiles 3 en 2 jugadas · cadena 2
+    name: 'El Caldero Hierve', moves: 17, par: 8, cap: 5, manaPerCell: 2,
     intro: { title: 'Hervor', lines: ['A la 3ª fusión el caldero HIERVE', 'y sobrecarga el hechizo.'] },
     grid: [
-      '.. .. G@ R@ .. %%',
-      'G@ .. G> R@ .. B@',
-      'G@ B> B^ R@ .. B@',
-      'B> B@ .. ## .. ##',
-      '.. G@ B> .. .. ..',
-      '.. G@ .. .. G^ ..',
-      '.. %% ## .. .. G<',
+      '.. .. .. .. .. G< ..',
+      'B> G@ G> Bv B^ G@ R@',
+      '.. G@ .. R@ B@ ## B<',
+      'G@ Gv .. R@ Gv .. B>',
+      'G@ .. .. ## .. .. ..',
+      '%% .. B> B@ .. .. ..',
+      'G@ .. B< B@ B< %% ..',
+      '%% .. .. B< %% .. ..',
     ],
+    sol: '3,7< 2,6< 4,6< 4,3v 4,6v 4,6v 6,3> 6,2< A1,6 A6,0 1,3v',
   },
-  {   // 16 · óptimo 3 · azar antiguo% · 3★ azar -% · jugadas combo -
-    name: 'Reloj Congelado', moves: 11, par: 8, cap: 4, manaPerCell: 2,
+  {   // 16 · óptimo 5 · azar 15.8% · 3★ azar 0.9% · hechizos útiles 3 en 2 jugadas · cadena 2
+    name: 'Reloj Congelado', moves: 13, par: 8, cap: 5, manaPerCell: 2,
     grid: [
-      'Y@ .. ## R@ B@ ..',
-      'B> .. .. R@ B@ ..',
-      'R< .. .. R< B@ ..',
-      '.. .. .. R@ Rv Ro',
-      'Y@ R^ .. B> .. %%',
-      'Y@ ## .. .. ## ..',
-      '## .. .. Yv .. ..',
+      '## .. ## .. .. Y< ..',
+      'Y@ R^ .. Y@ .. .. Y@',
+      '## .. Y< B< .. B^ R<',
+      'B@ .. .. .. .. B@ Y@',
+      'Bv %% Yv .. B^ B@ Rv',
+      '.. R@ %% .. Rv R> %%',
+      'R@ R< Y@ .. Y@ ## R@',
+      'Bv Bo Yv .. ## .. R>',
     ],
-    portals: [{ side: 'R', i: 4, color: 'R' }],
+    sol: '2,7v 1,7> 0,7v 1,6< 6,7> A6,5 0,4v 2,2< 3,2< 5,2^ 6,2< 3,7>',
+    portals: [{ side: 'L', i: 7, color: 'B' }],
   },
-  {   // 17 · óptimo 4 · azar 42.3% · 3★ azar 7.2% · jugadas combo 4
-    name: 'Cuatro Elementos', moves: 9, par: 5, cap: 5, manaPerCell: 2,
+  {   // 17 · óptimo 7 · azar 31.1% · 3★ azar 10% · hechizos útiles 3 en 3 jugadas · cadena 2
+    name: 'Cuatro Elementos', moves: 13, par: 6, cap: 6, manaPerCell: 2,
     grid: [
-      '.. R@ .. G@ %% ..',
-      '.. Y> Y@ B@ G@ ..',
-      'Rv Y@ Y@ Y< G@ R@',
-      '.. B@ R@ .. ## R@',
-      '.. B@ Y> Y> .. R@',
-      'Rv R> .. ## .. ##',
-      '.. G> .. .. .. %%',
+      '.. .. .. .. G@ .. ..',
+      'R@ .. G@ G^ ## .. ..',
+      'Y< .. Y< Y< Y@ G@ %%',
+      '.. Y^ .. .. ## %% B@',
+      'Y@ Y^ .. B@ .. ## Gv',
+      '## R@ Y@ B@ G< .. ..',
+      'Gv R@ ## R> ## .. ##',
+      '%% ## .. .. .. .. Rv',
     ],
+    sol: '2,2< 3,6> 3,6> 6,7v 6,4v 0,6v 0,6v 4,5< 0,6v 0,2< A3,4',
   },
-  {   // 18 · óptimo 8 · azar 50.2% · 3★ azar 1.1% · jugadas combo 3
-    name: 'Pozo Helado', moves: 13, par: 5, cap: 4, manaPerCell: 2,
+  {   // 18 · óptimo 6 · azar 22.5% · 3★ azar 0.4% · hechizos útiles 3 en 3 jugadas · cadena 2
+    name: 'Pozo Helado', moves: 12, par: 6, cap: 5, manaPerCell: 2,
     grid: [
-      '%% ## R@ .. .. ..',
-      'R@ .. ## .. B@ ..',
-      'R@ .. G< B@ B@ ..',
-      'R< .. Gv G@ R@ G@',
-      '.. R> .. R@ G^ G@',
-      '## R^ .. R@ G< ##',
-      '.. .. %% G< .. ..',
+      '.. .. B@ R< %% .. ..',
+      '.. R@ B@ G< .. .. %%',
+      '.. R@ %% .. R> .. ..',
+      'G@ ## .. G@ B@ R@ ..',
+      'G> G> .. R> %% ## G@',
+      '.. .. G^ Gv .. R@ R@',
+      'R@ ## R< .. .. G> G>',
+      'R> .. .. .. ## .. ..',
     ],
+    sol: '6,6> 5,6> 0,7> A2,5 3,7> 0,4> A2,0 3,4>',
   },
-  {   // 19 · óptimo 7 · azar 58.2% · 3★ azar 1.8% · jugadas combo 3
-    name: 'Pasaje sin Margen', moves: 12, par: 5, cap: 5, manaPerCell: 2,
+  {   // 19 · óptimo 7 · azar 25.4% · 3★ azar 0.4% · hechizos útiles 3 en 2 jugadas · cadena 2
+    name: 'Pasaje sin Margen', moves: 14, par: 7, cap: 6, manaPerCell: 2,
     intro: { title: 'Piensa antes de mover', lines: ['Cada movimiento cuenta:', 'planea el orden de caída.'] },
     grid: [
-      'Y@ G@ .. .. R@ R@',
-      'Gv G@ G^ B@ R@ R@',
-      '.. R@ Gv B@ %% ##',
-      'B@ ## .. G@ .. R>',
-      'Y@ .. .. Rv .. R>',
-      'Y@ .. %% R< .. ..',
-      'G> .. %% ## .. ..',
+      '.. .. B@ ## R@ %% G@',
+      '.. G< G< %% R@ .. ##',
+      '.. .. .. .. G> G@ R^',
+      'R> G> %% R> .. Rv ..',
+      'R@ %% Y@ R^ B@ Y@ ..',
+      'G< G@ ## Gv R< ## ..',
+      'B@ G< .. Y@ .. .. ..',
+      'R> R^ .. R< .. .. ..',
     ],
+    sol: '1,3> 1,1< 3,7< 2,1< 3,5v 1,3> 4,5< 5,3v 4,2> 0,5< A4,0 1,6<',
   },
-  {   // 20 · óptimo 6 · azar 35.4% · 3★ azar 5.9% · jugadas combo 3
-    name: 'Guardián de la Cripta', moves: 10, par: 4, cap: 4, manaPerCell: 2,
+  {   // 20 · óptimo 9 · azar 12.7% · 3★ azar 0.3% · hechizos útiles 4 en 3 jugadas · cadena 2
+    name: 'Guardián de la Cripta', moves: 17, par: 8, cap: 6, manaPerCell: 2,
     intro: { title: 'Examen del capítulo', lines: ['Hielo y piedra por todas partes.', 'Cada movimiento cuenta.'] },
     grid: [
-      'Y@ .. R@ R@ B@ ..',
-      'Y@ G@ R@ G> B@ Gv',
-      'Rv G@ R@ .. Y@ G@',
-      '## %% %% Y> ## ##',
-      '.. R> R@ .. .. ##',
-      '.. .. R< .. .. B@',
-      'Y< .. %% .. Y< Yv',
+      '.. .. .. R@ .. .. G>',
+      'Rv B@ .. R> R^ .. G^',
+      '.. ## .. ## R< .. Y@',
+      '.. B@ .. G< %% .. ##',
+      'G@ ## G@ Y@ R> Y@ ..',
+      '%% %% R< Yv G@ G> R@',
+      'B@ .. .. .. ## Y< R@',
+      '## %% .. .. .. Rv G<',
     ],
+    sol: '3,3< 4,1^ 3,5v 3,1> 5,7v 4,2< 6,7< A1,6 5,6< 5,6< A1,0 5,6< 5,5>',
   },
-  {   // 21 · óptimo 5 · azar 33.2% · 3★ azar 0.2% · jugadas combo 3
-    name: 'Barriles de Pólvora', moves: 10, par: 5, cap: 5, manaPerCell: 2,
+  {   // 21 · óptimo 8 · azar 22% · 3★ azar 0% · hechizos útiles 4 en 2 jugadas · cadena 3
+    name: 'Barriles de Pólvora', moves: 11, par: 3, cap: 5, manaPerCell: 2,
     intro: { title: 'Forja de Pólvora', lines: ['Golpea un barril: estalla en 3×3.', '3 bloques iguales en línea RESUENAN.'] },
     grid: [
-      'G> .. .. G^ .. ..',
-      'G> .. .. .. .. ..',
-      '.. .. .. R@ R@ ..',
-      '.. TT .. R< G@ G@',
-      '.. .. .. R@ G@ G@',
-      '.. .. G@ G> %% TT',
-      '.. .. G> ## R< ..',
+      '.. TT .. .. R@ G@ R@ ..',
+      'G> .. .. .. R@ R< G@ G<',
+      '.. TT %% G@ R^ .. %% ..',
+      '.. .. .. R^ G@ G@ .. ..',
+      '.. .. .. %% ## G@ .. %%',
+      'R@ .. .. .. .. G@ .. TT',
+      'R> R@ G@ .. ## G< .. ..',
+      '.. R@ R> G@ .. .. .. Gv',
+      '.. ## .. R^ G> ## Rv ..',
     ],
+    sol: '5,6< 5,6< 4,8> 5,6< 4,8> A1,0 6,8v 4,8> 0,6> A5,3 A4,7 A3,0',
   },
-  {   // 22 · óptimo 5 · azar 36.7% · 3★ azar 0.8% · jugadas combo 3
-    name: 'Cadenas de Hierro', moves: 10, par: 5, cap: 4, manaPerCell: 2,
+  {   // 22 · óptimo 6 · azar 16.3% · 3★ azar 0% · hechizos útiles 4 en 2 jugadas · cadena 4
+    name: 'Cadenas de Hierro', moves: 11, par: 5, cap: 5, manaPerCell: 2,
     intro: { title: 'Resonancia', lines: ['Fuego resonante derrite el hielo,', 'Naturaleza rompe piedra y', 'Agua rompe cadenas.'] },
     grid: [
-      'R@ B> .. R@ G@ TT',
-      'R@ G< R= R@ R@ R=',
-      'G< .. .. ## R@ B@',
-      'G@ .. .. .. g< B@',
-      'TT .. .. .. .. G@',
-      'B^ .. .. B@ .. B<',
-      'G< G< .. ## .. G<',
+      '.. R@ .. .. .. .. .. ..',
+      '.. B^ B< .. R= .. G> TT',
+      'R@ R= TT ## G@ .. .. %%',
+      'b> G^ .. G@ B> G< .. ..',
+      '.. G@ ## Gv G> G@ .. B@',
+      'Gv Bv R@ G@ B@ B< R@ B>',
+      '.. TT %% B> R@ R@ B< ..',
+      '.. G@ .. Gv B@ gv .. ..',
+      '.. B> G> .. ## Gv .. ..',
     ],
+    sol: '2,8> 7,5> 5,8v 3,8> 5,7v 6,6< A2,7 A4,0 A0,0',
   },
-  {   // 23 · óptimo 7 · azar 41.3% · 3★ azar 0.4% · jugadas combo 3
-    name: 'Sala de los Sellos', moves: 11, par: 4, cap: 5, manaPerCell: 2,
+  {   // 23 · óptimo 7 · azar 15.8% · 3★ azar 0% · hechizos útiles 4 en 3 jugadas · cadena 2
+    name: 'Sala de los Sellos', moves: 15, par: 8, cap: 5, manaPerCell: 2,
     intro: { title: 'Sellos', lines: ['Piensa qué color abre cada sello.'] },
     grid: [
-      '.. .. .. B@ Y= ..',
-      '.. G@ .. G@ .. ..',
-      '.. G@ G> G@ G^ G<',
-      '.. G@ .. B> Y@ ..',
-      '.. b> .. B@ Y@ ..',
-      '.. B= .. B@ Y@ ..',
-      '.. %% %% g< G< ..',
+      '.. B@ .. G@ B@ .. G@ ..',
+      '## %% .. b> B> .. G@ ..',
+      '.. .. B@ .. .. B@ B< G@',
+      '.. %% Y= Y@ .. G@ .. gv',
+      'G< .. .. B> .. Gv .. G@',
+      '.. ## G> B@ %% .. B= Bv',
+      '.. .. .. B> .. Y@ %% ..',
+      'Y@ G> .. B@ .. %% .. ..',
+      'B> .. B< B< G< G> .. ..',
     ],
+    sol: '0,8> 1,7> 4,7> 3,4> 5,8> 5,4v 3,6> 7,5v 7,3v A5,0 3,1> A1,0 2,5>',
   },
-  {   // 24 · óptimo 5 · azar 28.7% · 3★ azar 1.1% · jugadas combo 3
-    name: 'Polvorín Helado', moves: 10, par: 5, cap: 4, manaPerCell: 2,
+  {   // 24 · óptimo 6 · azar 13.1% · 3★ azar 0.2% · hechizos útiles 4 en 2 jugadas · cadena 3
+    name: 'Polvorín Helado', moves: 13, par: 7, cap: 5, manaPerCell: 2,
     intro: { title: 'Pólvora y hielo', lines: ['Una explosión rompe hielo y piedra.'] },
     grid: [
-      '.. .. %% R@ B@ ..',
-      '.. B> .. G@ G@ B@',
-      '.. B^ .. G@ TT G@',
-      'B@ .. ## B< G@ TT',
-      'R@ G^ ## .. %% ..',
-      'R@ .. .. .. .. ..',
-      'r< .. R^ G< .. ..',
+      '.. .. B@ ## TT R> Gv ..',
+      '.. .. ## TT G@ G@ .. ..',
+      '.. B@ R@ .. B^ G< R@ G@',
+      '.. R@ B< R< B^ .. R@ ##',
+      '.. g> R^ .. .. R@ G@ ..',
+      'B@ G@ .. .. G> bv G< R@',
+      'Rv G@ ## .. .. .. G< B<',
+      '.. %% %% TT .. .. .. G>',
+      '.. .. B> .. G< .. .. ..',
     ],
+    sol: '4,5> 5,5v 6,6< 6,5< A1,8 A2,0 7,7> 7,6< A5,3 A0,0',
   },
-  {   // 25 · óptimo 6 · azar 50.5% · 3★ azar 7% · jugadas combo 4
-    name: 'Coro de Runas', moves: 9, par: 3, cap: 4, manaPerCell: 2,
+  {   // 25 · óptimo 5 · azar 20.2% · 3★ azar 0.1% · hechizos útiles 4 en 3 jugadas · cadena 2
+    name: 'Coro de Runas', moves: 14, par: 9, cap: 6, manaPerCell: 2,
     grid: [
-      'R> G@ .. B@ .. Y@',
-      'B@ R@ G@ R> .. Y@',
-      'B@ R@ R@ TT .. Y@',
-      'B@ G< B@ .. .. G<',
-      'gv .. G< ## .. G<',
-      'G> G@ .. .. .. ..',
-      '## R< .. G= .. ..',
+      'R< Y@ .. .. Gv G> .. Y@',
+      'Rv ## B@ R@ %% .. G@ G<',
+      'R@ .. B= G< TT .. G@ ##',
+      'G> B@ .. .. R@ .. ## ..',
+      'B@ g> .. B@ Gv %% TT %%',
+      'B@ .. G< G< .. gv .. ..',
+      'R< .. .. .. Y@ .. .. ..',
+      '.. G@ .. R> R< B@ .. %%',
+      '.. G< .. .. .. Gv R^ G<',
     ],
+    sol: '6,8^ 4,4v 7,1< 0,6< 1,8< A3,0 4,7< 1,4> 7,8< 0,3> A4,7',
   },
-  {   // 26 · óptimo 5 · azar 23.9% · 3★ azar 0.3% · jugadas combo 3
-    name: 'Mecha Corta', moves: 9, par: 4, cap: 4, manaPerCell: 2,
+  {   // 26 · óptimo 7 · azar 14.5% · 3★ azar 0.2% · hechizos útiles 5 en 4 jugadas · cadena 2
+    name: 'Mecha Corta', moves: 15, par: 8, cap: 6, manaPerCell: 2,
     grid: [
-      'B@ B@ R@ B@ Y@ Y@',
-      'TT B< R@ G@ G< %%',
-      '.. .. Gv G@ .. ..',
-      '.. Y@ B> gv .. ..',
-      'B> Y@ .. .. .. ..',
-      'R@ Y@ %% .. .. G@',
-      'Y< Y> .. .. TT R=',
+      'B@ .. B@ %% .. %% R@ ..',
+      'G^ .. Y< .. ## Y@ Gv ..',
+      'B@ ## TT .. .. G@ G@ R@',
+      'G< .. .. .. Y@ G> ## y>',
+      'G@ .. Y^ Y@ B> .. R@ Bv',
+      'B> Y@ TT G< Y@ .. Bv ..',
+      '.. Y@ ## .. G> .. .. %%',
+      '.. R= Yv G< .. .. TT ..',
+      'B< .. .. .. .. g^ B> ..',
     ],
+    sol: '6,5v 4,6> 5,3> 5,3> 7,4v 6,1v 4,4> 5,3> 7,3> A4,6 2,4^ 0,5> 0,8< A0,0 2,7v',
   },
-  {   // 27 · óptimo 6 · azar 29.2% · 3★ azar 1.1% · jugadas combo 3
-    name: 'Eco Resonante', moves: 10, par: 4, cap: 5, manaPerCell: 2,
+  {   // 27 · óptimo 6 · azar 14.5% · 3★ azar 0% · hechizos útiles 4 en 3 jugadas · cadena 2
+    name: 'Eco Resonante', moves: 14, par: 8, cap: 5, manaPerCell: 2,
     grid: [
-      'Bv .. .. .. .. ..',
-      '## .. R< .. R@ ..',
-      '.. .. .. B@ R@ ..',
-      'R> R> .. B@ R^ R@',
-      '.. .. .. B@ .. B@',
-      'TT .. .. R< r< B@',
-      '.. .. .. ## .. B<',
+      '.. .. .. B@ .. R@ .. ..',
+      '.. .. .. R> B^ B< R@ b<',
+      '.. B@ .. .. R< .. b> B@',
+      '.. Rv .. .. .. .. R^ B<',
+      'B@ .. Rv .. B@ B@ .. ..',
+      'R< R@ .. B^ R> R> B^ B@',
+      'R@ B> %% %% TT R> B@ B>',
+      'R@ B@ .. ## R@ .. R< ..',
+      'R< B> .. ## ## TT B> ..',
     ],
+    sol: '0,8< 0,5< 1,8> 7,6> A5,4 2,8> 7,1< 1,6> A2,2',
   },
-  {   // 28 · óptimo 5 · azar 43.8% · 3★ azar 1.4% · jugadas combo 3
-    name: 'Fragua Sellada', moves: 9, par: 4, cap: 3, manaPerCell: 2,
+  {   // 28 · óptimo 6 · azar 8.4% · 3★ azar 0% · hechizos útiles 5 en 2 jugadas · cadena 4
+    name: 'Fragua Sellada', moves: 16, par: 10, cap: 5, manaPerCell: 2,
     intro: { title: 'Piensa antes de mover', lines: ['Cada movimiento cuenta:', 'planea el orden de caída.'] },
     grid: [
-      '.. G@ G= R< R@ TT',
-      'B@ G@ .. .. R@ R@',
-      'B@ G@ r< .. ## G@',
-      'B@ B< .. R^ .. G@',
-      '## R< .. .. .. rv',
-      '%% .. .. .. .. G<',
-      '.. .. R= B> TT %%',
+      '.. G< %% ## R@ G= G> ..',
+      '.. .. TT G> G^ .. G< G@',
+      'G@ B@ .. G= G@ R^ R^ G@',
+      'G@ G> B^ R@ ## %% R@ rv',
+      'b< R@ .. B> B^ B@ B< ..',
+      '.. R< .. R@ .. ## B@ ..',
+      'R@ %% .. ## .. .. B< ..',
+      'B> Rv TT .. .. .. G@ ..',
+      '.. .. ## TT .. .. b^ ..',
     ],
+    sol: '1,7v 0,7> 1,5< A4,4 6,4< 6,1< 0,4< A6,0 A5,5 A0,0',
   },
-  {   // 29 · óptimo 5 · azar 23.3% · 3★ azar 0.8% · jugadas combo 4
-    name: 'Chispas en la Oscuridad', moves: 10, par: 5, cap: 4, manaPerCell: 2,
+  {   // 29 · óptimo 6 · azar 17.6% · 3★ azar 0% · hechizos útiles 4 en 2 jugadas · cadena 4
+    name: 'Chispas en la Oscuridad', moves: 15, par: 9, cap: 5, manaPerCell: 2,
     grid: [
-      'G@ .. R@ R@ .. ..',
-      'G> .. G> g< R@ ..',
-      '.. .. TT B@ R@ B@',
-      '.. TT B@ R> R@ %%',
-      'R@ .. G@ G< ## R=',
-      'G< G< G@ .. .. ..',
-      '.. %% G< ## G< ..',
+      '.. .. .. R@ G@ .. R@ G<',
+      '.. TT ## R< R= %% R> %%',
+      'B@ G> TT .. .. g> .. %%',
+      'R< R@ .. .. .. G< .. TT',
+      'R@ R> Rv G@ B@ ## R@ R>',
+      'G< .. Gv R< G> .. ## G@',
+      '.. R@ G> .. .. .. .. G@',
+      '.. Gv G@ .. .. B@ G@ g>',
+      '.. G< r< .. .. Gv R< ..',
     ],
+    sol: '4,5> 0,3< 5,8v 0,5< 6,8< 7,7> A6,0 A4,7 A0,0',
   },
-  {   // 30 · óptimo 5 · azar 16.3% · 3★ azar 0.2% · jugadas combo 4
-    name: 'Guardián de la Forja', moves: 7, par: 2, cap: 3, manaPerCell: 2,
+  {   // 30 · óptimo 9 · azar 13.1% · 3★ azar 0% · hechizos útiles 5 en 2 jugadas · cadena 4
+    name: 'Guardián de la Forja', moves: 19, par: 10, cap: 5, manaPerCell: 2,
     intro: { title: 'Examen del capítulo', lines: ['Pólvora, sellos y cadenas.', 'Busca la reacción en cadena.'] },
     grid: [
-      'B@ .. .. .. .. G@',
-      'g^ .. R@ R@ R@ G^',
-      '.. R@ R@ R@ TT G@',
-      'B@ r> G@ B< G= TT',
-      'B@ .. B> .. ## ..',
-      'G= .. .. ## .. Rv',
-      'R< TT R> .. R< R>',
+      'G^ ## %% R> .. G@ Bv B@',
+      '.. .. %% R@ R@ Rv B@ Gv',
+      '## %% G@ ## TT R@ R= ..',
+      'TT TT Bv B@ ## b> .. R@',
+      '.. B@ R@ B< B^ B@ G@ Bv',
+      '.. G> r< B= .. R< Gv G<',
+      'b< R@ B< .. B@ .. .. ..',
+      '## gv .. .. B> .. .. ..',
+      '.. .. Bv .. .. .. .. ..',
     ],
+    sol: '6,5v 7,5< 5,5< 7,4v 4,7> 7,1v 2,8v 1,7v 4,4^ A3,5 A4,4 A0,0',
   },
-  {   // 31 · óptimo 3 · azar antiguo% · 3★ azar -% · jugadas combo -
-    name: 'Portal Arcano', moves: 6, par: 3, cap: 5, manaPerCell: 3,
+  {   // 31 · óptimo 5 · azar 14.9% · 3★ azar 1.9% · hechizos útiles 4 en 3 jugadas · cadena 2
+    name: 'Portal Arcano', moves: 10, par: 5, cap: 5, manaPerCell: 3,
     intro: { title: 'Torre Rúnica', lines: ['Cada casilla nueva que pintas carga el MANÁ.', 'Con el maná lleno, el PORTAL borra una fila.', 'Morado = Maná Pleno: lo llena de golpe.'] },
     grid: [
-      '.. Rv .. .. R@ ..',
-      '.. .. .. .. R@ ..',
-      '.. .. .. P@ R@ ..',
-      '.. .. .. P@ %% ..',
-      'R< P@ .. R< .. %%',
-      '.. R< .. .. .. ..',
-      '.. Rv R> .. .. ..',
+      'P@ .. .. .. .. .. .. P@',
+      'R> .. .. .. .. .. .. R>',
+      '.. R@ .. .. .. R@ .. ..',
+      'R@ Rv R@ Rv .. %% R@ ..',
+      'R^ P@ R< .. .. R< R> ..',
+      '.. R< .. .. R^ .. R@ ..',
+      'R^ .. R@ .. P@ .. R< R@',
+      '.. .. R< P@ R< .. P@ R@',
+      '.. .. .. R< .. .. Rv %%',
     ],
+    sol: '1,5< 1,3v 2,7< 2,4< A5,7 6,4> P8 A2,3 7,1>',
   },
-  {   // 32 · óptimo 5 · azar 26.1% · 3★ azar 1% · jugadas combo 4
-    name: 'Prisma Errante', moves: 9, par: 4, cap: 5, manaPerCell: 3,
+  {   // 32 · óptimo 7 · azar 13.3% · 3★ azar 0% · hechizos útiles 4 en 3 jugadas · cadena 3
+    name: 'Prisma Errante', moves: 17, par: 10, cap: 5, manaPerCell: 3,
     intro: { title: 'Comodín', lines: ['El Arcoíris completa el color que', 'más Elementis tenga en el caldero.'] },
     grid: [
-      'G@ G@ B< .. G@ P@',
-      'G@ Pv .. .. B@ B@',
-      'Bv P@ .. .. B< W@',
-      'G@ P> .. .. ^^ ##',
-      '## .. P@ .. .. ..',
-      '.. P> P> .. .. ..',
-      '.. .. .. .. .. ..',
+      'vv .. Bv W@ .. ## B> ..',
+      '.. B< .. G@ P< .. .. ..',
+      '.. ## P@ P> P@ .. G@ ..',
+      '.. G@ G@ P< ## .. B@ ..',
+      '.. Bv P< .. P@ %% B> P<',
+      '.. G@ %% B> B< .. G@ B@',
+      'G@ B< .. .. .. >> ## B<',
+      'P> .. Bv .. .. G@ .. B@',
+      'Pv .. .. P> .. Pv .. Bv',
     ],
+    sol: '2,7v 0,7> 0,8v 1,6< 5,8v A6,0 7,8v 7,6< 1,4v A3,0',
   },
-  {   // 33 · óptimo 5 · azar 17.8% · 3★ azar 0.8% · jugadas combo 3
-    name: 'La Gran Muralla', moves: 8, par: 3, cap: 4, manaPerCell: 3,
+  {   // 33 · óptimo 6 · azar 14.6% · 3★ azar 1.9% · hechizos útiles 4 en 3 jugadas · cadena 2
+    name: 'La Gran Muralla', moves: 16, par: 10, cap: 5, manaPerCell: 3,
     intro: { title: 'Portal', lines: ['El Portal no gasta movimiento.', 'Guárdalo para la fila justa.', 'Runa maldita (X): cuesta 1 movimiento y maná.'] },
     grid: [
-      'Y@ P^ Pv .. .. %%',
-      'P@ R@ .. .. .. %%',
-      'R@ R@ P@ .. .. ..',
-      'R< R@ P@ Y@ .. ..',
-      '.. %% R@ Y@ xx ..',
-      '.. Pv Y> Pv .. Y>',
-      '.. Y> .. xx .. ..',
+      '.. R@ .. .. Y@ .. .. Rv',
+      'P^ P< .. R@ Y< Y@ Y@ ..',
+      '%% .. Rv Y< P@ %% %% ..',
+      'R@ R@ .. .. P@ Y@ Y@ ..',
+      'R< P> P^ .. Y< %% %% ..',
+      '.. Y> .. .. .. P@ Yv R@',
+      '.. xx R@ .. .. Y> Yv P>',
+      '.. xx Y< .. .. Y@ .. ..',
+      'R< xx .. .. R< R< .. ..',
     ],
+    sol: '7,6> 6,6v 5,6> 4,8< 4,4< 5,8< P4 6,5v 1,5> A5,3 0,1^ 1,1< 2,7<',
   },
-  {   // 34 · óptimo 5 · azar 23.7% · 3★ azar 2.1% · jugadas combo 4
-    name: 'Laberinto de Chispas', moves: 9, par: 4, cap: 4, manaPerCell: 3,
+  {   // 34 · óptimo 6 · azar 13.6% · 3★ azar 0% · hechizos útiles 5 en 4 jugadas · cadena 2
+    name: 'Laberinto de Chispas', moves: 16, par: 10, cap: 6, manaPerCell: 3,
     grid: [
-      'R@ P@ G@ G@ B@ ##',
-      'R@ P@ R@ TT B@ ..',
-      'P@ TT P@ << G@ ..',
-      'R< vv R< .. P@ ..',
-      '.. .. B@ .. Bv B^',
-      '.. .. ## Rv R< ..',
-      'R< vv P> .. .. ..',
+      '.. TT .. B@ %% B< .. ..',
+      '.. .. P< R> ## .. ^^ G@',
+      '.. .. G@ P< .. B@ P@ R@',
+      '.. .. Bv P< .. P@ R< R<',
+      '.. .. TT B@ .. B< R@ ..',
+      '.. G@ ## P< vv .. Bv B<',
+      '.. ## Rv .. ^^ P@ .. vv',
+      'P@ P@ %% .. R@ ## Bv P@',
+      'P> P> TT .. P> .. P> Rv',
     ],
+    sol: '4,8> 1,8> 7,8v 0,8> P3 6,7v 6,5v 7,5< A4,6 5,4< P6 A3,0',
   },
-  {   // 35 · óptimo 5 · azar 26.3% · 3★ azar 4.9% · jugadas combo 3
-    name: 'Prisma Sellado', moves: 10, par: 5, cap: 4, manaPerCell: 3,
+  {   // 35 · óptimo 6 · azar 12.1% · 3★ azar 1.3% · hechizos útiles 4 en 2 jugadas · cadena 3
+    name: 'Prisma Sellado', moves: 11, par: 5, cap: 5, manaPerCell: 3,
     grid: [
-      'P@ P@ R@ vv .. ..',
-      'B= R> pv R@ R@ ..',
-      'R> P@ W@ B@ R@ ..',
-      '.. ## R> B@ R@ ..',
-      '.. R= .. ## P> <<',
-      '.. .. P> P> .. ..',
-      '.. .. P^ .. .. ..',
+      'R@ Pv << .. W@ .. P@ ..',
+      'P< R= .. .. P< .. P^ ##',
+      'R@ .. .. .. P@ .. .. %%',
+      'R< .. .. ## R< .. R@ ..',
+      '.. vv P> .. .. P@ ## ##',
+      '.. B@ R@ R@ .. B@ .. ..',
+      '.. R> R@ ## .. B@ R@ rv',
+      'Pv .. r> R> P^ R= P> R@',
+      'R> .. P> vv .. .. .. P>',
     ],
+    sol: '0,8> 0,3< 7,8> 0,7v 6,7> A3,7 A4,1 P6 1,8> 0,1<',
   },
-  {   // 36 · óptimo 7 · azar 30.3% · 3★ azar 0.1% · jugadas combo 4
-    name: 'Escalera Maldita', moves: 15, par: 8, cap: 4, manaPerCell: 3,
+  {   // 36 · óptimo 6 · azar 8.9% · 3★ azar 1.5% · hechizos útiles 4 en 2 jugadas · cadena 3
+    name: 'Escalera Maldita', moves: 14, par: 8, cap: 6, manaPerCell: 3,
     grid: [
-      'P> .. P@ .. P@ <<',
-      'Y@ R@ Y> .. G@ ..',
-      'Y@ Yv R@ Y@ G@ Y^',
-      'R@ .. G@ P@ G< xx',
-      'R< %% TT G@ G@ ..',
-      '.. R> .. G> ## ..',
-      '.. .. >> ## %% G<',
+      '.. P@ Y> .. G@ .. .. xx',
+      'G@ Y> Y^ .. G@ P> ^^ ..',
+      'G@ P> ## Rv ## TT G@ P^',
+      'G> Y@ %% Y@ TT .. G> %%',
+      '.. G> P^ G< .. P@ .. R@',
+      'Y@ .. P@ .. P^ R< .. G>',
+      'P> .. ## %% .. .. R@ G@',
+      '.. .. ^^ ^^ R@ P^ Y> R>',
+      'xx .. .. Yv Y< .. .. ..',
     ],
+    sol: '7,7> 6,7> 3,8v 4,8< 4,5^ A6,0 A1,4 2,0> 2,1^ 1,1>',
   },
-  {   // 37 · óptimo 7 · azar 15.7% · 3★ azar 0.3% · jugadas combo 4
-    name: 'Observatorio', moves: 10, par: 3, cap: 4, manaPerCell: 3,
+  {   // 37 · óptimo 7 · azar 14.9% · 3★ azar 0% · hechizos útiles 4 en 2 jugadas · cadena 3
+    name: 'Observatorio', moves: 17, par: 10, cap: 6, manaPerCell: 3,
     grid: [
-      '.. B@ .. .. TT P>',
-      'P@ R@ P@ W@ .. p<',
-      'G@ R@ P@ B@ .. R@',
-      'R@ R< G@ B@ .. R=',
-      '## G< R@ G< .. G<',
-      '.. G> G> %% .. Gv',
-      '.. .. .. P= TT ..',
+      '.. .. G@ ## TT .. .. %%',
+      '.. R@ P< P@ .. .. B@ P>',
+      '%% g< .. P@ .. B@ R@ G@',
+      '.. .. .. Gv R< Pv Gv G@',
+      'R@ .. .. P> Pv .. Pv R=',
+      'p> R^ .. .. .. R@ R> B@',
+      '.. ## TT P< G^ P< .. R<',
+      '.. TT W@ .. P@ .. .. R@',
+      '.. .. R> Gv G< R= .. G>',
     ],
+    sol: '3,8v 3,6< 4,8< 5,3v 3,3v 7,6< P5 7,8> A2,2 A5,0',
   },
-  {   // 38 · óptimo 5 · azar 18.6% · 3★ azar 2.8% · jugadas combo 3
-    name: 'Brújula Rota', moves: 9, par: 4, cap: 4, manaPerCell: 3,
+  {   // 38 · óptimo 5 · azar 13.1% · 3★ azar 0.1% · hechizos útiles 4 en 2 jugadas · cadena 3
+    name: 'Brújula Rota', moves: 14, par: 9, cap: 6, manaPerCell: 3,
     intro: { title: 'Piensa antes de mover', lines: ['Cada movimiento cuenta:', 'planea el orden de caída.'] },
     grid: [
-      'xx .. R@ .. Y@ ..',
-      '.. Y^ R< ^^ W@ ..',
-      '.. Y@ .. R@ r< ..',
-      'R@ Y@ B< ## B@ ..',
-      'G@ Y@ ^^ B< ## ..',
-      'Y@ Rv G@ G@ B@ >>',
-      'G< xx %% G< R> %%',
+      'R^ .. b> Y@ B^ .. .. ..',
+      '%% >> ## Y@ W@ xx .. ..',
+      '.. B@ .. ## %% .. xx ..',
+      'Y@ g< B@ %% .. B@ R^ Rv',
+      'Y< .. ## .. G@ G< .. ..',
+      '.. Y@ .. Y@ R< R@ ^^ ..',
+      '.. B< R@ Y< .. Gv G@ R@',
+      'vv .. %% .. .. .. G@ G<',
+      'Y> xx .. >> .. Bv Y> Y^',
     ],
+    sol: '5,8v 5,6v 0,8> 7,7< 3,7< A5,6 A3,0 0,4< 5,4< 1,6< 1,3<',
   },
-  {   // 39 · óptimo 5 · azar 25.7% · 3★ azar 0.1% · jugadas combo 4
-    name: 'Antesala del Archimago', moves: 7, par: 2, cap: 4, manaPerCell: 3,
+  {   // 39 · óptimo 7 · azar 11.7% · 3★ azar 0.1% · hechizos útiles 4 en 2 jugadas · cadena 3
+    name: 'Antesala del Archimago', moves: 11, par: 4, cap: 6, manaPerCell: 3,
     grid: [
-      'R@ R@ R@ R= G@ G@',
-      'G< R@ r> .. B@ G<',
-      'g< G= >> .. R@ G>',
-      'TT B< .. G@ ## W@',
-      '.. %% .. B@ TT P@',
-      '.. .. .. B@ .. P@',
-      '.. B> B> ## .. B^',
+      'TT .. P@ %% R@ .. R< P@',
+      'W@ .. bv R@ g> .. G@ G=',
+      'r< G@ R@ Bv >> TT R> ..',
+      '.. B@ Gv G< .. P@ TT G=',
+      '.. G> .. R@ .. Bv B^ %%',
+      '.. B@ .. G= .. ## R@ ..',
+      '.. Gv .. ## .. .. G= R<',
+      'Gv G@ .. .. >> .. .. B@',
+      'Gv B< .. .. .. B< .. B>',
     ],
+    sol: '0,8v 1,8< 1,6v 1,4> 7,8> 0,2< 0,7v A2,0 A5,6 P3 3,2v',
   },
-  {   // 40 · óptimo 5 · azar 7.1% · 3★ azar 0.1% · jugadas combo 4
-    name: 'Guardián de la Torre', moves: 10, par: 5, cap: 3, manaPerCell: 3,
+  {   // 40 · óptimo 8 · azar 9.7% · 3★ azar 0% · hechizos útiles 5 en 3 jugadas · cadena 3
+    name: 'Guardián de la Torre', moves: 18, par: 10, cap: 6, manaPerCell: 3,
     intro: { title: 'Examen del capítulo', lines: ['Todo lo aprendido: busca combos.', 'Sigue cada giro con la vista.'] },
     grid: [
-      '.. B< B@ R@ .. P@',
-      '.. TT P@ P^ ^^ P@',
-      '## TT B< G@ .. g>',
-      'W@ .. G@ R@ G> P@',
-      'G@ .. P= B@ P= P@',
-      'R@ B< B> p> xx ##',
-      'R> .. ^^ .. .. vv',
+      'B@ ## TT ## P@ .. Pv G@',
+      'Bv R> .. G< P< .. ## Rv',
+      'G@ R@ B@ .. R@ .. TT >>',
+      'Rv P= G> P< P@ xx .. ^^',
+      'B@ B< TT %% B> .. .. pv',
+      'R= .. .. .. .. .. .. ..',
+      '.. W@ B< .. B< P@ P@ G^',
+      'B> b< .. G@ P@ Rv B< R@',
+      'xx << << bv B< .. %% P=',
     ],
+    sol: '4,8< 3,8v 4,8< 5,7v 6,7< P4 7,6^ 7,1v 4,6< A0,3 A5,0 P1 2,6<',
   },
-  {   // 41 · óptimo 5 · azar 17.2% · 3★ azar 1.5% · jugadas combo 3
-    name: 'Burbujas Errantes', moves: 9, par: 4, cap: 5, manaPerCell: 3,
+  {   // 41 · óptimo 6 · azar 10.4% · 3★ azar 0% · hechizos útiles 4 en 3 jugadas · cadena 2
+    name: 'Burbujas Errantes', moves: 16, par: 10, cap: 5, manaPerCell: 3,
     intro: { title: 'Laboratorio Prohibido', lines: ['El laboratorio guarda sus secretos', 'dentro de burbujas.'] },
     grid: [
-      'R@ B@ .. G@ B@ ..',
-      'R@ Bv .. G( R< ##',
-      'R@ .. .. B( .. B@',
-      'B^ .. .. B< .. B<',
-      '.. .. B@ .. .. ..',
-      '.. G@ %% .. .. ..',
-      '## B< .. B< .. ..',
+      'B< .. .. .. .. B@ .. ..',
+      '.. R< B@ G@ .. B> B^ ..',
+      'R@ G( G( ## .. .. R@ ##',
+      'B< B< .. ## B< %% B< ..',
+      'R< ## B^ .. .. .. .. R@',
+      '.. .. G@ R@ .. B@ G@ B>',
+      '.. R@ R< B@ .. R> B< ..',
+      'G( B> .. Bv R@ B@ B@ ..',
+      'R< B< .. .. ## %% ## ..',
     ],
+    sol: '1,7> 7,5> 0,8< 3,7v 1,8< A1,6 2,4^ A5,0 0,4< A0,1',
   },
-  {   // 42 · óptimo 5 · azar 19.8% · 3★ azar 0.5% · jugadas combo 4
-    name: 'Charcos de Lodo', moves: 7, par: 2, cap: 5, manaPerCell: 3,
+  {   // 42 · óptimo 6 · azar 3.9% · 3★ azar 0.1% · hechizos útiles 5 en 3 jugadas · cadena 3
+    name: 'Charcos de Lodo', moves: 15, par: 9, cap: 5, manaPerCell: 3,
     intro: { title: 'Lodo', lines: ['Usa el lodo para frenar un bloque', 'justo donde lo necesitas.'] },
     grid: [
-      '.. .. .. .. .. ..',
-      'R@ B< << .. B@ ..',
-      'R@ .. .. .. R@ R@',
-      'R@ .. Y@ .. Yv ##',
-      'Y> Y@ Y@ B@ .. ..',
-      '.. B< B@ B< ~~ B<',
-      '## .. Rv .. ## ..',
+      'R@ .. B@ .. Y@ B@ B@ Y^',
+      '%% .. Y> Y> %% R> Rv ..',
+      'Bv R< Y@ .. B< Y@ .. ..',
+      '~~ ^^ B^ .. B@ R^ B@ Rv',
+      'R@ .. Y@ ## R< .. ## %%',
+      'R@ R< R^ B^ .. .. ~~ ..',
+      'B< R@ .. ## .. .. .. Bv',
+      '.. R@ R@ B@ .. .. Y@ Y@',
+      '.. ## ## B< .. vv B> ##',
     ],
+    sol: '3,8< 3,8< 4,4< 4,4< 3,8< 0,6< A5,2 0,2v 0,3v A1,4 6,8> 2,8< 3,1> 2,1>',
   },
-  {   // 43 · óptimo 5 · azar 32.1% · 3★ azar 0.7% · jugadas combo 3
-    name: 'Portales Gemelos', moves: 8, par: 3, cap: 4, manaPerCell: 3,
+  {   // 43 · óptimo 6 · azar 11.5% · 3★ azar 0.1% · hechizos útiles 4 en 3 jugadas · cadena 2
+    name: 'Portales Gemelos', moves: 14, par: 8, cap: 5, manaPerCell: 3,
     intro: { title: 'Teletransporte', lines: ['El bloque sale por el otro portal', 'y sigue en la misma dirección.'] },
     grid: [
-      'P@ P> .. R@ .. ..',
-      'P@ .. .. G@ .. ..',
-      'P@ .. .. P@ .. P^',
-      'G> %% .. %% .. TT',
-      'P@ .. .. R@ G@ ..',
-      'P> xx oo R@ G@ oo',
-      '.. P< .. P^ P< ..',
+      'G@ .. .. G@ R@ P@ .. P>',
+      'Gv G@ TT P^ G^ G^ P@ %%',
+      'xx %% xx .. G@ .. P@ ..',
+      '.. R@ P< %% %% %% TT ..',
+      'R@ Pv .. .. .. .. P@ R@',
+      'P> Gv .. P< .. .. G^ P>',
+      'P@ oo G@ .. R@ .. .. ..',
+      'G> %% P^ Gv R@ G@ oo P@',
+      'G> .. .. .. %% Gv .. G>',
     ],
+    sol: '0,8> 7,5> 7,8> 3,8> A5,4 1,5v P7 5,8v A4,0 0,5> 1,4v A1,0',
   },
-  {   // 44 · óptimo 5 · azar 14% · 3★ azar 0% · jugadas combo 3
-    name: 'Espuma Burbujeante', moves: 9, par: 4, cap: 4, manaPerCell: 3,
+  {   // 44 · óptimo 8 · azar 9.1% · 3★ azar 0.5% · hechizos útiles 5 en 3 jugadas · cadena 2
+    name: 'Espuma Burbujeante', moves: 17, par: 9, cap: 6, manaPerCell: 3,
     grid: [
-      'G@ B> G@ .. R( ..',
-      'G@ .. R< B( R( ..',
-      'G@ Y@ .. B@ R@ ..',
-      'gv Y@ ~~ G< G> ..',
-      'G@ B@ .. .. .. Y@',
-      '## Y< .. Y< ## Y>',
-      '.. .. .. .. .. ..',
+      '.. .. .. R^ R< .. .. R@',
+      '.. G@ .. .. R@ .. .. r<',
+      'B< R< G@ %% B< .. B@ Y@',
+      '.. ## Y> .. .. Gv Y> Y@',
+      '.. .. .. R( G( G@ .. r>',
+      '## B@ .. B^ .. R> .. ..',
+      '.. %% ## .. B( .. R( ..',
+      '~~ %% ~~ R@ Y( G@ G@ R@',
+      '.. .. G^ yv Gv B< B> ##',
     ],
+    sol: '4,8v 2,8^ 6,8> 5,8< 6,8> 3,8v 6,8> 5,5> A7,0 A3,5 4,8< 0,2< 1,2< A6,0 4,2<',
   },
-  {   // 45 · óptimo 5 · azar 31.3% · 3★ azar 2.3% · jugadas combo 4
-    name: 'Alambique Arcoíris', moves: 8, par: 3, cap: 4, manaPerCell: 3,
+  {   // 45 · óptimo 7 · azar 11.1% · 3★ azar 0% · hechizos útiles 5 en 4 jugadas · cadena 3
+    name: 'Alambique Arcoíris', moves: 15, par: 8, cap: 6, manaPerCell: 3,
     grid: [
-      'R@ ^^ P@ oo G@ ..',
-      'TT G( TT B@ R@ P>',
-      '.. G@ Pv B> R( ..',
-      '.. R@ W@ .. B< ..',
-      '.. P> P@ .. R@ ..',
-      'oo Pv P@ .. P> B@',
-      '>> .. B> .. .. P=',
+      'TT P@ .. G@ .. .. G@ ..',
+      '.. R= oo B> .. B@ B^ G@',
+      'B^ R@ .. .. Bv P@ .. P<',
+      'R@ B< B^ .. Bv P< .. ..',
+      '## .. R@ .. B( ^^ Pv ..',
+      'R( .. B> ## TT P@ oo R@',
+      'R( .. .. W@ R@ P< .. %%',
+      'R@ B@ << ## Pv B^ .. ##',
+      '%% Pv ^^ TT P< .. .. B>',
     ],
+    sol: '2,5> 2,5> 4,8< 2,5> A6,6 4,3v 5,3< 1,8v 1,3< P8 A0,5 A5,2',
   },
-  {   // 46 · óptimo 6 · azar 17.6% · 3★ azar 0% · jugadas combo 4
-    name: 'Destilería', moves: 11, par: 5, cap: 4, manaPerCell: 3,
+  {   // 46 · óptimo 6 · azar 5% · 3★ azar 1.7% · hechizos útiles 4 en 3 jugadas · cadena 3
+    name: 'Destilería', moves: 13, par: 7, cap: 6, manaPerCell: 3,
     grid: [
-      '.. .. .. B( .. ..',
-      'G@ Y< .. Y> .. R@',
-      '%% %% Y@ .. .. R@',
-      '.. R> Rv G@ B@ R@',
-      'G( R^ ~~ Y@ B@ Y>',
-      'R< ## .. Y@ R@ R@',
-      'oo oo .. ## y< Y<',
+      'Y> R( R< .. .. R< oo G@',
+      'R@ R< .. B@ .. .. .. Y^',
+      'Y< .. .. Y( Y@ Y^ R< Y^',
+      '.. .. G@ %% Y^ .. R@ ..',
+      'R@ Y@ ## ~~ R@ Rv Y< R<',
+      'Rv G@ R@ B@ r< B@ B( ..',
+      '## R< Y< y< .. Y< Rv ..',
+      '.. .. .. .. B@ B@ Y> ..',
+      'Y< oo .. .. %% %% .. ~~',
     ],
+    sol: '6,7> 0,2< 0,8< 0,5v 0,5v 5,6< A5,4 1,6< 1,1< 0,0> A6,0',
   },
-  {   // 47 · óptimo 6 · azar 24.7% · 3★ azar 0.7% · jugadas combo 4
-    name: 'Matraz Maldito', moves: 10, par: 4, cap: 4, manaPerCell: 3,
+  {   // 47 · óptimo 6 · azar 7.7% · 3★ azar 0% · hechizos útiles 4 en 3 jugadas · cadena 2
+    name: 'Matraz Maldito', moves: 16, par: 10, cap: 6, manaPerCell: 3,
     intro: { title: 'Piensa antes de mover', lines: ['Cada movimiento cuenta:', 'planea el orden de caída.'] },
     grid: [
-      'B( ## .. .. R@ R@',
-      'Pv R@ .. oo P@ B@',
-      'P@ G@ Pv P< P( B@',
-      'B@ TT .. TT ## W@',
-      'B@ R> .. R< ~~ R<',
-      'B> Bv .. .. .. G@',
-      '.. .. oo ~~ .. B>',
+      'B@ .. R^ ## G@ R@ .. P>',
+      'B> .. oo .. B@ B@ G( ..',
+      '.. oo B@ TT B^ %% .. P@',
+      '.. .. R> R@ TT TT .. G@',
+      'Bv P@ .. R@ .. .. B@ ##',
+      'P> B> B> Rv .. P^ Pv B(',
+      '.. R^ Rv ~~ B@ B> P@ P>',
+      '.. B@ W( R< ## %% %% ..',
+      '.. Bv B< ~~ .. B^ ~~ ..',
     ],
+    sol: '1,8v 2,8< 2,6v 3,7< 3,5v A5,6 2,5> 1,5> P1 2,3> A0,0',
   },
-  {   // 48 · óptimo 5 · azar 10.7% · 3★ azar 1.6% · jugadas combo 5
-    name: 'Sala de Experimentos', moves: 12, par: 7, cap: 4, manaPerCell: 3,
+  {   // 48 · óptimo 6 · azar 5.3% · 3★ azar 0% · hechizos útiles 6 en 3 jugadas · cadena 3
+    name: 'Sala de Experimentos', moves: 16, par: 10, cap: 7, manaPerCell: 3,
     grid: [
-      'G@ TT oo B@ G@ P(',
-      'g< oo R= R@ ## R<',
-      '.. .. .. R( G@ B@',
-      'Y@ P@ B@ G( B< G@',
-      'Y@ P@ ## Bv .. B>',
-      'Y@ r< B^ ~~ .. R@',
-      'G< .. .. .. .. G>',
+      'G@ .. .. .. P@ B@ b< R(',
+      'B> Bv ~~ b> ## Gv P( r>',
+      'P( .. R< .. Y@ Y@ R< ..',
+      'B< G@ B@ R@ %% ## TT R<',
+      '.. Gv B> G= .. TT .. ..',
+      'R@ .. G@ .. B< G( ## ..',
+      'Y@ .. G( B< %% B< .. ..',
+      'B< Rv B< oo B@ Bv G@ ~~',
+      'oo .. .. .. Bv .. R< ..',
     ],
+    sol: '1,7v 2,7< 3,6< 3,6< 0,7< 6,8< A7,0 A3,6 1,1v 0,1> 0,3< 2,2< A6,0 5,1v',
   },
-  {   // 49 · óptimo 5 · azar 26.6% · 3★ azar 0.7% · jugadas combo 4
-    name: 'Umbral del Archimago', moves: 8, par: 3, cap: 4, manaPerCell: 3,
+  {   // 49 · óptimo 6 · azar 7.5% · 3★ azar 0.1% · hechizos útiles 5 en 4 jugadas · cadena 2
+    name: 'Umbral del Archimago', moves: 13, par: 7, cap: 7, manaPerCell: 3,
     grid: [
-      'Rv G@ P@ ~~ G@ W@',
-      '.. TT G@ oo G@ P<',
-      'b> R@ ## R( G( Y>',
-      'R@ Y= Y@ B@ Y> Y>',
-      'Y@ .. P@ B@ .. ..',
-      'Y@ ## P@ TT .. ..',
-      'R< Pv Rv oo .. ..',
+      'B< Y@ R@ B< TT Y@ ## P@',
+      '%% ## R> P^ %% Y( P< B=',
+      'P^ TT .. .. TT P> B@ oo',
+      '.. W( oo R@ .. B^ y< ..',
+      '.. P@ .. b> B@ Pv .. ..',
+      'P@ B= .. .. B@ G( ~~ G@',
+      'Y< G@ .. P< Y< R< .. R<',
+      '.. Bv ~~ .. .. R@ G@ G@',
+      '.. .. Pv P< .. P> ## ##',
     ],
+    sol: '5,8> 5,8> 1,7v 7,6< 5,8> 6,8> A5,0 0,6< P2 2,8v A2,7 3,4>',
   },
-  {   // 50 · óptimo 5 · azar 5.1% · 3★ azar 0% · jugadas combo 4
-    name: 'Corazón del Laboratorio', moves: 11, par: 6, cap: 4, manaPerCell: 3,
+  {   // 50 · óptimo 8 · azar 6.8% · 3★ azar 0.4% · hechizos útiles 6 en 5 jugadas · cadena 2
+    name: 'Corazón del Laboratorio', moves: 15, par: 7, cap: 7, manaPerCell: 3,
     intro: { title: 'Prueba suprema', lines: ['Grisvel te espera, princesa.', 'Hay muchos caminos para ganar,', 'pero solo los combos dan 3★.'] },
     grid: [
-      '.. Yv W@ G@ P@ Yv',
-      'Y= ~~ g> TT TT >>',
-      'P= P> oo .. B( %%',
-      'R@ .. G@ P@ G( ..',
-      'R@ B( Y@ P@ Y@ oo',
-      'P@ B@ R@ P@ P> P<',
-      'P> ## p> ## .. P>',
+      'P@ Yv B@ %% ## TT B@ oo',
+      'y> Y> R= G@ TT G< Gv ..',
+      'G( TT ~~ Y= G< .. .. R@',
+      'P< .. .. B( Y( ## .. Y>',
+      'Y@ P@ .. R= G< W@ ~~ ..',
+      'Yv Y< .. << R@ Y> %% P@',
+      '.. Y> .. .. pv >> .. ##',
+      'Pv P@ oo G( .. Y( P@ R@',
+      '.. G> Y^ Gv .. G< g< P>',
     ],
+    sol: '1,6> 4,6v 3,6> 7,3> 2,8^ 6,6> 7,8> A3,3 3,8v 1,8> P7 0,5v 1,1> 1,0v A6,0 5,5> 1,5<',
   },
-  {   // 51 · óptimo 6 · azar 55.9% · 3★ azar 0.6% · jugadas combo 4
-    name: 'Primer Sendero', moves: 9, par: 3, cap: 5, manaPerCell: 3, trail: true,
+  {   // 51 · óptimo 6 · azar 3.9% · 3★ azar 0.1% · hechizos útiles 4 en 2 jugadas · cadena 4
+    name: 'Primer Sendero', moves: 11, par: 5, cap: 5, manaPerCell: 3, trail: true,
     intro: { title: 'Senderos Alquímicos', lines: ['Cada bloque deja un rastro de su color.', 'Un hechizo de ese color lo recorre', 'y destruye lo que haya encima.', 'Traza caminos para tus hechizos.'] },
     grid: [
-      '.. G@ R@ .. .. R^',
-      '.. R@ G< .. .. ..',
-      'R< R@ ## .. .. ..',
-      'G@ R< .. .. R> ..',
-      'R@ .. .. .. .. ..',
-      'R@ G@ .. .. .. ..',
-      '## %% .. .. G< ..',
+      'G@ R> .. .. .. .. .. G@',
+      'R@ R@ .. .. .. %% G@ Rv',
+      'Rv Gv .. .. .. G@ R> G@',
+      'R@ R@ .. .. ## R< .. R@',
+      'R> Gv .. .. R@ G^ %% ##',
+      'G> .. .. G@ R> G> .. ..',
+      'R@ R@ R^ G@ .. .. .. ..',
+      'R< ## .. %% R@ .. G@ G@',
+      '.. ## G< .. G< .. ## ##',
     ],
+    sol: '0,7< 5,5> 4,8< 4,5> A2,8 1,4v 1,2v A6,7 A7,0 A0,0',
   },
-  {   // 52 · óptimo 7 · azar 16.9% · 3★ azar 0.5% · jugadas combo 3
-    name: 'Huellas de Fuego', moves: 9, par: 2, cap: 5, manaPerCell: 3, trail: true,
+  {   // 52 · óptimo 7 · azar 6.9% · 3★ azar 0% · hechizos útiles 4 en 3 jugadas · cadena 3
+    name: 'Huellas de Fuego', moves: 16, par: 9, cap: 5, manaPerCell: 3, trail: true,
     grid: [
-      '.. .. R@ %% R@ ..',
-      'R< B@ R> ## R@ ..',
-      'B@ R> .. .. R@ ..',
-      'B@ .. .. .. ## ..',
-      'R@ B> .. %% .. ..',
-      'B> ## .. .. .. ..',
-      '.. .. .. R< R< ..',
+      'R@ B^ .. .. %% R@ B@ ..',
+      'R^ .. .. R@ R@ Rv B@ B@',
+      '## .. R@ ## %% B@ B< R>',
+      '.. B^ R^ .. .. B@ B@ ..',
+      '.. R@ .. .. Bv R^ ## ..',
+      'R@ Rv .. .. .. .. .. B@',
+      'Bv .. .. R@ .. ## .. B<',
+      'B< ## B@ B< R> B@ R@ ..',
+      '.. .. ## %% .. R> ## ..',
     ],
+    sol: '0,7< 0,6v 1,5v 1,6v 5,8> A6,5 5,8> 4,7> 3,7< 5,1v A2,3 A5,0',
   },
-  {   // 53 · óptimo 8 · azar 28.1% · 3★ azar 0.8% · jugadas combo 3
-    name: 'Camino de Espinas', moves: 16, par: 8, cap: 5, manaPerCell: 3, trail: true,
+  {   // 53 · óptimo 8 · azar 7.1% · 3★ azar 1.5% · hechizos útiles 6 en 3 jugadas · cadena 2
+    name: 'Camino de Espinas', moves: 18, par: 10, cap: 5, manaPerCell: 3, trail: true,
     grid: [
-      'Y@ G@ .. .. .. ..',
-      'G@ %% G> .. .. Y@',
-      'G@ .. .. .. .. G@',
-      'Y< Y> .. Y@ .. G@',
-      '## ## ## G< Y< Y<',
-      '.. .. .. .. .. ..',
-      'G< .. .. G> .. ##',
+      'Y@ G@ .. G@ .. .. .. G@',
+      'Y@ %% .. G> G@ Y@ Y@ Y>',
+      'G< .. G@ .. G> Yv G< ..',
+      'G@ Yv Y< ## ## Y@ .. Y<',
+      'Y> G@ .. .. G@ Y@ .. ..',
+      '%% ## G@ ## Gv Y> Y@ G^',
+      'Y@ .. G> .. ## .. %% ..',
+      'Y> ## .. ## .. Gv Y@ ..',
+      '.. ## .. .. .. .. Y> Y^',
     ],
+    sol: '2,6> 4,5v 5,7v 3,6> 7,8^ 5,6> 6,8> 5,5> 5,6> 7,3< 5,3< 5,3< 4,3< 4,3< 4,5v A0,0 7,5^ 5,2v 7,1> 4,2> A2,0 A5,0',
   },
-  {   // 54 · óptimo 6 · azar 18.1% · 3★ azar 0% · jugadas combo 3
-    name: 'Río de Escarcha', moves: 11, par: 5, cap: 5, manaPerCell: 3, trail: true,
+  {   // 54 · óptimo 6 · azar 9.7% · 3★ azar 0% · hechizos útiles 7 en 3 jugadas · cadena 2
+    name: 'Río de Escarcha', moves: 15, par: 9, cap: 5, manaPerCell: 3, trail: true,
     grid: [
-      '.. .. P@ .. P< ..',
-      '.. .. %% .. ## P>',
-      'B@ .. P> B@ P> ..',
-      'TT P@ .. B@ %% P^',
-      '.. P@ .. B@ B> ..',
-      'P> B@ .. ## .. ..',
-      '.. P> .. Pv .. ..',
+      'B^ %% B@ P@ B< B< .. P@',
+      '.. P@ B> P@ B> .. B^ ##',
+      'B^ B< .. P< B@ B@ P@ TT',
+      'B@ P@ Pv .. B@ ## Bv P^',
+      'P< P< .. P@ ## .. P@ B@',
+      '.. .. .. ## %% .. P< P<',
+      '%% .. B@ P@ TT B@ .. ..',
+      '.. B^ B< P< .. P^ .. B@',
+      '.. .. .. .. .. .. .. Pv',
     ],
+    sol: '1,7^ 2,7< 3,7< 6,5< 7,8v 7,5< P2 2,3v 2,1> P6 0,4< 1,4<',
   },
-  {   // 55 · óptimo 5 · azar 21.1% · 3★ azar 4.1% · jugadas combo 3
-    name: 'Senda del Rayo', moves: 13, par: 8, cap: 5, manaPerCell: 3, trail: true,
+  {   // 55 · óptimo 7 · azar 8.8% · 3★ azar 0.4% · hechizos útiles 5 en 3 jugadas · cadena 2
+    name: 'Senda del Rayo', moves: 17, par: 10, cap: 5, manaPerCell: 3, trail: true,
     grid: [
-      '.. R> TT %% .. Y@',
-      '.. .. .. .. .. Yv',
-      'Y> .. R@ Y@ .. R@',
-      'Y@ .. R@ ## Y< R^',
-      'R< .. R> rv .. R@',
-      '.. .. .. ## R> R@',
-      'Y> .. .. .. .. ##',
+      'R> R@ TT %% R> .. R> R@',
+      'R@ Y> Y^ R@ .. ## Y^ Y<',
+      'R< R@ .. Yv .. TT Y@ Y@',
+      '.. R< Y@ .. .. Y@ %% R>',
+      'R< Y@ Y< .. R@ Yv .. Y@',
+      '## %% R^ ## Yv R@ .. Y<',
+      '.. .. R@ .. .. ## .. ..',
+      'R^ .. %% Y@ .. R@ Y@ Y@',
+      '.. .. .. Yv .. Rv ## %%',
     ],
+    sol: '4,5v 3,2v 3,8v 3,4v 5,8v 3,4v A1,6 2,4< 7,5< 1,3< 2,1^ A5,6 4,0> 0,0> 0,2< 6,1^ 7,3> 7,1< 0,4< A4,1',
   },
-  {   // 56 · óptimo 8 · azar 24.8% · 3★ azar 0.4% · jugadas combo 4
-    name: 'Encrucijada', moves: 13, par: 5, cap: 5, manaPerCell: 3, trail: true,
+  {   // 56 · óptimo 6 · azar 6.9% · 3★ azar 0% · hechizos útiles 5 en 3 jugadas · cadena 3
+    name: 'Encrucijada', moves: 15, par: 9, cap: 5, manaPerCell: 3, trail: true,
     intro: { title: 'Cruces de colores', lines: ['Un rastro nuevo tapa al anterior:', 'decide qué color pasa por cada casilla.'] },
     grid: [
-      '.. G> %% G@ .. G@',
-      '.. Gv .. G@ .. TT',
-      'R^ R^ R@ ## R@ ..',
-      '.. ## B@ R@ R> ..',
-      'G@ .. %% B@ .. G<',
-      'G@ ## B> B@ .. ..',
-      'r< G> .. ## R> ..',
+      '.. ## B< ## .. B@ .. G@',
+      '.. %% R@ .. .. B@ G> G>',
+      'G@ R@ B> Gv B< ## %% ..',
+      'R> R< .. .. R> TT G@ ..',
+      'G@ .. .. .. .. .. b> R<',
+      'G< B@ .. .. ## R@ .. ##',
+      '.. B@ R@ R< R> %% R@ R@',
+      '.. B@ G> .. B@ G@ G@ B>',
+      '.. ## TT R> B> g< Rv ##',
     ],
+    sol: '0,5< 4,3> 6,8v A1,0 7,7> A7,6 0,3> 7,1> A2,0 A2,6',
   },
-  {   // 57 · óptimo 5 · azar 37.5% · 3★ azar 0.8% · jugadas combo 3
-    name: 'Trazo Arcano', moves: 10, par: 5, cap: 4, manaPerCell: 3, trail: true,
+  {   // 57 · óptimo 6 · azar 4.7% · 3★ azar 0.2% · hechizos útiles 9 en 4 jugadas · cadena 2
+    name: 'Trazo Arcano', moves: 16, par: 10, cap: 5, manaPerCell: 3, trail: true,
     grid: [
-      '.. .. Y@ R@ .. ..',
-      '.. Y@ Y< P@ R@ ..',
-      'P@ Y< .. P@ R@ ..',
-      'Rv .. Y@ Rv P> Y@',
-      '.. .. Y@ ## .. P<',
-      '.. .. yv R< R> ##',
-      '.. .. Rv TT .. %%',
+      '.. R^ .. .. ## Yv TT ..',
+      '.. R@ Y@ Y@ P@ R@ P@ R@',
+      'r^ P< Rv Y< Y> P@ P> Yv',
+      '.. .. R@ .. .. P> Y@ ..',
+      '## P^ R< .. R@ R< Y@ R>',
+      '.. .. .. Y@ %% .. R> Yv',
+      '.. .. .. P@ ## P@ Y< P<',
+      'Y@ .. P@ Y< .. P< R@ ..',
+      'P> %% P> Yv Y> .. TT y<',
     ],
+    sol: '4,8> 3,8v 2,8> 1,4^ 3,7< P5 6,6< 7,6< 2,4< A4,4 7,2v P8 1,2< 0,2^ 7,4> 1,2<',
   },
-  {   // 58 · óptimo 7 · azar 12.8% · 3★ azar 0.1% · jugadas combo 3
-    name: 'Mapa de Brasas', moves: 12, par: 5, cap: 4, manaPerCell: 3, trail: true,
+  {   // 58 · óptimo 11 · azar 10.9% · 3★ azar 0.1% · hechizos útiles 5 en 3 jugadas · cadena 4
+    name: 'Mapa de Brasas', moves: 15, par: 4, cap: 5, manaPerCell: 3, trail: true,
     grid: [
-      'R@ R@ R@ Bv B@ G@',
-      'R@ b> R< TT B@ G@',
-      'G> Gv .. %% B@ G@',
-      'R@ .. .. .. B^ R>',
-      'G< .. .. G< .. ..',
-      '.. .. .. .. .. ..',
-      'B> %% ## .. ## ##',
+      'G@ .. R@ .. G^ Gv .. R@',
+      'Rv %% B^ R@ G@ R@ .. Gv',
+      'G@ B@ R@ B< R^ g< ## ..',
+      'B@ R@ B@ .. .. G< Bv ..',
+      'Bv ## Gv Rv .. B@ G@ ..',
+      'Rv .. G@ B< TT %% g< ##',
+      'R< B@ %% %% TT ## .. ..',
+      '.. Rv .. .. G@ .. .. B@',
+      'G< .. .. ## %% %% .. B>',
     ],
+    sol: '0,8< 0,6< 0,5v 0,4v 7,8> 1,7v 6,5< 6,5< 6,5< 0,1v A5,0 7,1v A4,4 A1,0',
   },
-  {   // 59 · óptimo 6 · azar 24.9% · 3★ azar 4% · jugadas combo 4
-    name: 'Laberinto Pintado', moves: 11, par: 5, cap: 4, manaPerCell: 3, trail: true,
+  {   // 59 · óptimo 9 · azar 11.8% · 3★ azar 0% · hechizos útiles 7 en 3 jugadas · cadena 4
+    name: 'Laberinto Pintado', moves: 19, par: 10, cap: 5, manaPerCell: 3, trail: true,
     grid: [
-      'B@ Y@ .. G^ .. B@',
-      'G> ## .. .. .. B@',
-      '.. Y@ G@ .. Bv B>',
-      '.. B@ G@ .. .. Y<',
-      '## B@ Y@ .. .. ..',
-      '## yv G< G@ .. G>',
-      '.. ## %% Y< TT G<',
+      'G@ Y< B@ Bv B< ## .. Y@',
+      'G< B@ Y@ B@ TT .. G@ Y>',
+      '.. B@ Y^ G^ G@ .. G@ ..',
+      'G> ## .. Yv Y< B@ Yv G<',
+      '.. Gv .. .. .. ## G@ G<',
+      'Y@ .. .. .. .. .. Y@ B^',
+      'y< ## Y@ %% .. .. y< ..',
+      '## Y@ g> %% G@ %% TT B@',
+      '.. ## .. .. G< .. .. Yv',
     ],
+    sol: '1,4v 0,3> 4,8< 3,3v 2,8< 1,5v 1,5v 4,3< 7,8v 2,7> 2,7> 0,6< 2,8< 2,7> 0,3> 0,1< A7,0 A2,0',
   },
-  {   // 60 · óptimo 6 · azar 10.1% · 3★ azar 1.1% · jugadas combo 4
-    name: 'Guardián de los Senderos', moves: 11, par: 5, cap: 4, manaPerCell: 3, trail: true,
+  {   // 60 · óptimo 7 · azar 6.3% · 3★ azar 3% · hechizos útiles 6 en 3 jugadas · cadena 3
+    name: 'Guardián de los Senderos', moves: 14, par: 7, cap: 6, manaPerCell: 3, trail: true,
     intro: { title: 'Examen del capítulo', lines: ['Traza el sendero justo', 'y deja que el hechizo haga el resto.'] },
     grid: [
-      '%% .. B< G@ .. R@',
-      'G> %% Y@ G@ .. G^',
-      '.. .. B@ R@ .. R@',
-      'Gv .. G@ G> .. R@',
-      'Y@ .. G< B@ ## R@',
-      'Y@ ## Y< B@ .. TT',
-      'Y> Yv .. yv .. ..',
+      '.. .. .. .. .. .. .. Y>',
+      'G@ G@ B@ .. .. .. Y@ Yv',
+      'B< B> B@ .. R@ TT ## b<',
+      '.. R@ B> .. Y< .. .. ..',
+      '.. G@ G@ R@ .. .. .. ..',
+      'Y@ ## g> Y< G@ .. .. ..',
+      'G> .. .. %% G> R@ G< R@',
+      'Yv B@ R@ G@ B^ Yv Y^ Y@',
+      '.. G> %% %% TT .. Y> ##',
     ],
+    sol: '1,8> 5,7v 6,8> 1,8> 6,8> A1,6 1,8> 2,8> A6,0 2,3> 0,2< 4,6> 1,2> 2,8> A3,0',
   },
-  {   // 61 · óptimo 5 · azar 36.8% · 3★ azar 0.4% · jugadas combo 4
-    name: 'Runa Despierta', moves: 8, par: 3, cap: 5, manaPerCell: 3, runes: true,
+  {   // 61 · óptimo 4 · azar 29.2% · 3★ azar 3.3% · hechizos útiles 4 en 2 jugadas · cadena 3
+    name: 'Runa Despierta', moves: 7, par: 3, cap: 5, manaPerCell: 3, runes: true,
     intro: { title: 'Runas especiales', lines: ['4 runas iguales en línea: RUNA CARGADA.', 'Muévela y arrasa su fila o columna.', '5 en línea o en L: PRISMA RÚNICO.', 'Contra un bloque, borra todo su color.'] },
     grid: [
-      'R@ .. .. .. .. R@',
-      'R@ .. .. Rv .. R>',
-      'R@ G@ G@ .. .. ..',
-      'Rv G@ R^ .. R^ R^',
-      '.. R@ .. %% .. ..',
-      '.. G> ## .. .. ..',
-      '%% .. Rv .. .. ..',
+      'G@ G^ R@ .. G@ G@ .. G@',
+      'R< .. R< R@ Rv R< .. %%',
+      '.. G@ R@ R@ R@ G< R< ..',
+      'G@ ## ## Rv G@ .. .. G@',
+      'G> .. %% .. R@ .. .. %%',
+      'G^ R^ R@ .. %% .. .. ..',
+      '.. R^ Rv .. Rv R@ %% ..',
+      '.. .. G< ## R@ Rv .. G@',
+      '.. .. .. .. G> R^ .. %%',
     ],
+    sol: '3,3v 3,6v 2,7< A0,4 0,1< A7,0 A5,0 A0,1',
   },
-  {   // 62 · óptimo 8 · azar 36.8% · 3★ azar 0.8% · jugadas combo 3
-    name: 'Cuatro en Línea', moves: 10, par: 2, cap: 5, manaPerCell: 3, runes: true,
+  {   // 62 · óptimo 5 · azar 5.9% · 3★ azar 0% · hechizos útiles 5 en 2 jugadas · cadena 3
+    name: 'Cuatro en Línea', moves: 14, par: 9, cap: 5, manaPerCell: 3, runes: true,
     grid: [
-      'B@ R@ .. .. .. ..',
-      'R@ ## .. .. B@ ..',
-      'R@ Bv .. .. R@ ..',
-      'B< .. .. .. R@ ..',
-      'B@ .. .. .. B> ##',
-      'B^ B< Bv B^ Rv ..',
-      'B> ## %% .. .. %%',
+      'R> B@ B@ .. .. R@ .. B@',
+      'B^ B@ R< B@ B@ ## %% B<',
+      '.. B@ .. Rv %% ## R@ ..',
+      'R@ Bv R@ R@ .. R@ R< ..',
+      'B> .. %% ## R@ R< .. ..',
+      'Bv .. Bv Bv R@ B> .. R@',
+      'B@ ## Rv .. R> .. R< B<',
+      'Bv Bv .. .. B@ .. .. ..',
+      'R^ .. Rv B< ## ## .. ..',
     ],
+    sol: '6,6< 7,6< 1,3v 1,5v 3,2v A6,4 A1,6 A0,3 7,1<',
   },
-  {   // 63 · óptimo 5 · azar 20.4% · 3★ azar 2.6% · jugadas combo 3
-    name: 'Prisma Naciente', moves: 10, par: 5, cap: 5, manaPerCell: 3, runes: true,
+  {   // 63 · óptimo 4 · azar 4.5% · 3★ azar 3% · hechizos útiles 5 en 4 jugadas · cadena 2
+    name: 'Prisma Naciente', moves: 14, par: 10, cap: 5, manaPerCell: 3, runes: true,
     grid: [
-      '.. G@ Gv G@ .. ..',
-      '.. G@ G@ G@ Gv Y@',
-      '.. G> ## G^ .. Y@',
-      '.. .. .. .. %% G>',
-      '.. Gv Y< G^ G^ ..',
-      '.. Y@ ## .. .. ..',
-      '.. G> .. .. .. ..',
+      'G@ .. Y@ .. Y@ G@ G@ Y@',
+      'G@ .. %% .. G@ G@ Gv %%',
+      'Yv Y@ Gv .. %% Y@ .. ..',
+      '.. %% Y@ .. .. Gv ## ..',
+      'G< Y@ ## G^ .. .. Y> ..',
+      'Y@ G> .. G> Gv .. G^ G@',
+      'Y@ Gv .. Y< Y> %% .. ##',
+      'Y< ## G@ G@ .. .. ## ..',
+      '.. ## G< %% .. .. .. ..',
     ],
+    sol: '5,3v 5,5v 4,6> 6,6> A4,0 0,7< 0,4< 0,2v A2,0 6,4> 6,1v 6,6> 6,2v 6,2v 6,6v 6,6v A7,0',
   },
-  {   // 64 · óptimo 5 · azar 17% · 3★ azar 0.4% · jugadas combo 3
-    name: 'Coro de Runas', moves: 10, par: 5, cap: 5, manaPerCell: 3, runes: true,
+  {   // 64 · óptimo 6 · azar 9.1% · 3★ azar 0% · hechizos útiles 4 en 3 jugadas · cadena 2
+    name: 'Coro de Runas', moves: 15, par: 9, cap: 5, manaPerCell: 3, runes: true,
     grid: [
-      '.. B> .. B@ .. B@',
-      '%% .. ## Pv .. B@',
-      'P< .. .. P@ .. %%',
-      '.. Pv Pv P> P^ P@',
-      '.. P@ .. %% .. B@',
-      '.. B> ## .. TT B@',
-      'P> .. .. .. B< P>',
+      'B< .. Bv .. TT .. P@ B@',
+      'P@ .. P> B@ %% B> ## Bv',
+      'Pv P@ P> P@ %% .. .. B@',
+      '.. P^ B@ P< .. .. B@ B>',
+      'B^ B^ ## Bv %% B< B> B@',
+      '.. .. ## P> B@ P@ .. B>',
+      'B@ .. .. .. Bv Bv %% B@',
+      'Bv P@ P@ TT .. P@ P@ P>',
+      '.. ## ## %% .. P> B> ..',
     ],
+    sol: '7,7> 7,5> 6,8> 0,7v 0,2v 3,3< P3 3,4v 5,4< P1 5,6v 6,4>',
   },
-  {   // 65 · óptimo 4 · azar 19.9% · 3★ azar 1.7% · jugadas combo 3
-    name: 'Franjas de Luz', moves: 7, par: 3, cap: 5, manaPerCell: 3, runes: true,
+  {   // 65 · óptimo 4 · azar 4.1% · 3★ azar 0.1% · hechizos útiles 4 en 3 jugadas · cadena 3
+    name: 'Franjas de Luz', moves: 14, par: 10, cap: 5, manaPerCell: 3, runes: true,
     grid: [
-      'Rv R@ Rv .. R@ Y@',
-      '.. Y> .. .. R@ Y@',
-      'R^ Rv .. R^ R@ Y@',
-      '## Y> ## .. y> R@',
-      '.. R^ TT .. .. R>',
-      '%% .. .. .. .. ..',
-      '.. Y< .. .. .. Y>',
+      '.. Y@ Y@ .. R@ ## Y@ R@',
+      'Y^ Y@ Y< Y^ R< R@ Y^ R>',
+      'R@ Y@ .. R@ .. R< R@ Yv',
+      'R> Yv ## %% .. Rv Y< ..',
+      '.. .. .. .. R@ .. .. Y@',
+      'Yv .. Rv Y^ ## %% Y@ y>',
+      'Y^ %% Y@ R@ TT Y^ R@ ..',
+      'R> TT R< Y> .. Y@ R< yv',
+      '.. .. .. .. Rv Y< .. ..',
     ],
+    sol: '0,7> 1,3v 3,7> 2,1< 4,8v 0,3> 5,8< 2,5v 6,7< 0,5v A5,5 A5,0',
   },
-  {   // 66 · óptimo 6 · azar 14.1% · 3★ azar 2.2% · jugadas combo 4
-    name: 'Prisma y Sendero', moves: 10, par: 4, cap: 5, manaPerCell: 3, trail: true, runes: true,
+  {   // 66 · óptimo 6 · azar 5.8% · 3★ azar 0% · hechizos útiles 4 en 2 jugadas · cadena 2
+    name: 'Prisma y Sendero', moves: 13, par: 7, cap: 5, manaPerCell: 3, trail: true, runes: true,
     intro: { title: 'Runas y senderos', lines: ['Vuelven los rastros alquímicos:', 'combínalos con tus runas especiales.'] },
     grid: [
-      'G@ G@ .. .. .. R@',
-      '%% G@ B@ .. Gv G@',
-      'R@ Bv B@ .. .. G@',
-      'R@ B> B@ .. B> ##',
-      'Bv B< B^ B^ .. ..',
-      'G> ## ## G^ .. Gv',
-      '.. .. g> TT %% ..',
+      '%% .. .. %% R@ G@ B@ ..',
+      'TT Bv B< G< bv G@ G> G>',
+      'Gv G^ G@ .. .. Bv G@ ..',
+      'G@ ## G> B@ .. .. Bv ..',
+      '%% ## .. G> B< ## Bv B>',
+      'R@ R@ B@ .. .. %% B@ G^',
+      'G< B> G> B@ .. TT Gv G@',
+      '.. .. R@ R@ R@ B@ B> g>',
+      '.. B> G^ ## ## Gv .. ..',
     ],
+    sol: '5,2v 5,3v 5,3v 5,4v 6,3v A3,0 4,1v A0,6 A4,1 7,7>',
   },
-  {   // 67 · óptimo 5 · azar 14.4% · 3★ azar 1.1% · jugadas combo 3
-    name: 'Runas Cruzadas', moves: 12, par: 7, cap: 4, manaPerCell: 3, trail: true, runes: true,
+  {   // 67 · óptimo 5 · azar 5.9% · 3★ azar 0.7% · hechizos útiles 4 en 4 jugadas · cadena 1
+    name: 'Runas Cruzadas', moves: 15, par: 10, cap: 5, manaPerCell: 3, trail: true, runes: true,
     grid: [
-      'R@ .. .. .. .. Y@',
-      'P> R@ P@ %% Yv Y@',
-      '.. P< Y@ .. .. TT',
-      '.. .. Yv Y^ P@ Yv',
-      'P< .. Y@ P> ## Y^',
-      'Y> R@ Y@ P@ .. ..',
-      '.. ## yv Y< .. ..',
+      'R@ Y@ Y^ Y@ Y> P@ %% ..',
+      'p< P< R@ Y@ Y@ P@ R@ ..',
+      'P@ Y< Y< P^ P> P@ y< Pv',
+      'Y< R@ Y< Y@ %% Yv .. ##',
+      '.. Yv .. P> TT .. .. R@',
+      'Y@ .. .. .. .. P< Pv Y<',
+      'Pv .. .. P@ Yv .. Y^ Y^',
+      '.. .. R@ P< P@ ## .. ##',
+      'TT ## P< .. Y> .. .. ..',
     ],
+    sol: '0,6v 1,4v 5,5< 5,3v 2,8< 3,7< 5,6v P2 3,4> 0,3< 2,3< A5,6 1,1< 0,1< A0,0',
   },
-  {   // 68 · óptimo 6 · azar 20.9% · 3★ azar 0.4% · jugadas combo 4
-    name: 'Altar Cargado', moves: 11, par: 5, cap: 4, manaPerCell: 3, trail: true, runes: true,
+  {   // 68 · óptimo 6 · azar 7.6% · 3★ azar 0% · hechizos útiles 5 en 2 jugadas · cadena 4
+    name: 'Altar Cargado', moves: 16, par: 10, cap: 5, manaPerCell: 3, trail: true, runes: true,
     grid: [
-      'R< %% .. B@ G@ ..',
-      '.. .. ## B@ G@ R@',
-      'R< Rv .. R@ R@ R@',
-      '.. G@ .. %% G< R@',
-      'Rv R^ R^ R^ .. R<',
-      'G> %% TT .. B@ ..',
-      '.. R> .. .. g< ##',
+      '.. R^ .. R< R@ .. .. %%',
+      '.. Rv TT R^ R@ .. G^ B@',
+      '## %% %% .. R@ G@ .. R>',
+      'G@ G@ %% .. Gv ## .. B@',
+      '## %% G@ R@ .. G> B@ G>',
+      '.. TT G> gv .. ## ## ..',
+      'G@ .. .. G^ B@ G^ R@ ..',
+      'Gv G@ R@ B@ %% B@ G< ..',
+      '%% Gv r> R> .. G< .. ..',
     ],
+    sol: '7,4> 7,2> 3,8> 5,6^ 4,3v 4,5v A1,7 A5,0 A0,3',
   },
-  {   // 69 · óptimo 5 · azar 24.9% · 3★ azar 2.5% · jugadas combo 3
-    name: 'Sinfonía Rúnica', moves: 10, par: 5, cap: 4, manaPerCell: 3, trail: true, runes: true,
+  {   // 69 · óptimo 4 · azar 4.7% · 3★ azar 1.6% · hechizos útiles 5 en 3 jugadas · cadena 2
+    name: 'Sinfonía Rúnica', moves: 12, par: 8, cap: 5, manaPerCell: 3, trail: true, runes: true,
     grid: [
-      '.. B@ %% G@ Y@ B^',
-      '.. B@ Bv Y@ B@ ..',
-      'B< b> Y@ TT B@ Bv',
-      '.. .. B@ G@ Bv ..',
-      'Bv Bv Bv Bv ## G@',
-      '.. .. ## .. .. Y<',
-      '.. .. .. Bv .. ..',
+      'G@ Bv G@ .. Y@ .. Bv Y@',
+      'Y> %% G@ Yv B< TT %% b<',
+      '.. Y@ G@ Y@ .. Y@ Y@ G@',
+      '.. B< Yv B@ .. B> ## G@',
+      'B< .. .. Y< B@ .. .. ##',
+      'B< Y> .. .. Bv B^ B@ TT',
+      'Y^ Y> .. Y< B@ .. Bv ..',
+      '.. B@ ## .. ## B@ .. ..',
+      '.. Y> .. Yv .. y^ .. ..',
     ],
+    sol: '2,3v 1,8> 6,6v 2,6v A5,0 4,5v 1,3< 3,4< 3,8v 1,5> 7,1< 0,4< 0,1> 0,5<',
   },
-  {   // 70 · óptimo 5 · azar 4.5% · 3★ azar 0.1% · jugadas combo 4
-    name: 'Corazón del Santuario', moves: 7, par: 2, cap: 4, manaPerCell: 3, trail: true, runes: true,
+  {   // 70 · óptimo 6 · azar 3.1% · 3★ azar 1% · hechizos útiles 5 en 4 jugadas · cadena 2
+    name: 'Corazón del Santuario', moves: 9, par: 3, cap: 6, manaPerCell: 3, trail: true, runes: true,
     intro: { title: 'Corazón del Santuario', lines: ['El último santuario de la princesa.', 'Runas, prismas y senderos: ¡combo!'] },
     grid: [
-      '.. Y@ B@ %% G^ B@',
-      '## Y@ G@ .. Gv G@',
-      '.. R@ R@ .. R@ G@',
-      'B@ ## G< .. R@ G>',
-      'TT .. R< R< R@ ..',
-      '.. R< Gv Y@ %% ..',
-      '.. .. Rv R< R< r^',
+      'R@ .. .. .. R@ .. Gv g<',
+      'G@ R@ .. .. R@ Y@ G@ ..',
+      'g< Y@ R@ .. R@ Gv R< B@',
+      '.. Rv G< .. Gv Y@ %% Gv',
+      'G< R^ .. .. .. R< .. Y@',
+      '.. Y@ G> Gv .. G^ %% ##',
+      'G< g> .. Y@ %% .. TT TT',
+      '%% G@ .. g> R< B@ B@ ..',
+      '.. ## %% .. .. %% ## %%',
     ],
+    sol: '5,4< 4,3v 5,2v 6,2< 4,5v A6,7 0,4< 7,3v 0,6< 0,2< A1,0 3,7> 2,4< 2,3<',
   },
 ];
 /*LEVELS-END*/
@@ -937,6 +1123,7 @@ const LEVELS = [
 function parseLevel(L) {
   const S = { grid: [], curse: [], paint: [], turn: [], goo: [], tele: [], pads: [], portals: L.portals || [], pot: {}, potIds: {}, moves: L.moves, mana: 0,
     mpc: L.manaPerCell || 6, cap: L.cap || 6, over: false, total: 0, left: 0, combo: 0, heat: 0, pending: [], trail: !!L.trail, runes: !!L.runes, last: 0 };
+  ROWS = S.rows = L.grid.length; COLS = S.cols = L.grid[0].trim().split(/\s+/).length; if (L.mute) S.mute = true;
   for (const k of COLOR_KEYS) { S.pot[k] = 0; S.potIds[k] = []; }
   S.pot.W = 0; S.potIds.W = [];             // W = Elementi Arcoíris (comodín)
   let id = 1;
@@ -1069,6 +1256,7 @@ function settle(S, ev) {
 
 /* Reacción en cadena: caídas -> fusiones -> hechizos -> más caídas... */
 function resolve(S, ev) {
+  dims(S);
   for (let guard = 0; guard < 80; guard++) {
     if (S.left === 0) { S.pending = []; return; }
     while (S.pending.length && !anySpellable(S) && !(S.trail && S.paint.some(row => row.includes(S.pending[0].color)))) { ev.push({ t: 'fizzle', color: S.pending[0].color }); S.pending.shift(); }
@@ -1089,6 +1277,7 @@ function resolve(S, ev) {
       for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
         const e = S.grid[r][c]; if (e && e.k === 'seal' && e.col === k) { S.grid[r][c] = null; ev.push({ t: 'seal', id: e.id }); }
       }
+      if (S.mute) continue;                       // (solo herramientas) mide cuánto dependen los niveles de los hechizos
       if (sp.kind === 'thaw') {
         const ids2 = [], un = [];
         for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
@@ -1137,7 +1326,15 @@ function applyRun(S, cells, col, ev) {
   ev.push({ t: 'match', color: col, cells, ids, extra, un, moves: S.moves, mana: S.mana, combo: S.combo });
   if (sps.length) detonate(S, sps, ev);
 }
+/* ¿hay alguna línea de 3+ bloques rúnicos iguales? (comprobación rápida, sin reservar memoria) */
+function hasRun(S) {
+  const g = S.grid;
+  for (let y = 0; y < ROWS; y++) { const row = g[y]; let n = 0, k = null; for (let x = 0; x < COLS; x++) { const o = row[x], c = o && (o.k === 'arrow' || o.k === 'free') ? o.col : null; if (c && c === k) { if (++n >= 3) return true; } else { k = c; n = c ? 1 : 0; } } }
+  for (let x = 0; x < COLS; x++) { let n = 0, k = null; for (let y = 0; y < ROWS; y++) { const o = g[y][x], c = o && (o.k === 'arrow' || o.k === 'free') ? o.col : null; if (c && c === k) { if (++n >= 3) return true; } else { k = c; n = c ? 1 : 0; } } }
+  return false;
+}
 function cascade(S, ev) {
+  if (!hasRun(S)) return false;
   const rune = (x, y) => { const o = S.grid[y][x]; return o && (o.k === 'arrow' || o.k === 'free') ? o.col : null; };
   const mark = new Map(), runs = [];
   for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS;) { const c = rune(x, y); let e = x + 1; if (c) { while (e < COLS && rune(e, y) === c) e++; if (e - x >= 3) { const cl = []; for (let k = x; k < e; k++) { mark.set(k + ',' + y, c); cl.push([k, y]); } runs.push({ h: 1, cells: cl }); } } x = e; }
@@ -1161,7 +1358,7 @@ function cascade(S, ev) {
 
 /* Movimientos: {t:'slide',c,r,d} · {t:'portal',r} · {t:'aim',c,r} (cuando hay hechizo pendiente) */
 function applyMove(S, m, ev) {
-  ev = ev || []; if (S.over) return false;
+  ev = ev || []; dims(S); if (S.over) return false;
   if (S.pending.length) {
     if (m.t !== 'aim' || m.c < 0 || m.c >= COLS || m.r < 0 || m.r >= ROWS) return false;
     const p = S.pending[0], cells = aimCells(p, m.c, m.r);
@@ -1205,7 +1402,7 @@ function applyMove(S, m, ev) {
 }
 
 function legalMoves(S) {
-  const out = []; if (S.over) return out;
+  const out = []; dims(S); if (S.over) return out;
   if (S.pending.length) {
     const p = S.pending[0], seen = new Set();
     for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
@@ -1228,8 +1425,10 @@ function legalMoves(S) {
 /* =====================================================================
    VISTA
    ===================================================================== */
-const W = 540, H = 960, CELL = 72;
-const BX = 54, BY = 132, BW = COLS * CELL, BH = ROWS * CELL, BB = BY + BH;
+const W = 540, H = 960, BY = 132;
+let CELL = 72, SC = 1, BX = 54, BW = COLS * CELL, BH = ROWS * CELL, BB = BY + BH;
+/* el tablero crece con los capítulos (6×7 → 7×8 → 8×9): las casillas se encogen para ocupar el mismo hueco */
+function setBoard(S) { dims(S); const c = Math.floor(Math.min(448 / COLS, 504 / ROWS)); if (c === CELL && BW === COLS * c && BH === ROWS * c) return; CELL = c; SC = CELL / 72; BW = COLS * CELL; BH = ROWS * CELL; BX = Math.round((W - BW) / 2); BB = BY + BH; }
 const POT = { xl: 96, xr: 444, rim: 668, floor: 836 };
 const CONFIG = { gravity: 2300, bounce: 0.52, slideSpeed: 1500, bodyR: 25, xpFusion: 25 };
 
@@ -1546,6 +1745,7 @@ function makeSprite(e, c, r) {
     shake: 0, alpha: 1, scale: 1, moving: false, ph: Math.random() * 6 };
 }
 function buildView() {      // reconstruye sprites y caldero desde el estado lógico (carga y deshacer)
+  setBoard(S);               // otro parseLevel (iconos, glosario) pudo cambiar el tamaño global del tablero
   V.sp.clear(); V.bodies = []; V.q = []; V.cur = null; V.orbs = []; V.aim = null; V.sel = null; V.link = null; V.portalMode = false; V.buf = null;
   for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) { const e = S.grid[r][c]; if (e) V.sp.set(e.id, makeSprite(e, c, r)); }
   let i = 0;
@@ -1557,7 +1757,7 @@ function buildView() {      // reconstruye sprites y caldero desde el estado ló
 /* RETO DIARIO: un nivel ya superado (en espejo), elegido por la fecha, con 2 movimientos de margen */
 /* el reto diario se juega en espejo (izquierda-derecha): el mismo puzle con otra cara. Verificado con el solver:
    en todos los niveles salvo estos cinco el espejo tiene el mismo óptimo; en ellos se usa el original */
-const NO_MIRROR = [16, 24, 35, 52, 54, 63, 67, 69];
+const NO_MIRROR = [15, 24, 35, 41, 48, 59];
 function mirrorLevel(L) {
   const flip = t => t === '<<' ? '>>' : t === '>>' ? '<<' : t.length === 2 && (t[1] === '<' || t[1] === '>') && t[0] !== '<' && t[0] !== '>' ? t[0] + (t[1] === '<' ? '>' : '<') : t;
   const M = Object.assign({}, L, { grid: L.grid.map(r => r.trim().split(/\s+/).map(flip).reverse().join(' ')) });
@@ -1567,25 +1767,28 @@ function mirrorLevel(L) {
 function dailyPick() { const dk = dayKey(new Date()); if (G.dPick && G.dPick.d === dk) return G.dPick.k; const k = dailyPick0(); if (k >= 0) { G.dPick = { d: dk, k }; save(); } return k; }
 function dailyPick0() { const c = []; for (let k = 1; k < Math.min(G.unlocked, LEVELS.length); k++) if ((G.stars[k] || 0) > 0) c.push(k); if (c.length < 2) return -1; let h = 7; for (const ch of dayKey(new Date())) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return c[h % c.length]; }
 /* Maestría: el menor límite de movimientos con el que cada nivel aún se puede ganar (scratchpad/master.js) */
-const MASTER_MOVES = [4, 3, 4, 3, 3, 3, 4, 4, 6, 3, 3, 4, 7, 4, 5, 4, 4, 8, 7, 7, 5, 5, 7, 5, 6, 5, 6, 5, 5, 5, 4, 6, 4, 6, 6, 8, 7, 4, 5, 5, 5, 5, 4, 5, 5, 6, 6, 6, 5, 5, 6, 7, 12, 7, 7, 8, 6, 7, 8, 6, 5, 8, 5, 5, 4, 6, 6, 6, 6, 5];
+const MASTER_MOVES = [5, 5, 4, 6, 7, 5, 7, 5, 7, 6, 7, 7, 9, 6, 9, 6, 8, 6, 7, 11, 8, 6, 7, 6, 8, 7, 6, 6, 6, 9, 5, 8, 6, 6, 6, 6, 7, 5, 7, 8, 6, 6, 6, 8, 8, 6, 6, 6, 7, 8, 6, 8, 9, 6, 7, 6, 6, 11, 14, 7, 4, 5, 5, 6, 5, 6, 5, 6, 4, 6];
 function restartLevel() { if (!V.daily && !V.master && !V.failCounted && G.state === 'play' && (V.wasDead || V.hist.length > 0)) { G.fails = G.fails || {}; G.fails[G.levelIdx] = (G.fails[G.levelIdx] || 0) + 1; save(); } loadLevel(G.levelIdx, V.daily ? { daily: true } : V.master ? { master: true } : undefined); }
 function loadLevel(i, opt) {
   const L0 = LEVELS[i], daily = !!(opt && opt.daily), master = !!(opt && opt.master);
   const L = daily ? Object.assign({}, NO_MIRROR.includes(i) ? L0 : mirrorLevel(L0), { moves: Math.max(L0.moves - L0.par, MASTER_MOVES[i]) + 2, par: 2, intro: { title: 'Reto diario', lines: ['Nivel ' + (i + 1) + (NO_MIRROR.includes(i) ? '' : ' en espejo') + ' · ' + L0.name, 'Sin pistas y con 1 solo DESHACER.', '2 movimientos de sobra.', G.dailyDone === dayKey(new Date()) ? 'Ya superado hoy: juega por diversión.' : 'Premio: +100 XP y 1 pista guardada.'] } })
     : master ? Object.assign({}, L0, { moves: MASTER_MOVES[i] || L0.moves - L0.par, par: 0, intro: { title: 'Maestría', lines: ['Nivel ' + (i + 1) + ' · ' + L0.name, 'Movimientos justos: solo vale', 'la solución perfecta. Premio: corona y +40 XP.'] } }) : L0;
-  V.praiseNext = null; V.hintQ = false; V.daily = daily; V.master = master; V.dead = false; V.deadHide = false; V.wasDead = false; V.goodLen = 0; V.hintBusy = false; V.deadKey = ''; V.undoQ = false; G.state = 'play'; G.levelIdx = i; G.res = null; V.L = L; S = parseLevel(L);
+  V.praiseNext = null; V.hintQ = false; V.daily = daily; V.master = master; V.dead = false; V.deadHide = false; V.wasDead = false; V.goodLen = 0; V.hintBusy = false; V.deadKey = ''; V.undoQ = false; G.state = 'play'; G.levelIdx = i; G.res = null; V.L = L; S = parseLevel(L); setBoard(S);
   V.parts = []; V.floaters = []; V.fx = []; V.scorch = []; V.zoom = 0; V.waves = []; V.ca = 0; V.bloom = 0; V.rays = { x: 270, y: 480, k: 0 }; V.hist = []; V.shake = 0; V.slow = 0; V.flash = null; V.banner = null;
   V.levelXp = 0; V.scoreShown = 0; V.maxCombo = 0; V.maxStreak = 0; V.maxChain = 0; G.attM = G.attM || {}; const ak = (daily ? 'd' : master ? 'm' : 'n') + i, att = G.att = G.attM[ak] || (G.attM[ak] = { h: daily ? 0 : i < 10 ? 2 : 1 }); att.u = daily ? 1 : master ? 2 : i < 10 ? 5 : 3; V.hintsLeft = att.h; V.undos = att.u; G.fails = G.fails || {}; const fl = daily || master ? 0 : G.fails[i] || 0; V.moveBonus = fl >= 3 ? 2 : fl >= 1 ? 1 : 0; V.failCounted = false; V.struggle = fl >= 2; V.pendXp = 0; V.newRec = false; V.hint = null; V.idle = 0; V.hintGlow = false; V.pause = false; V.confirmR = false; V.replay = (G.stars[i] || 0) > 0; V.callouts = daily ? null : newKinds(i); V.calloutT = 0; Snd.prog = Math.floor(i / 10); V.streak = 0; V.chainEv = 0; V.score = 0; V.fireStage = 0; V.chainT = 0; V.intro = L.intro ? Object.assign({}, L.intro, { cards: daily || master || L.intro.icons ? null : newKinds(i) }) : (!daily && newKinds(i) ? { title: 'Nuevo en este nivel', lines: [], cards: newKinds(i) } : null); V.praise = null; V.slosh = 0; V.liq = 826; V.tint = 'G';
   G.seen = G.seen || {}; const sk = (daily ? 'd' : master ? 'm' : '') + i; if (G.seen[sk] && V.intro) V.intro = null; G.seen[sk] = 1;   // al reintentar no se repite la intro
   if (!G.story && i === 0) { V.intro = Object.assign({}, STORY, { next: V.intro }); G.story = 1; save(); }
   S.moves += V.moveBonus; if (V.moveBonus) floater(W / 2, BY + 60, 'Ayuda por tus intentos: +' + V.moveBonus + (V.moveBonus > 1 ? ' movimientos' : ' movimiento'), '#7ff0ff', 17, 3.5);
   say('Objetivo: libera ' + S.total + ' Elementis', 4);
-  V.floor = []; for (let r = 0; r < ROWS; r++) V.floor.push(new Array(COLS).fill(null));
+  setBoard(S); V.floor = []; for (let r = 0; r < ROWS; r++) V.floor.push(new Array(COLS).fill(null));
   V.colors = COLOR_KEYS.filter(k => S.grid.some(row => row.some(e => e && e.k === 'fluffy' && e.col === k)));
+  V.sol = !daily && !master && L.sol ? parseSol(L.sol) : null; V.solN = 0; V.solOk = !!V.sol;
   buildView();
   V.q.push({ t: 'wait', d: 0.35 }); const ev = []; resolve(S, ev); V.q.push(...ev);
 }
-function snapshot() { V.hist.push({ S: JSON.stringify(S), floor: JSON.stringify(V.floor), pxp: V.pendXp || 0, lxp: V.levelXp, sc: V.score, st: V.streak }); if (V.hist.length > 60) V.hist.shift(); }
+/* solución guardada de cada nivel: '2,3> A4,1 P6' = mover (col,fila,dirección) · Apuntar hechizo · Portal en fila */
+function parseSol(s) { return s.split(' ').map(t => t[0] === 'A' ? { t: 'aim', c: +t.slice(1).split(',')[0], r: +t.split(',')[1] } : t[0] === 'P' ? { t: 'portal', r: +t.slice(1) } : { t: 'slide', c: +t.split(',')[0], r: parseInt(t.split(',')[1]), d: t[t.length - 1] }); }
+function snapshot() { V.hist.push({ sn: V.solN, so: V.solOk, S: JSON.stringify(S), floor: JSON.stringify(V.floor), pxp: V.pendXp || 0, lxp: V.levelXp, sc: V.score, st: V.streak }); if (V.hist.length > 60) V.hist.shift(); }
 /* DESHACER: unos cuantos gratis por nivel; luego cada uno cuesta 1 pista guardada */
 function canUndo() { return V.hist.length > 0 && (V.undos > 0 || (elixOk() && G.pots && G.pots.u > 0) || (!V.daily && G.hintBank > 0)); }
 function elixOk() { return !V.daily && !V.master; }
@@ -1601,7 +1804,7 @@ function payUndo() {        // gasta un deshacer gratis; si no quedan, un Elixir
   return null;
 }
 function restoreSnap(h) {
-  S = JSON.parse(h.S); V.floor = JSON.parse(h.floor); V.pendXp = h.pxp || 0; V.levelXp = h.lxp; V.score = h.sc || 0; V.streak = h.st || 0; V.chainEv = 0;
+  S = JSON.parse(h.S); setBoard(S); V.solN = h.sn || 0; V.solOk = !!h.so; V.floor = JSON.parse(h.floor); V.pendXp = h.pxp || 0; V.levelXp = h.lxp; V.score = h.sc || 0; V.streak = h.st || 0; V.chainEv = 0;
   V.say = null; V.banner = null; V.dead = false; V.deadHide = false; V.hint = null; save(); buildView(); Snd.undo();
 }
 function undo() {
@@ -1923,6 +2126,7 @@ const CHAIN_WORDS = [[3, '¡Genial!'], [5, '¡Brillante!'], [7, '¡Increíble!']
 function doMove(m) {
   const ev = []; if (m.t !== 'aim') snapshot();
   if (!applyMove(S, m, ev)) { if (m.t !== 'aim') V.hist.pop(); return false; }
+  if (V.solOk) { const q = V.sol[V.solN]; if (q && q.t === m.t && q.c === m.c && q.r === m.r && q.d === m.d) V.solN++; else V.solOk = false; }
   const acts = ev.some(e => e.t === 'fuse' || e.t === 'match' || e.t === 'boom' || e.t === 'seal');   // ¿la jugada provocó algo?
   V.hint = null; V.idle = 0; V.hintGlow = false; if (m.t !== 'aim') V.callouts = null;
   const prevStreak = V.streak;
@@ -2660,12 +2864,12 @@ function drawFluffy(x, y, r, color, sq, mood, ph) {
 }
 
 function drawBlock(e) {
-  const s = CELL - 10;
+  const s = 62;
   ctx.save(); ctx.translate(e.x + Math.sin(G.time * 70) * e.shake * 5 + (e.mdx || 0) * (e.wob || 0) * 14, e.y + (e.mdy || 0) * (e.wob || 0) * 14); ctx.globalAlpha = e.alpha;
   { let sx = e.scale, sy = e.scale; const ax = Math.abs(e.mdx || 0), ay = Math.abs(e.mdy || 0);
     if (e.moving && e.spd) { const st = Math.min(0.16, e.spd / 12000); sx *= 1 + st * ax - st * 0.5 * ay; sy *= 1 + st * ay - st * 0.5 * ax; }   // estirado en marcha
     if (e.wob) { const w = e.wob; if (ax >= ay) { sx *= 1 - w; sy *= 1 + w * 0.7; } else { sy *= 1 - w; sx *= 1 + w * 0.7; } }                   // aplastado al frenar
-    ctx.scale(sx, sy); }
+    ctx.scale(sx * SC, sy * SC); }
   if (e.k === 'frost') {                     // HIELO: cristal facetado, reflejo que recorre, escarcha y copo que gira
     const t = G.time + (e.ph || 0);
     ctx.fillStyle = 'rgba(0,0,0,.3)'; rr(-s / 2 + 1, -s / 2 + 5, s, s, 12); ctx.fill();
@@ -2760,13 +2964,33 @@ function drawBlock(e) {
       for (let i = 0; i < 4; i++) { ctx.rotate(Math.PI / 2); ctx.beginPath(); ctx.moveTo(17, -6); ctx.lineTo(24, 0); ctx.lineTo(17, 6); ctx.closePath(); ctx.fill(); }
     }
     ctx.shadowBlur = 0;
-    if (e.sp === 'line') {     // Runa Cargada: franjas brillantes y borde dorado que late
-      ctx.save(); rr(-s / 2, -s / 2, s, s, 13); ctx.clip(); ctx.fillStyle = 'rgba(255,255,255,.28)'; const hz = e.k === 'free' || e.dir === '<' || e.dir === '>';
-      for (let k = -2; k <= 2; k++) { if (hz) ctx.fillRect(-s / 2, k * 11 - 2, s, 4); else ctx.fillRect(k * 11 - 2, -s / 2, 4, s); } ctx.restore();
-      ctx.strokeStyle = 'rgba(255,226,122,' + (0.6 + 0.4 * Math.sin(G.time * 8)) + ')'; ctx.lineWidth = 4; rr(-s / 2 - 2, -s / 2 - 2, s + 4, s + 4, 15); ctx.stroke();
-    } else if (e.sp === 'prism') {   // Prisma Rúnico: borde arcoíris que gira y estrella blanca
-      for (let k = 0; k < 6; k++) { ctx.strokeStyle = 'hsl(' + ((G.time * 120 + k * 60) % 360) + ',95%,65%)'; ctx.lineWidth = 4; ctx.beginPath(); const a0 = k / 6 * TAU + G.time * 2; ctx.arc(0, 0, s * 0.62, a0, a0 + TAU / 6); ctx.stroke(); }
-      ctx.save(); ctx.rotate(G.time * 1.5); ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.shadowColor = '#fff'; ctx.shadowBlur = 12; starPath(0, 0, 9, 4, 0.4); ctx.fill(); ctx.restore();
+    if (e.sp === 'line') {     // RUNA CARGADA: marco dorado, núcleo de rayo y puntas que salen por el eje que arrasará
+      const t = G.time + (e.ph || 0), p = 0.5 + 0.5 * Math.sin(t * 7), free = e.k === 'free', hz = free || e.dir === '<' || e.dir === '>', vt = free || e.dir === '^' || e.dir === 'v';
+      ctx.save(); rr(-s / 2, -s / 2, s, s, rad); ctx.clip();                                    // banda de energía a lo largo del eje
+      const band = horiz => { const bg2 = horiz ? ctx.createLinearGradient(0, -13, 0, 13) : ctx.createLinearGradient(-13, 0, 13, 0); bg2.addColorStop(0, 'rgba(255,240,170,0)'); bg2.addColorStop(0.5, 'rgba(255,250,215,' + (0.55 + 0.25 * p) + ')'); bg2.addColorStop(1, 'rgba(255,240,170,0)');
+        ctx.fillStyle = bg2; if (horiz) ctx.fillRect(-s / 2, -13, s, 26); else ctx.fillRect(-13, -s / 2, 26, s);
+        ctx.fillStyle = 'rgba(255,255,255,.75)'; for (let k = 0; k < 3; k++) { const q = ((t * 1.4 + k / 3) % 1) * s - s / 2; if (horiz) ctx.fillRect(q - 2, -13, 4, 26); else ctx.fillRect(-13, q - 2, 26, 4); } };
+      if (hz) band(true); if (vt) band(false);
+      ctx.restore();
+      ctx.strokeStyle = '#7a4a00'; ctx.lineWidth = 7; rr(-s / 2 - 1, -s / 2 - 1, s + 2, s + 2, rad + 1); ctx.stroke();                          // marco dorado grueso
+      ctx.strokeStyle = 'rgb(255,' + Math.round(214 + 36 * p) + ',' + Math.round(90 + 110 * p) + ')'; ctx.lineWidth = 4; rr(-s / 2 - 1, -s / 2 - 1, s + 2, s + 2, rad + 1); ctx.stroke();
+      const tip = (dx, dy) => { ctx.save(); ctx.rotate(Math.atan2(dy, dx)); const o = s / 2 + 3 + 3 * p; ctx.fillStyle = '#fff3b0'; ctx.strokeStyle = '#7a4a00'; ctx.lineWidth = 2; ctx.lineJoin = 'round';       // puntas de flecha fuera del bloque
+        ctx.beginPath(); ctx.moveTo(o + 9, 0); ctx.lineTo(o, -9); ctx.lineTo(o, 9); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore(); };
+      if (hz) { tip(1, 0); tip(-1, 0); } if (vt) { tip(0, 1); tip(0, -1); }
+      ctx.save(); ctx.translate(s / 2 - 9, -s / 2 + 9); ctx.fillStyle = '#ffd24a'; ctx.strokeStyle = '#5a3400'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, 0, 10, 0, TAU); ctx.fill(); ctx.stroke();   // insignia de rayo
+      ctx.fillStyle = '#5a3400'; ctx.beginPath(); ctx.moveTo(2, -7); ctx.lineTo(-4, 1); ctx.lineTo(-0.5, 1); ctx.lineTo(-2, 7); ctx.lineTo(4, -1); ctx.lineTo(0.5, -1); ctx.closePath(); ctx.fill(); ctx.restore();
+    } else if (e.sp === 'prism') {   // PRISMA RÚNICO: cristal blanco facetado con arcoíris que gira; tapa el color del bloque porque vale para cualquiera
+      const t = G.time + (e.ph || 0), p = 0.5 + 0.5 * Math.sin(t * 5);
+      ctx.save(); rr(-s / 2, -s / 2, s, s, rad); ctx.clip();
+      const pg = ctx.createLinearGradient(-s / 2, -s / 2, s / 2, s / 2); pg.addColorStop(0, '#ffffff'); pg.addColorStop(0.5, '#e9e2ff'); pg.addColorStop(1, '#b9a8e6'); ctx.fillStyle = pg; ctx.fillRect(-s / 2, -s / 2, s, s);
+      ctx.globalAlpha = 0.55; for (let k = 0; k < 6; k++) { ctx.fillStyle = 'hsl(' + ((t * 70 + k * 60) % 360) + ',95%,62%)'; ctx.beginPath(); ctx.moveTo(0, 0); const a0 = k / 6 * TAU + t * 0.9; ctx.arc(0, 0, s, a0, a0 + TAU / 6 + 0.02); ctx.closePath(); ctx.fill(); }   // gajos de arcoíris
+      ctx.globalAlpha = 1; ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(0, -s / 2); ctx.lineTo(s / 2, 0); ctx.lineTo(0, s / 2); ctx.lineTo(-s / 2, 0); ctx.closePath(); ctx.moveTo(-s / 2, -s / 2); ctx.lineTo(s / 2, s / 2); ctx.moveTo(s / 2, -s / 2); ctx.lineTo(-s / 2, s / 2); ctx.stroke();   // facetas
+      ctx.restore();
+      ctx.strokeStyle = '#3a2a66'; ctx.lineWidth = 7; rr(-s / 2 - 1, -s / 2 - 1, s + 2, s + 2, rad + 1); ctx.stroke();
+      ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 3.5; rr(-s / 2 - 1, -s / 2 - 1, s + 2, s + 2, rad + 1); ctx.stroke();
+      ctx.fillStyle = '#fff'; ctx.strokeStyle = '#3a2a66'; ctx.lineWidth = 2.5; ctx.lineJoin = 'round'; ctx.save(); ctx.rotate(t * 1.2); starPath(0, 0, 17 + 2 * p, 8, 0.45); ctx.fill(); ctx.stroke(); ctx.restore();   // estrella de 8 puntas
+      if (e.k === 'arrow') { ctx.save(); ctx.rotate(ROT[e.dir]); ctx.fillStyle = '#3a2a66'; ctx.beginPath(); ctx.moveTo(s / 2 - 5, 0); ctx.lineTo(s / 2 - 14, -7); ctx.lineTo(s / 2 - 14, 7); ctx.closePath(); ctx.fill(); ctx.restore(); }   // sigue indicando hacia dónde se mueve
+      for (let k = 0; k < 4; k++) { const an = t * 1.8 + k * TAU / 4, px = Math.cos(an) * (s / 2 + 5), py = Math.sin(an) * (s / 2 + 5); ctx.fillStyle = 'hsl(' + ((t * 120 + k * 90) % 360) + ',100%,72%)'; starPath(px, py, 5 + 2 * Math.sin(t * 6 + k), 4, 0.35, t * 3); ctx.fill(); }   // destellos en órbita
     }
     if (e.ch) {
       const t = G.time + (e.ph || 0);
@@ -2793,7 +3017,7 @@ function drawBlock(e) {
 }
 function drawBubble(x, y, ph) {
   const r = 34 + Math.sin(G.time * 3 + ph) * 1.5, w = 0.035 * Math.sin(G.time * 4 + ph);
-  ctx.save(); ctx.translate(x, y);
+  ctx.save(); ctx.translate(x, y); ctx.scale(SC, SC);
   const bg = ctx.createRadialGradient(-8, -10, 4, 0, 0, r); bg.addColorStop(0, 'rgba(255,255,255,.06)'); bg.addColorStop(0.8, 'rgba(170,220,255,.12)'); bg.addColorStop(1, 'rgba(210,240,255,.5)');
   ctx.fillStyle = bg; ctx.beginPath(); ctx.ellipse(0, 0, r * (1 + w), r * (1 - w), 0, 0, TAU); ctx.fill();
   ctx.strokeStyle = 'rgba(225,245,255,.75)'; ctx.lineWidth = 2; ctx.stroke();
@@ -2966,9 +3190,9 @@ function drawBlockEmblem(col, s, ph, round) {
 }
 /* PISTA: búsqueda de la mejor solución desde el estado actual (la misma que verifica los niveles) */
 function hintKey(S) { let s = ''; for (const row of S.grid) for (const e of row) s += e ? e.k.slice(0, 3) + (e.col || '') + (e.dir || '') + (e.ch ? 'c' : '') + (e.bub ? 'b' : '') + (e.hp || '') + (e.sp || '') + ',' : '.'; return s + '|' + S.paint.map(r => r.join('')).join('') + '|' + Object.values(S.pot).join('') + '|' + S.mana + '|' + S.pending.map(p => p.color + (p.sup ? 2 : p.amp ? 1 : 0)).join('') + '|' + (S.pending.length ? S.combo : 0) + '|' + S.heat % 3; }
-function hintClone(S) { const pi = {}; for (const k in S.potIds) pi[k] = S.potIds[k].slice(); return { grid: S.grid.map(r => r.map(e => e ? Object.assign({}, e) : null)), curse: S.curse, turn: S.turn, goo: S.goo, tele: S.tele, pads: S.pads, paint: S.paint.map(r => r.slice()), portals: S.portals, pot: Object.assign({}, S.pot), potIds: pi, moves: S.moves, mana: S.mana, mpc: S.mpc, total: S.total, left: S.left, combo: S.combo, heat: S.heat, pending: S.pending.map(p => Object.assign({}, p)), cap: S.cap, over: S.over }; }
-function findHint(S0, cap = 40000) {
-  const best = new Map(), buckets = []; let top = S0.moves, n = 0, win = null;
+function hintClone(S) { const pi = {}; for (const k in S.potIds) pi[k] = S.potIds[k].slice(); return { grid: S.grid.map(r => r.map(e => e ? Object.assign({}, e) : null)), curse: S.curse, turn: S.turn, goo: S.goo, tele: S.tele, pads: S.pads, paint: S.paint.map(r => r.slice()), portals: S.portals, pot: Object.assign({}, S.pot), potIds: pi, moves: S.moves, mana: S.mana, mpc: S.mpc, total: S.total, left: S.left, combo: S.combo, heat: S.heat, pending: S.pending.map(p => Object.assign({}, p)), cap: S.cap, over: S.over, cols: S.cols, rows: S.rows, trail: S.trail, runes: S.runes, last: S.last }; }
+function findHint(S0, cap = 40000, any) {
+  const best = new Map(), buckets = []; let top = S0.moves, n = 0, win = null, fb = null;
   const push = (S, first) => { (buckets[S.moves] || (buckets[S.moves] = [])).push({ S, first }); if (S.moves > top) top = S.moves; };
   push(hintClone(S0), null); best.set(hintKey(S0), S0.moves);
   while (top >= 0 && n < cap) {
@@ -2976,9 +3200,10 @@ function findHint(S0, cap = 40000) {
     const { S, first } = b.pop(); n++;
     for (const m of legalMoves(S)) { const T = hintClone(S); if (!applyMove(T, m, [])) continue; const f = first || m;
       if (T.left === 0) { if (!win || T.moves > win.rem) win = { rem: T.moves, m: f }; continue; }
+      if (!T.over && (!fb || T.left < fb.left || (T.left === fb.left && T.moves > fb.moves))) fb = { left: T.left, moves: T.moves, m: f };
       const k = hintKey(T), bb = best.get(k); if (bb !== undefined && bb >= T.moves) continue; best.set(k, T.moves); push(T, f); }
   }
-  return win ? win.m : (n >= cap ? 'cap' : null);
+  return win ? win.m : (n >= cap ? (any && fb && fb.left < S0.left ? fb.m : 'cap') : null);
 }
 /* el buscador corre en un hilo aparte con el mismo núcleo; si el navegador no deja, se usa aquí mismo */
 let HW = null, HWid = 0; const HWcb = {};
@@ -2986,15 +3211,15 @@ function hintWorker() {
   if (HW !== null) return HW;
   try {
     const src = document.querySelector('script:not([src])').textContent, a = src.indexOf('/*CORE-' + 'BEGIN*/'), b = src.indexOf('/*CORE-' + 'END*/');
-    const code = src.slice(a, b) + '\n' + hintKey.toString() + '\n' + hintClone.toString() + '\n' + findHint.toString() + '\nonmessage = e => postMessage({ id: e.data.id, r: findHint(e.data.S, e.data.cap) });';
+    const code = src.slice(a, b) + '\n' + hintKey.toString() + '\n' + hintClone.toString() + '\n' + findHint.toString() + '\nonmessage = e => postMessage({ id: e.data.id, r: findHint(e.data.S, e.data.cap, e.data.any) });';
     HW = new Worker(URL.createObjectURL(new Blob([code], { type: 'text/javascript' })));
     HW.onmessage = e => { const f = HWcb[e.data.id]; delete HWcb[e.data.id]; if (f) f(e.data.r); };
     HW.onerror = () => { HW = false; for (const k in HWcb) { const f = HWcb[k]; delete HWcb[k]; f('cap'); } };
   } catch (e) { HW = false; }
   return HW;
 }
-function findHintAsync(S0, cap) {
-  return new Promise(res => { const w = hintWorker(); if (!w) { res(findHint(S0, cap)); return; } const id = ++HWid; HWcb[id] = res; w.postMessage({ id, S: hintClone(S0), cap }); });
+function findHintAsync(S0, cap, any) {
+  return new Promise(res => { const w = hintWorker(); if (!w) { res(findHint(S0, cap, any)); return; } const id = ++HWid; HWcb[id] = res; w.postMessage({ id, S: hintClone(S0), cap, any }); });
 }
 function useHint(auto) {
   if (!auto && G.state === 'play' && !V.intro && !V.pause && !V.hint && busy() && !V.aim) { V.hintQ = true; return; }   // se atiende al acabar la animación
@@ -3002,7 +3227,7 @@ function useHint(auto) {
   if (V.daily || V.master) { if (!auto) { floater(W / 2, BB - 40, V.master ? 'La Maestría se juega sin pistas' : 'El reto diario se juega sin pistas', '#ffd9d9', 16, 1.6); Snd.bump(); } return; }
   if (!auto && V.hintsLeft <= 0 && !(G.hintBank > 0)) { floater(W / 2, BB - 40, 'Sin pistas: gana más con el regalo diario y los cofres', '#ffd9d9', 15, 2); Snd.bump(); return; }
   const S0 = S; V.hintBusy = true;
-  findHintAsync(S, 40000).then(m => {
+  (V.solOk && V.sol[V.solN] ? Promise.resolve(V.sol[V.solN]) : findHintAsync(S, 40000, true)).then(m => {
     V.hintBusy = false; if (S !== S0 || G.state !== 'play') return;
     if (!m || m === 'cap') { if (!auto) { floater(W / 2, BY + BH / 2, m === 'cap' ? 'Piensa un poco más…' : 'Desde aquí no se puede ganar: usa DESHACER', '#ffd9d9', 17, 2.4); Snd.bump(); } return; }
     if (!auto && !(G.levelIdx < 3 && !V.master)) { if (V.hintsLeft > 0) { V.hintsLeft--; if (G.att) G.att.h = V.hintsLeft; save(); } else { G.hintBank--; save(); } } V.hint = { m }; Snd.aim();
@@ -3035,11 +3260,12 @@ const MECH_INFO = { frost: 'Hielo · 2 golpes, 1 golpe rojo o Deshielo', stone: 
   curse: 'Runa maldita · cuesta 1 movimiento y maná', turn: 'Runa de giro · desvía el bloque', goo: 'Lodo · frena el bloque', tele: 'Portal gemelo · el bloque sale por el otro' };
 function levelKinds(L) {
   const P = parseLevel(L), out = {};
-  for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+  for (let r = 0; r < P.rows; r++) for (let c = 0; c < P.cols; c++) {
     const e = P.grid[r][c], add = k => { if (!out[k]) out[k] = [c, r]; };
     if (e) { if (e.k === 'frost' || e.k === 'stone' || e.k === 'tnt' || e.k === 'seal') add(e.k); if (e.ch) add('chain'); if (e.k === 'free') add('free'); if (e.k === 'fluffy' && e.bub) add('bubble'); if (e.k === 'fluffy' && e.col === 'W') add('rainbow'); if (e.k === 'fluffy' && e.col !== 'W') add('sp' + e.col); }
     if (P.curse[r][c]) add('curse'); if (P.turn[r][c]) add('turn'); if (P.goo[r][c]) add('goo'); if (P.tele[r][c] >= 0) add('tele');
   }
+  if (S) dims(S);            // parseLevel cambia el tamaño global: se devuelve al del nivel en juego
   return out;
 }
 let KIND_NEW = null;
@@ -3050,7 +3276,7 @@ function newKinds(i) {
 function drawCallouts() {
   const L = V.callouts; if (!L || V.intro || G.state !== 'play' || V.aim || V.hint || V.dead || V.portalMode) return;
   const o = L[Math.floor(V.calloutT / 3.2) % L.length], x = cellX(o.c), y = cellY(o.r), [nm, rule] = (MECH_INFO[o.k] || '').split(' · ');
-  ctx.save(); ctx.strokeStyle = 'rgba(127,240,255,' + (0.6 + 0.4 * Math.sin(G.time * 7)) + ')'; ctx.lineWidth = 4; rr(x - 35, y - 35, 70, 70, 14); ctx.stroke();
+  ctx.save(); ctx.strokeStyle = 'rgba(127,240,255,' + (0.6 + 0.4 * Math.sin(G.time * 7)) + ')'; ctx.lineWidth = 4; rr(x - 35 * SC, y - 35 * SC, 70 * SC, 70 * SC, 14); ctx.stroke();
   ctx.fillStyle = 'rgba(10,20,40,.96)'; rr(8, 80, 282, 42, 14); ctx.fill(); ctx.strokeStyle = '#7ff0ff'; ctx.lineWidth = 2; ctx.stroke();
   text('NUEVO' + (L.length > 1 ? ' ' + (L.indexOf(o) + 1) + '/' + L.length : '') + ' · ' + (nm || ''), 18, 92, 15, '#7ff0ff', 'left', 900);
   text(rule ? rule[0].toUpperCase() + rule.slice(1) : '', 18, 112, 15, '#e8fbff', 'left', 700);
@@ -3126,6 +3352,16 @@ function drawPause() {
   btn(110, 548, 320, 56, 'EFECTOS: ' + (Post.on ? 'ALTOS' : 'BAJOS (MÁS FLUIDO)'), () => { if (Post.on) { Post.off(); G.fxLow = true; } else { Post.enable(); G.fxLow = false; } save(); }, { color: '#3b4a7a', size: 17 });
   btn(110, 612, 320, 56, 'MAPA DE NIVELES', () => { V.pause = false; G.state = 'menu'; G.res = null; V.aim = null; V.portalMode = false; V.intro = null; }, { color: '#6a4ab8', size: 19 });
 }
+/* carril que arrasará cada Runa Cargada (su fila si se mueve en horizontal, su columna si en vertical): se ve antes de moverla */
+function drawSpecialLanes() {
+  for (const s of V.sp.values()) if (s.sp === 'line' && !s.moving && !s.leaving) {
+    const free = s.k === 'free', hz = free || s.dir === '<' || s.dir === '>', vt = free || s.dir === '^' || s.dir === 'v', p = 0.5 + 0.5 * Math.sin(G.time * 4 + (s.ph || 0)), w = CELL * 0.5;
+    ctx.save(); ctx.fillStyle = 'rgba(255,226,122,' + (0.10 + 0.08 * p) + ')'; ctx.strokeStyle = 'rgba(255,236,160,' + (0.45 + 0.3 * p) + ')'; ctx.lineWidth = 2; ctx.setLineDash([8, 8]); ctx.lineDashOffset = -G.time * 30;
+    if (hz) { rr(BX + 2, s.y - w / 2, BW - 4, w, 10); ctx.fill(); ctx.stroke(); }
+    if (vt) { rr(s.x - w / 2, BY + 2, w, BH - 4, 10); ctx.fill(); ctx.stroke(); }
+    ctx.restore();
+  }
+}
 function drawBoard() {
   ctx.fillStyle = '#0b0915'; rr(BX - 9, BY - 9, BW + 18, BH + 18, 16); ctx.fill();
   ctx.strokeStyle = '#8f6bff66'; ctx.lineWidth = 2; ctx.stroke();
@@ -3133,15 +3369,31 @@ function drawBoard() {
     const x = BX + c * CELL, y = BY + r * CELL;
     ctx.fillStyle = (r + c) % 2 ? '#1d1830' : '#241e3c'; rr(x + 2, y + 2, CELL - 4, CELL - 4, 8); ctx.fill();
     const f = V.floor[r][c];
-    if (f && f.t > 0) {
-      const C = COLORS[f.color], tk = S.trail ? 1.7 : G.levelIdx >= 30 ? 1 : 0;
+    if (f && f.t > 0 && S.trail) {           // RASTRO ALQUÍMICO: cinta luminosa continua (se une a sus vecinas) con energía que fluye
+      const C = COLORS[f.color], cx = x + CELL / 2, cy = y + CELL / 2, hot = V.aim && V.aim.color === f.color, pu = 0.5 + 0.5 * Math.sin(G.time * (hot ? 9 : 3) + (c + r) * 0.7);
+      const same = (rr2, cc2) => rr2 >= 0 && rr2 < ROWS && cc2 >= 0 && cc2 < COLS && V.floor[rr2][cc2] && V.floor[rr2][cc2].t > 0 && V.floor[rr2][cc2].color === f.color;
+      ctx.save(); ctx.globalAlpha = f.t;
+      ctx.fillStyle = C.d; ctx.globalAlpha = 0.34 * f.t; rr(x + 3, y + 3, CELL - 6, CELL - 6, 8); ctx.fill();
+      ctx.lineCap = 'round';
+      const seg = (w, col, al) => { ctx.globalAlpha = al * f.t; ctx.strokeStyle = col; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx, cy);
+        if (same(r, c + 1)) { ctx.moveTo(cx, cy); ctx.lineTo(cx + CELL, cy); } if (same(r + 1, c)) { ctx.moveTo(cx, cy); ctx.lineTo(cx, cy + CELL); } ctx.stroke(); };
+      seg(CELL * 0.56, C.m, 0.3 + 0.12 * pu); seg(CELL * 0.36, C.m, 0.8); seg(CELL * 0.14, C.l, 0.95);
+      ctx.globalAlpha = f.t; ctx.fillStyle = '#fff';                                           // chispas que recorren la cinta
+      for (const [dx, dy] of [[1, 0], [0, 1]]) if (same(r + dy, c + dx)) for (let k = 0; k < 2; k++) { const q = (G.time * 0.9 + k * 0.5 + (c * 3 + r * 5) * 0.11) % 1; ctx.globalAlpha = f.t * Math.sin(q * Math.PI); ctx.beginPath(); ctx.arc(cx + dx * q * CELL, cy + dy * q * CELL, 2.6 * SC, 0, TAU); ctx.fill(); }
+      ctx.globalAlpha = f.t; ctx.translate(cx, cy); ctx.scale(SC, SC);                         // sello del elemento en cada casilla
+      ctx.fillStyle = C.d; ctx.beginPath(); ctx.arc(0, 0, 13, 0, TAU); ctx.fill(); ctx.strokeStyle = C.l; ctx.lineWidth = 2.5; ctx.stroke();
+      ctx.rotate(G.time * 0.8 + c + r); ctx.fillStyle = hot ? '#fff' : C.l; starPath(0, 0, 7 + 1.5 * pu, 4, 0.4); ctx.fill();
+      ctx.restore();
+      if (hot) { ctx.strokeStyle = 'rgba(255,255,255,' + (0.5 + 0.5 * pu) + ')'; ctx.lineWidth = 3; rr(x + 3, y + 3, CELL - 6, CELL - 6, 8); ctx.stroke(); }   // al apuntar un hechizo de su color: es un objetivo válido
+    } else if (f && f.t > 0) {
+      const C = COLORS[f.color], tk = G.levelIdx >= 30 ? 1 : 0;
       ctx.globalAlpha = 0.4 * f.t * tk; ctx.fillStyle = C.m; rr(x + 3, y + 3, CELL - 6, CELL - 6, 8); ctx.fill();
       ctx.globalAlpha = 0.55 * f.t * tk; ctx.strokeStyle = C.l; ctx.lineWidth = 2;
-      ctx.save(); ctx.translate(x + CELL / 2, y + CELL / 2); ctx.rotate(G.time * 0.5 + c + r); starPath(0, 0, 10 + 2 * Math.sin(G.time * 3 + c + r), 4, 0.35); ctx.stroke(); ctx.restore();
+      ctx.save(); ctx.translate(x + CELL / 2, y + CELL / 2); ctx.scale(SC, SC); ctx.rotate(G.time * 0.5 + c + r); starPath(0, 0, 10 + 2 * Math.sin(G.time * 3 + c + r), 4, 0.35); ctx.stroke(); ctx.restore();
       ctx.globalAlpha = 1;
     }
     if (S.goo[r][c]) {                       // LODO: charco brillante que burbujea y revienta
-      ctx.save(); ctx.translate(x + CELL / 2, y + CELL / 2);
+      ctx.save(); ctx.translate(x + CELL / 2, y + CELL / 2); ctx.scale(SC, SC);
       const pud = () => { ctx.beginPath(); for (let k = 0; k <= 14; k++) { const a = k / 14 * TAU, rad = 27 + 3.5 * Math.sin(G.time * 2 + k * 1.7 + c * 3) + 2 * Math.sin(G.time * 3.3 + k * 2.9); ctx.lineTo(Math.cos(a) * rad, Math.sin(a) * rad * 0.88); } ctx.closePath(); };
       const gg = ctx.createRadialGradient(-6, -6, 3, 0, 0, 32); gg.addColorStop(0, 'rgba(255,214,130,.9)'); gg.addColorStop(0.55, 'rgba(196,130,48,.82)'); gg.addColorStop(1, 'rgba(110,62,18,.78)'); pud(); ctx.fillStyle = gg; ctx.fill();
       ctx.strokeStyle = 'rgba(70,36,8,.7)'; ctx.lineWidth = 2; ctx.stroke();
@@ -3154,7 +3406,7 @@ function drawBoard() {
     const tpad = S.tele[r][c];
     if (tpad >= 0) {                         // PORTAL GEMELO: vórtice en espiral con núcleo oscuro que absorbe partículas
       const pc = [190, 150, 255], dir = tpad ? -1 : 1, P2 = a => 'rgba(' + pc.join(',') + ',' + a + ')';
-      ctx.save(); ctx.translate(x + CELL / 2, y + CELL / 2);
+      ctx.save(); ctx.translate(x + CELL / 2, y + CELL / 2); ctx.scale(SC, SC);
       const dk = ctx.createRadialGradient(0, 0, 0, 0, 0, 26); dk.addColorStop(0, '#05030c'); dk.addColorStop(0.6, 'rgba(10,6,24,.85)'); dk.addColorStop(1, 'rgba(10,6,24,0)'); ctx.fillStyle = dk; ctx.beginPath(); ctx.arc(0, 0, 26, 0, TAU); ctx.fill();
       ctx.globalCompositeOperation = 'lighter'; ctx.lineCap = 'round';
       for (let k = 0; k < 3; k++) { ctx.beginPath(); for (let j = 0; j <= 18; j++) { const u = j / 18, an = G.time * 3 * dir + k * TAU / 3 + u * 3.2 * dir, rd = 4 + u * 24; j ? ctx.lineTo(Math.cos(an) * rd, Math.sin(an) * rd) : ctx.moveTo(Math.cos(an) * rd, Math.sin(an) * rd); } ctx.strokeStyle = P2(0.75); ctx.lineWidth = 3; ctx.stroke(); }
@@ -3165,7 +3417,7 @@ function drawBoard() {
     }
     const tn = S.turn[r][c];
     if (tn) {                                // RUNA DE GIRO: losa con círculo rúnico, flecha brillante y energía que fluye
-      ctx.save(); ctx.translate(x + CELL / 2, y + CELL / 2);
+      ctx.save(); ctx.translate(x + CELL / 2, y + CELL / 2); ctx.scale(SC, SC);
       const tg = ctx.createRadialGradient(0, 0, 4, 0, 0, 34); tg.addColorStop(0, 'rgba(80,220,255,.28)'); tg.addColorStop(1, 'rgba(80,220,255,.04)'); ctx.fillStyle = tg; rr(-31, -31, 62, 62, 10); ctx.fill();
       ctx.strokeStyle = 'rgba(127,240,255,.55)'; ctx.lineWidth = 1.5; rr(-31, -31, 62, 62, 10); ctx.stroke();
       ctx.save(); ctx.rotate(G.time * 0.7); ctx.strokeStyle = 'rgba(127,240,255,.5)'; ctx.lineWidth = 1.5; ctx.setLineDash([3, 5]); ctx.beginPath(); ctx.arc(0, 0, 24, 0, TAU); ctx.stroke(); ctx.setLineDash([]); ctx.restore();
@@ -3177,7 +3429,7 @@ function drawBoard() {
     }
     if (S.curse[r][c]) {                     // RUNA MALDITA: charco oscuro, anillo de espinas que gira, sigilo y humo
       const p = 0.6 + 0.4 * Math.sin(G.time * 5 + c);
-      ctx.save(); ctx.translate(x + CELL / 2, y + CELL / 2);
+      ctx.save(); ctx.translate(x + CELL / 2, y + CELL / 2); ctx.scale(SC, SC);
       const cg = ctx.createRadialGradient(0, 0, 2, 0, 0, 30); cg.addColorStop(0, 'rgba(60,0,40,.85)'); cg.addColorStop(0.7, 'rgba(120,10,80,.4)'); cg.addColorStop(1, 'rgba(120,10,80,0)'); ctx.fillStyle = cg; ctx.beginPath(); ctx.arc(0, 0, 30, 0, TAU); ctx.fill();
       ctx.save(); ctx.rotate(-G.time * 0.8); ctx.strokeStyle = 'rgba(255,92,192,' + (0.5 + 0.3 * p) + ')'; ctx.lineWidth = 2; ctx.beginPath(); for (let k = 0; k <= 24; k++) { const a = k / 24 * TAU, rd = k % 2 ? 20 : 26; k ? ctx.lineTo(Math.cos(a) * rd, Math.sin(a) * rd) : ctx.moveTo(Math.cos(a) * rd, Math.sin(a) * rd); } ctx.closePath(); ctx.stroke(); ctx.restore();   // espinas
       ctx.globalAlpha = p; ctx.strokeStyle = '#ff5cc0'; ctx.shadowColor = '#ff3fa4'; ctx.shadowBlur = 12; ctx.lineWidth = 4; ctx.lineCap = 'round';
@@ -3491,7 +3743,7 @@ function drawParticles() {
 function drawAim() {
   const p = V.aim, C = COLORS[p.color];
   ctx.fillStyle = 'rgba(5,3,12,.35)'; ctx.fillRect(BX - 9, BY - 9, BW + 18, BH + 18);
-  for (const s of V.sp.values()) if ((s.k !== 'fluffy' || s.bub) && s.k !== 'seal') { ctx.strokeStyle = 'rgba(255,255,255,' + (0.35 + 0.3 * Math.sin(G.time * 6 + s.ph)) + ')'; ctx.lineWidth = 2; rr(s.x - 33, s.y - 33, 66, 66, 12); ctx.stroke(); }
+  for (const s of V.sp.values()) if ((s.k !== 'fluffy' || s.bub) && s.k !== 'seal') { ctx.strokeStyle = 'rgba(255,255,255,' + (0.35 + 0.3 * Math.sin(G.time * 6 + s.ph)) + ')'; ctx.lineWidth = 2; rr(s.x - 33 * SC, s.y - 33 * SC, 66 * SC, 66 * SC, 12); ctx.stroke(); }
   if (V.sel) {
     for (const [c, r] of aimCells(p, V.sel.c, V.sel.r)) {
       ctx.fillStyle = C.m; ctx.globalAlpha = 0.3 + 0.15 * Math.sin(G.time * 10); rr(BX + c * CELL + 2, BY + r * CELL + 2, CELL - 4, CELL - 4, 8); ctx.fill(); ctx.globalAlpha = 1;
@@ -3553,7 +3805,7 @@ function drawIntro() {
     text('Azul = Deshielo: rompe el hielo y las cadenas.', W / 2, cy + 198, 15, '#9fd2ff', 'center', 600);
   } else I.lines.forEach((s, k) => text(s, W / 2, y + 96 + k * 32, 17.5, '#e8e2ff', 'center', 600));
   if (nc) {                                  // una tarjeta por mecánica nueva: dibujo + nombre + regla
-    const P = I.P || (I.P = parseLevel(V.L)), y0 = y + (I.icons ? 316 : 84 + n * 32);
+    const P = I.P || (I.P = lvKeep(V.L)), y0 = y + (I.icons ? 316 : 84 + n * 32);
     I.cards.forEach((o, k) => {
       const cy = y0 + k * 78, [nm, rule] = (MECH_INFO[o.k] || '').split(' · ');
       ctx.fillStyle = '#120e24'; rr(x + 22, cy, w - 44, 68, 14); ctx.fill(); ctx.strokeStyle = '#7ff0ff88'; ctx.lineWidth = 2; ctx.stroke();
@@ -3565,7 +3817,8 @@ function drawIntro() {
 }
 
 /* icono de una mecánica: los bloques se dibujan tal cual; las casillas del suelo con un símbolo propio */
-const LVP = {}; function lvParse(j) { return LVP[j] || (LVP[j] = parseLevel(LEVELS[j])); }
+const LVP = {}; function lvParse(j) { return LVP[j] || (LVP[j] = lvKeep(LEVELS[j])); }
+function lvKeep(L) { const P = parseLevel(L); if (S) dims(S); return P; }
 /* glosario: la página del tutorial y luego, de 5 en 5, todas las mecánicas y hechizos vistos hasta ahora */
 function rulesPages() {
   newKinds(0); const lim = G.state === 'play' ? G.levelIdx : Math.min(G.unlocked, LEVELS.length) - 1, seen = [];
@@ -3580,7 +3833,7 @@ function rulesPages() {
   return pages[0];
 }
 function drawMechIcon(o, P, x, y) {
-  const e = P.grid[o.r] && P.grid[o.r][o.c], t = G.time; ctx.save();
+  const e = P.grid[o.r] && P.grid[o.r][o.c], t = G.time, sc0 = SC; SC = 1; ctx.save();   // los iconos no dependen del tamaño del tablero actual
   if (e && o.k !== 'curse' && o.k !== 'turn' && o.k !== 'goo' && o.k !== 'tele') {
     if (e.k === 'fluffy') { drawFluffy(x, y, 20, e.col, 0, 'idle', 0); if (e.bub) drawBubble(x, y, 0); }
     else { const sp = makeSprite(e, o.c, o.r); sp.x = x; sp.y = y; sp.scale = 0.72; drawBlock(sp); }
@@ -3592,7 +3845,7 @@ function drawMechIcon(o, P, x, y) {
   else if (o.k === 'reso') { for (let k = 0; k < 3; k++) { ctx.fillStyle = '#ff4d6d'; rr(x - 26 + k * 18, y - 7, 14, 14, 4); ctx.fill(); } ctx.strokeStyle = 'rgba(255,220,120,' + (0.5 + 0.5 * Math.sin(t * 6)) + ')'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x - 1, y, 24, 0, TAU); ctx.stroke(); }
   else if (o.k === 'portal') { ctx.strokeStyle = '#b76bff'; ctx.lineWidth = 4; ctx.beginPath(); ctx.ellipse(x - 14, y, 8, 18, 0, 0, TAU); ctx.stroke(); ctx.fillStyle = 'rgba(183,107,255,.5)'; ctx.fillRect(x - 6, y - 6, 30, 12); }
   else if (o.k === 'tele') { ctx.strokeStyle = 'rgb(190,150,255)'; ctx.lineWidth = 4; ctx.beginPath(); ctx.ellipse(x, y, 22, 22, 0, 0, TAU); ctx.stroke(); ctx.lineWidth = 2; for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.arc(x, y, 6 + k * 5, t * 3 + k, t * 3 + k + 2.4); ctx.stroke(); } }
-  ctx.restore();
+  ctx.restore(); SC = sc0;
 }
 function drawResult() {
   G.btns.push({ x: 0, y: 0, w: W, h: H, fn: () => {} });
@@ -4764,9 +5017,9 @@ function draw() {
   V.cam = { x: 0, y: 0, z: 1 };
   if (V.shake > 0.3) { const sk = G.fxLow ? 0.25 : 0.6; V.cam.x = rand(-1, 1) * V.shake * sk; V.cam.y = rand(-1, 1) * V.shake * sk; ctx.translate(V.cam.x, V.cam.y); }
   if (V.zoom > 0.002) { V.cam.z = 1 + V.zoom; ctx.translate(W / 2, 480); ctx.scale(1 + V.zoom, 1 + V.zoom); ctx.translate(-W / 2, -480); }
-  drawBoard(); drawCauldron(); drawSpellBar();
+  drawBoard(); drawSpecialLanes(); drawCauldron(); drawSpellBar();
   for (const s of V.sp.values()) if (s.k !== 'fluffy') drawBlock(s);
-  for (const s of V.sp.values()) if (s.k === 'fluffy') { const by = s.bub ? Math.sin(G.time * 2 + s.ph) * 3 : 0; drawFluffy(s.x, s.y + by, 27, s.col, s.sq, s.vy > 50 ? 'fall' : nearFuse(s.col) ? 'hype' : 'idle', s.ph); if (s.bub) drawBubble(s.x, s.y + by, s.ph); }
+  for (const s of V.sp.values()) if (s.k === 'fluffy') { const by = s.bub ? Math.sin(G.time * 2 + s.ph) * 3 : 0; drawFluffy(s.x, s.y + by, 27 * SC, s.col, s.sq, s.vy > 50 ? 'fall' : nearFuse(s.col) ? 'hype' : 'idle', s.ph); if (s.bub) drawBubble(s.x, s.y + by, s.ph); }
   drawFx();
   if (V.link) {                             // zarcillos de energía de cada Elementi al centro
     const C = COLORS[V.link.color], cx = 270, cy = 772, k = Math.min(1, V.link.t);
@@ -4926,7 +5179,7 @@ function resize() {
 }
 let lastT = 0;
 function frame(t) {
-  const raw = (t - lastT) / 1000 || 0.016, dt = Math.min(0.05, raw); lastT = t;
+  const raw = (t - lastT) / 1000 || 0.016, dt = Math.min(0.05, raw); lastT = t; if (S) setBoard(S);
   if (!(window.CHROMA && window.CHROMA.paused)) update(dt);   // paused: solo para depurar
   draw(); Post.render(cv);
   if (Post.on && !document.hidden && raw < 0.5) { Post.ema = Post.ema * 0.97 + Math.min(raw, 0.2) * 0.03; if (G.time > 5 && Post.ema > 0.03) Post.off(); }   // solo esta sesión: no se guarda   // móvil lento: sin posprocesado
@@ -4935,7 +5188,7 @@ function frame(t) {
 window.addEventListener('load', () => {
   cv = document.getElementById('game'); ctx = cv.getContext('2d');
   load(); Post.init(); if (G.fxLow) Post.off(); resize(); bindInput(); window.addEventListener('resize', resize);
-  window.CHROMA = { Garden, G, V, LEVELS, loadLevel, doMove, busy, Post, get S() { return S; }, step(n) { for (let i = 0; i < n; i++) update(1 / 60); } };   // depuración
+  window.CHROMA = { Garden, G, V, LEVELS, loadLevel, doMove, busy, Post, get S() { return S; }, step(n) { if (S) setBoard(S); for (let i = 0; i < n; i++) update(1 / 60); } };   // depuración
   requestAnimationFrame(frame);
 });
 </script>
